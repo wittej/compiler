@@ -19,7 +19,7 @@ simpleInstruction(std::string name, size_t offset)
 size_t
 disassembleInstruction(std::vector<opcode>& bytecode, size_t offset)
 {
-	std::cout << std::setfill('0') << std::setw(4) << offset;
+	std::cout << std::setfill('0') << std::setw(4) << offset << " ";
 	opcode instruction = bytecode.at(offset);
 	switch (instruction) {
 	case opcode::RETURN:
