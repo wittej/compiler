@@ -26,6 +26,17 @@ constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 	return offset + 2;
 }
 
+static size_t
+longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
+{
+	// NB: Endianness is important here
+	uint8_t constant = bytecode.code.at(offset + 1);
+	uint8_t overflow = bytecode.code.at(offset + 2);
+	uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
+	std::cout << name << ' ' << bytecode.constants.at(index) << '\n';
+	return offset + 3;
+}
+
 size_t
 disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 {
@@ -42,8 +53,11 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 		return simpleInstruction("RETURN", offset);
 	case opcode::CONSTANT:
 		return constantInstruction("CONSTANT", bytecode, offset);
+	case opcode::CONSTANT_LONG:
+		return longConstantInstruction("CONSTANT_LONG", bytecode, offset);
 	default:
-		std::cout << "Unknown opcode " << instruction << "\n";
+		int undefined_opcode = static_cast<int>(instruction);
+		std::cout << "Unknown opcode " << undefined_opcode << "\n";
 		return offset + 1;
 	}
 }

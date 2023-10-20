@@ -7,6 +7,10 @@ int
 main(void)
 {
 	Chunk bytecode = Chunk(100);
+
+	uint8_t out = 0;
+	for (int i = 0; i < 256; i++) bytecode.add_constant(i, out);
+
 	uint8_t overflow = 0;
 	uint8_t constant = bytecode.add_constant(1.2, overflow);
 	if (overflow == 0) {
@@ -19,7 +23,9 @@ main(void)
 		bytecode.write(constant, false);
 		bytecode.write(overflow, false);
 	}
+
 	bytecode.write(opcode::RETURN, true);
+	
 	disassembleBytecode(bytecode, "Test");
 	return 0;
 }
