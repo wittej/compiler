@@ -30,8 +30,8 @@ static size_t
 longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 {
 	// NB: Endianness is important here
-	uint8_t constant = bytecode.code.at(offset + 1);
-	uint8_t overflow = bytecode.code.at(offset + 2);
+	uint8_t constant = bytecode.instructions.at(offset + 1);
+	uint8_t overflow = bytecode.instructions.at(offset + 2);
 	uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
 	std::cout << name << ' ' << bytecode.constants.at(index) << '\n';
 	return offset + 3;
@@ -47,7 +47,7 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 	else {
 		std::cout << "   | ";
 	}
-	uint8_t instruction = bytecode.code.at(offset);
+	uint8_t instruction = bytecode.instructions.at(offset);
 	switch (instruction) {
 	case opcode::RETURN:
 		return simpleInstruction("RETURN", offset);

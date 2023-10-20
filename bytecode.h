@@ -10,18 +10,18 @@ enum opcode : uint8_t{
 	RETURN,
 };
 
-struct constant_index {
+struct ConstantIndex {
 	uint8_t index;
 	uint8_t overflow;
 };
 
 struct Chunk {
 	size_t line;
-	std::vector<uint8_t> code;
+	std::vector<uint8_t> instructions;
 	std::vector<Value> constants;
 	std::vector<bool> newlines;
 	Chunk(size_t line) : line{ line } {};
-	constant_index add_constant(Value constant);
+	ConstantIndex add_constant(Value constant);
 	void write(uint8_t op, bool newline);
 };
 

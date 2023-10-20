@@ -10,7 +10,7 @@ main(void)
 
 	for (int i = 0; i < 256; i++) bytecode.add_constant(i);
 
-	constant_index constant = bytecode.add_constant(1.2);
+	ConstantIndex constant = bytecode.add_constant(1.2);
 	if (constant.overflow == 0) {
 		bytecode.write(opcode::CONSTANT, true);
 		bytecode.write(constant.index, false);
