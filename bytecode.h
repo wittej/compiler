@@ -15,7 +15,7 @@ struct Chunk {
 	std::vector<Value> constants;
 	std::vector<bool> newlines;
 	Chunk(size_t line) : line{ line } {};
-	uint8_t add_constant(Value constant);
+	uint8_t add_constant(Value constant, uint8_t& overflow);
 	void write(uint8_t op, bool newline);
 };
 

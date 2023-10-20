@@ -1,9 +1,15 @@
 #include "bytecode.h"
 
-uint8_t Chunk::add_constant(Value constant) {
-	// TODO: plan for number of constants too large to appear in opcode
+/**
+* @param constant : store this Value in the constant table
+* @param overflow : output param, index byte 2 - will be clobbered
+* @return : index (in constant table) byte 1
+*/
+uint8_t Chunk::add_constant(Value constant, uint8_t& overflow) {
 	constants.push_back(constant);
-	return constants.size() - 1;  // TODO: this can overflow - fix
+	uint16_t c = constants.size() - 1;
+	overflow = (c > 225) ? c >> 8 : 0;
+	return (c > 255) ? (uint8_t)(c & 255) : (uint8_t)(c);
 };
 
 void Chunk::write(uint8_t op, bool newline) {
