@@ -3,7 +3,7 @@
 
 #include "bytecode.h"
 
-void disassembleBytecode(std::vector<opcode>& bytecode, std::string name);
-size_t disassembleInstruction(std::vector<opcode>& bytecode, size_t offset);
+void disassembleBytecode(Chunk& bytecode, std::string name);
+size_t disassembleInstruction(Chunk& bytecode, size_t offset);
 
 #endif

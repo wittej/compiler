@@ -4,13 +4,16 @@
 #include "common.h"
 #include "value.h"
 
-enum class opcode {
+enum opcode : uint8_t {
+	CONSTANT,
 	RETURN,
 };
 
 typedef struct {
-	std::vector<opcode> code;
+	std::vector<uint8_t> code;
 	std::vector<Value> constants;
 } Chunk;
+
+uint8_t add_constant(Chunk& chunk, Value constant);
 
 #endif
