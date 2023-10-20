@@ -6,7 +6,7 @@ uint8_t Chunk::add_constant(Value constant) {
 	return constants.size() - 1;  // TODO: this can overflow - fix
 };
 
-void Chunk::write(uint8_t op, size_t line) {
+void Chunk::write(uint8_t op, bool newline) {
 	code.push_back(op);
-	lines.push_back(line);
+	newlines.push_back(newline);
 };

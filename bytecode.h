@@ -10,11 +10,13 @@ enum opcode : uint8_t{
 };
 
 struct Chunk {
+	size_t line;
 	std::vector<uint8_t> code;
 	std::vector<Value> constants;
-	std::vector<size_t> lines;
+	std::vector<bool> newlines;
+	Chunk(size_t line) : line{ line } {};
 	uint8_t add_constant(Value constant);
-	void write(uint8_t op, size_t line);
+	void write(uint8_t op, bool newline);
 };
 
 #endif

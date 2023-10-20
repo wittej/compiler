@@ -5,8 +5,9 @@ void
 disassembleBytecode(Chunk& bytecode, std::string name)
 {
 	std::cout << "== " << name << " ==\n";
+	size_t line = line = bytecode.line;
 	for (size_t offset = 0; offset < bytecode.code.size();) {
-		offset = disassembleInstruction(bytecode, offset);
+		offset = disassembleInstruction(bytecode, offset, line);
 	}
 }
 
@@ -26,15 +27,14 @@ constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 }
 
 size_t
-disassembleInstruction(Chunk& bytecode, size_t offset)
+disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 {
-	size_t line = bytecode.lines.at(offset);
 	std::cout << std::setfill('0') << std::setw(4) << offset << ' ';
-	if (offset > 0 && line == bytecode.lines.at(offset - 1)) {
-		std::cout << "   | ";
+	if (bytecode.newlines.at(offset)) {
+		std::cout << std::setfill(' ') << std::setw(4) << line++ << ' ';
 	}
 	else {
-		std::cout << std::setfill(' ') << std::setw(4) << line << ' ';
+		std::cout << "   | ";
 	}
 	uint8_t instruction = bytecode.code.at(offset);
 	switch (instruction) {
