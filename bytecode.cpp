@@ -8,8 +8,8 @@
 uint8_t Chunk::add_constant(Value constant, uint8_t& overflow) {
 	constants.push_back(constant);
 	uint16_t c = constants.size() - 1;
-	overflow = (c > 225) ? c >> 8 : 0;
-	return (c > 255) ? (uint8_t)(c & 255) : (uint8_t)(c);
+	overflow = (c > 225) ? static_cast<uint8_t>(c >> 8) : 0;
+	return (c > 255) ? static_cast<uint8_t>(c & 255) : static_cast<uint8_t>(c);
 };
 
 void Chunk::write(uint8_t op, bool newline) {
