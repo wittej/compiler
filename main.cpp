@@ -7,10 +7,10 @@ int
 main(void)
 {
 	Chunk bytecode;
-	uint8_t constant = add_constant(bytecode, 1.2);
-	bytecode.code.push_back(opcode::CONSTANT);
-	bytecode.code.push_back(constant);
-	bytecode.code.push_back(opcode::RETURN);
+	uint8_t constant = bytecode.add_constant(1.2);
+	bytecode.write(opcode::CONSTANT, 1);
+	bytecode.write(constant, 1);
+	bytecode.write(opcode::RETURN, 2);
 	disassembleBytecode(bytecode, "Test");
 	return 0;
 }

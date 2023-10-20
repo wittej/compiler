@@ -21,14 +21,21 @@ static size_t
 constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 {
 	uint8_t constant = bytecode.code.at(offset + 1);
-	std::cout << name << bytecode.constants.at(constant) << '\n';
+	std::cout << name << ' ' << bytecode.constants.at(constant) << '\n';
 	return offset + 2;
 }
 
 size_t
 disassembleInstruction(Chunk& bytecode, size_t offset)
 {
-	std::cout << std::setfill('0') << std::setw(4) << offset << " ";
+	size_t line = bytecode.lines.at(offset);
+	std::cout << std::setfill('0') << std::setw(4) << offset << ' ';
+	if (offset > 0 && line == bytecode.lines.at(offset - 1)) {
+		std::cout << "   | ";
+	}
+	else {
+		std::cout << std::setfill(' ') << std::setw(4) << line << ' ';
+	}
 	uint8_t instruction = bytecode.code.at(offset);
 	switch (instruction) {
 	case opcode::RETURN:
