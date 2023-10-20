@@ -6,6 +6,7 @@
 
 enum opcode : uint8_t{
 	CONSTANT,
+	CONSTANT_LONG,
 	RETURN,
 };
 
