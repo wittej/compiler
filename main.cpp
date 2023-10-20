@@ -8,20 +8,18 @@ main(void)
 {
 	Chunk bytecode = Chunk(100);
 
-	uint8_t out = 0;
-	for (int i = 0; i < 256; i++) bytecode.add_constant(i, out);
+	for (int i = 0; i < 256; i++) bytecode.add_constant(i);
 
-	uint8_t overflow = 0;
-	uint8_t constant = bytecode.add_constant(1.2, overflow);
-	if (overflow == 0) {
+	constant_index constant = bytecode.add_constant(1.2);
+	if (constant.overflow == 0) {
 		bytecode.write(opcode::CONSTANT, true);
-		bytecode.write(constant, false);
+		bytecode.write(constant.index, false);
 	}
 	// TODO: choose endianness lol
 	else {
 		bytecode.write(opcode::CONSTANT_LONG, true);
-		bytecode.write(constant, false);
-		bytecode.write(overflow, false);
+		bytecode.write(constant.index, false);
+		bytecode.write(constant.overflow, false);
 	}
 
 	bytecode.write(opcode::RETURN, true);

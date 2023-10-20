@@ -5,14 +5,15 @@
 * and bit manipulation.
 * 
 * @param constant : store this Value in the constant table
-* @param overflow : output param, index byte 2 - will be clobbered
-* @return : index (in constant table) byte 1
+* @return : index in constant table
 */
-uint8_t Chunk::add_constant(Value constant, uint8_t& overflow) {
+constant_index Chunk::add_constant(Value const constant) {
 	constants.push_back(constant);
 	uint16_t c = static_cast<uint16_t>(constants.size() - 1);
-	overflow = (c > 225) ? static_cast<uint8_t>(c >> 8) : 0;
-	return (c > 255) ? static_cast<uint8_t>(c & 255) : static_cast<uint8_t>(c);
+	return constant_index{
+		.index = static_cast<uint8_t>(c & 255),
+		.overflow = static_cast<uint8_t>(c >> 8)
+	};
 };
 
 void Chunk::write(uint8_t op, bool newline) {
