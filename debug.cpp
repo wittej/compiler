@@ -5,7 +5,7 @@ void
 disassembleBytecode(Chunk& bytecode, std::string name)
 {
 	size_t line = bytecode.line;
-	std::cout << "== " << name << " ==\n";
+	std::cerr << "== " << name << " ==\n";
 	for (size_t offset = 0; offset < bytecode.instructions.size();) {
 		offset = disassembleInstruction(bytecode, offset, line);
 	}
@@ -14,7 +14,7 @@ disassembleBytecode(Chunk& bytecode, std::string name)
 static size_t
 simpleInstruction(std::string name, size_t offset)
 {
-	std::cout << name << '\n';
+	std::cerr << name << '\n';
 	return offset + 1;
 }
 
@@ -22,7 +22,7 @@ static size_t
 constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 {
 	uint8_t constant = bytecode.instructions.at(offset + 1);
-	std::cout << name << ' ' << bytecode.constants.at(constant) << '\n';
+	std::cerr << name << ' ' << bytecode.constants.at(constant) << '\n';
 	return offset + 2;
 }
 
@@ -33,7 +33,7 @@ longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 	uint8_t constant = bytecode.instructions.at(offset + 1);
 	uint8_t overflow = bytecode.instructions.at(offset + 2);
 	uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
-	std::cout << name << ' ' << bytecode.constants.at(index) << '\n';
+	std::cerr << name << ' ' << bytecode.constants.at(index) << '\n';
 	return offset + 3;
 }
 
@@ -42,10 +42,10 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 {
 
 	if (bytecode.newlines.at(offset)) {
-		std::cout << std::setfill(' ') << std::setw(4) << line++ << ' ';
+		std::cerr << std::setfill(' ') << std::setw(4) << line++ << ' ';
 	}
 	else {
-		std::cout << "   | ";
+		std::cerr << "   | ";
 	}
 	return disassembleInstruction(bytecode, offset);
 }
@@ -53,7 +53,7 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 size_t
 disassembleInstruction(Chunk& bytecode, size_t offset)
 {
-	std::cout << std::setfill('0') << std::setw(4) << offset << ' ';
+	std::cerr << std::setfill('0') << std::setw(4) << offset << ' ';
 	uint8_t instruction = bytecode.instructions.at(offset);
 	switch (instruction) {
 	case opcode::RETURN:
@@ -64,7 +64,7 @@ disassembleInstruction(Chunk& bytecode, size_t offset)
 		return longConstantInstruction("CONSTANT_LONG", bytecode, offset);
 	default:
 		int undefined_opcode = static_cast<int>(instruction);
-		std::cout << "Unknown opcode " << undefined_opcode << "\n";
+		std::cerr << "Unknown opcode " << undefined_opcode << "\n";
 		return offset + 1;
 	}
 }
