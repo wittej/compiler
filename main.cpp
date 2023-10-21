@@ -1,14 +1,13 @@
 #include "common.h"
 #include "bytecode.h"
 #include "debug.h"
+#include "vm.h"
 
 
 int
 main(void)
 {
 	Chunk bytecode = Chunk(100);
-
-	for (int i = 0; i < 256; i++) bytecode.add_constant(i);
 
 	ConstantIndex constant = bytecode.add_constant(1.2);
 	if (constant.overflow == 0) {
@@ -24,6 +23,7 @@ main(void)
 
 	bytecode.write(opcode::RETURN, true);
 	
+	VirtualMachine().interpret(bytecode);
 	disassembleBytecode(bytecode, "Test");
 	return 0;
 }

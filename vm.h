@@ -9,10 +9,10 @@ enum interpret_result {
 	RUNTIME_ERROR,
 };
 
-// TODO: this probably wants to be a class
-struct VirtualMachine {
-	Chunk& chunk;
-	uint8_t *ip;
+class VirtualMachine {
+private:
+	interpret_result run(Chunk& bytecode);
+public:
 	interpret_result interpret(Chunk& bytecode);
 };
 
