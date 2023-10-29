@@ -3,6 +3,8 @@
 
 #include "bytecode.h"
 
+#define STACK_MAX 256
+
 enum interpret_result {
 	OK,
 	COMPILE_ERROR,
@@ -12,6 +14,7 @@ enum interpret_result {
 class VirtualMachine {
 private:
 	interpret_result run(Chunk& bytecode);
+	std::vector<Value> stack;
 public:
 	interpret_result interpret(Chunk& bytecode);
 };

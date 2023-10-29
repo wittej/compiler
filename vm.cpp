@@ -13,10 +13,14 @@ VirtualMachine::interpret(Chunk& bytecode)
 interpret_result
 VirtualMachine::run(Chunk& bytecode)
 {
+#ifdef DEBUG_TRACE_EXECUTION
+	size_t line = bytecode.line;
+#endif
 	uint8_t *ip = bytecode.instructions.data();  // Here for speed for now.
 	for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-		disassembleInstruction(bytecode, ip - bytecode.instructions.data());
+		disassembleInstruction(bytecode, ip - bytecode.instructions.data(), line);
+		if (bytecode.newlines[ip - bytecode.instructions.data()]) ++line;
 #endif
 		switch (uint8_t instruction = *ip++) {
 		case opcode::CONSTANT:

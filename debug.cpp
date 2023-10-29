@@ -47,13 +47,9 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 	else {
 		std::cerr << "   | ";
 	}
-	return disassembleInstruction(bytecode, offset);
-}
 
-size_t
-disassembleInstruction(Chunk& bytecode, size_t offset)
-{
 	std::cerr << std::setfill('0') << std::setw(4) << offset << ' ';
+
 	uint8_t instruction = bytecode.instructions.at(offset);
 	switch (instruction) {
 	case opcode::RETURN:
