@@ -17,7 +17,7 @@ private:
 	std::vector<Value> stack;
 	Value stack_pop();
 public:
-	interpret_result interpret(Chunk& bytecode);
+	interpret_result interpret(std::string source);
 };
 
 #endif

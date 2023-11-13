@@ -1,5 +1,6 @@
 #include "common.h"
 #include "vm.h"
+#include "compiler.h"
 #include "debug.h"
 
 #define DEBUG_TRACE_EXECUTION
@@ -13,9 +14,10 @@ VirtualMachine::stack_pop()
 }
 
 interpret_result
-VirtualMachine::interpret(Chunk& bytecode)
+VirtualMachine::interpret(std::string source)
 {
-	return run(bytecode);
+	compile(source);
+	return interpret_result::OK;
 }
 
 interpret_result
