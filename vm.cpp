@@ -35,6 +35,14 @@ VirtualMachine::run(Chunk& bytecode)
 		case opcode::CONSTANT:
 			stack.push_back(bytecode.constants[*ip++]);
 			break;
+		case opcode::CONSTANT_LONG:
+			{
+				uint8_t constant = *ip++;
+				uint8_t overflow = *ip++;
+				uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
+				stack.push_back(bytecode.constants[index]);
+			}
+			break;
 		case opcode::ADD:
 			{
 				double b = stack_pop();
