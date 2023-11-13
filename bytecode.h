@@ -4,9 +4,10 @@
 #include "common.h"
 #include "value.h"
 
-enum opcode : uint8_t{
+enum opcode : uint8_t {
 	CONSTANT,
 	CONSTANT_LONG,
+	ADD,
 	RETURN,
 };
 

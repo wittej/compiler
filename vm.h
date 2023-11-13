@@ -15,6 +15,7 @@ class VirtualMachine {
 private:
 	interpret_result run(Chunk& bytecode);
 	std::vector<Value> stack;
+	Value stack_pop();
 public:
 	interpret_result interpret(Chunk& bytecode);
 };
