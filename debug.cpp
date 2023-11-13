@@ -21,8 +21,8 @@ simpleInstruction(std::string name, size_t offset)
 static size_t
 constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 {
-	uint8_t constant = bytecode.instructions.at(offset + 1);
-	std::cerr << name << ' ' << bytecode.constants.at(constant) << '\n';
+	uint8_t constant = bytecode.instructions[offset + 1];
+	std::cerr << name << ' ' << bytecode.constants[constant] << '\n';
 	return offset + 2;
 }
 
@@ -30,10 +30,10 @@ static size_t
 longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 {
 	// NB: Endianness is important here
-	uint8_t constant = bytecode.instructions.at(offset + 1);
-	uint8_t overflow = bytecode.instructions.at(offset + 2);
+	uint8_t constant = bytecode.instructions[offset + 1];
+	uint8_t overflow = bytecode.instructions[offset + 2];
 	uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
-	std::cerr << name << ' ' << bytecode.constants.at(index) << '\n';
+	std::cerr << name << ' ' << bytecode.constants[index] << '\n';
 	return offset + 3;
 }
 
@@ -41,7 +41,7 @@ size_t
 disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 {
 
-	if (bytecode.newlines.at(offset)) {
+	if (bytecode.newlines[offset]) {
 		std::cerr << std::setfill(' ') << std::setw(4) << line++ << ' ';
 	}
 	else {
@@ -50,7 +50,7 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 
 	std::cerr << std::setfill('0') << std::setw(4) << offset << ' ';
 
-	uint8_t instruction = bytecode.instructions.at(offset);
+	uint8_t instruction = bytecode.instructions[offset];
 	switch (instruction) {
 	case opcode::RETURN:
 		return simpleInstruction("RETURN", offset);
