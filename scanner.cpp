@@ -3,9 +3,35 @@
 Token
 Scanner::scan()
 {
-	start = current;
+	while (std::isspace(source[current])) {
+		if (source[current++] == '\n') ++line;
+	}
+
 	if (current == source.length()) return makeToken(token_type::END);
+
+	start = current;
+	char c = source[current++];
+
+	// NOTE: I probably want to do something like Scheme here.
+	// 1. Is it one or more non-delimiters?
+	// 2. Is it a number?
+	switch (c) {
+	case '+':
+		return makeToken(token_type::PLUS);
+	}
+
+	// TEMP - currently just numbers
+	if (std::isdigit(c)) return scan_identifier();
+
 	return makeError("Unexpected character.");
+}
+
+Token
+Scanner::scan_identifier()
+{
+	// TODO: all kinds of identifiers
+	while (std::isdigit(source[current])) ++current;
+	return makeToken(token_type::NUMBER);
 }
 
 Token

@@ -4,7 +4,9 @@
 #include "common.h"
 
 enum token_type {
-	ERROR, END
+	END, ERROR,
+	PLUS,  // TEMP - for testing purposes
+	NUMBER,
 };
 
 struct Token {
@@ -21,6 +23,8 @@ private:
 	size_t line = 1;
 	Token makeToken(token_type type);
 	Token makeError(std::string error);
+	bool match(char expected);
+	Token scan_identifier();
 public:
 	Scanner(std::string& source) :source{ source } {};
 	Token scan();
