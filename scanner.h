@@ -3,6 +3,16 @@
 
 #include <string>
 
+enum token_type {
+	ERROR, END
+};
+
+struct Token {
+	token_type type;
+	std::string string;
+	size_t line;
+};
+
 class Scanner {
 private:
 	std::string& source;
@@ -11,6 +21,7 @@ private:
 	size_t line = 1;
 public:
 	Scanner(std::string& source) :source{ source } {};
+	Token scan();
 };
 
 #endif
