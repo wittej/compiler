@@ -8,13 +8,13 @@
 
 
 void
-repl()
+repl(VirtualMachine vm)
 {
 	std::string line;
 	for (;;) {
 		std::cout << "> ";
 		if (!std::getline(std::cin, line)) break;
-
+		vm.interpret(line);
 	}
 }
 
@@ -24,6 +24,6 @@ int
 main(void)
 {
 	VirtualMachine vm;
-	repl();
+	repl(vm);
 	return 0;
 }
