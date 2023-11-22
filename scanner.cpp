@@ -7,9 +7,9 @@ Scanner::scan()
 		if (source[current++] == '\n') ++line;
 	}
 
+	start = current;
 	if (current == source.length()) return makeToken(token_type::END);
 
-	start = current;
 	char c = source[current++];
 
 	// NOTE: I probably want to do something like Scheme here.
@@ -21,15 +21,16 @@ Scanner::scan()
 	}
 
 	// TEMP - currently just numbers
-	if (std::isdigit(c)) return scan_identifier();
+	if (std::isdigit(c)) return scan_number();
 
 	return makeError("Unexpected character.");
 }
 
 Token
-Scanner::scan_identifier()
+Scanner::scan_number()
 {
 	// TODO: all kinds of identifiers
+	// TODO: state machine for this
 	while (std::isdigit(source[current])) ++current;
 	return makeToken(token_type::NUMBER);
 }

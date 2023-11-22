@@ -2,25 +2,22 @@
 #include "scanner.h"
 
 
-void
-compile(std::string source)
+bool
+Compiler::compile()
 {
-	Scanner scanner(source);
+	advance();
+	expression();
+	consume(token_type::END, "Expect end of expression.");
+}
 
-	int line = -1;
+void
+Compiler::advance()
+{
+	parse_previous = parse_current;
 	for (;;) {
-		Token token = scanner.scan();
-
-		if (token.line != line) {
-			std::cout << std::setfill(' ') << std::setw(4) << token.line << ' ';
-			line = token.line;
-		}
-		else {
-			std::cout << "   | ";
-		}
-
-		std::cout << token.type << ' ' << token.string << '\n';
-
-		if (token.type == token_type::END) break;
+		parse_current = scanner.scan();
+		if (parse_current.type != token_type::ERROR) break;
+		error(parse_current.string, parse_current);
 	}
 }
+

@@ -23,8 +23,7 @@ private:
 	size_t line = 1;
 	Token makeToken(token_type type);
 	Token makeError(std::string error);
-	bool match(char expected);
-	Token scan_identifier();
+	Token scan_number();
 public:
 	Scanner(std::string& source) :source{ source } {};
 	Token scan();

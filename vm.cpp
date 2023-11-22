@@ -16,8 +16,12 @@ VirtualMachine::stack_pop()
 interpret_result
 VirtualMachine::interpret(std::string source)
 {
-	compile(source);
-	return interpret_result::OK;
+	Chunk bytecode(1);
+
+	// Probably want the compiler to return the bytecode or some sort of struct
+	if (!compile(source, bytecode)) return interpret_result::COMPILE_ERROR;
+
+	return run(bytecode);
 }
 
 interpret_result
