@@ -52,7 +52,25 @@ Compiler::current_bytecode()
 	return bytecode;
 }
 
+// This needs to get tested for long constants.
+void
+Compiler::constant(Value value)
+{
+	ConstantIndex c = current_bytecode().add_constant(value);
+	write(c.overflow == 0 ? opcode::CONSTANT : opcode::CONSTANT_LONG);
+	// Endianness matters here - this seems right but should double-check.
+	write(c.index);
+	if (c.overflow != 0) write(c.overflow);
+}
+
+void
+Compiler::number()
+{
+	constant(std::stod(parse_previous.string));
+}
+
 void
 Compiler::expression()
 {
+	constant(1.);
 }

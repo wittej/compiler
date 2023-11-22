@@ -18,6 +18,8 @@ private:
 	bool panic_mode = false;
 	void advance();
 	void consume(token_type expected, std::string error_message);
+	void number();
+	void constant(Value value);
 	void expression();
 	void error(std::string error_message, Token token);
 	void write(uint8_t op);
