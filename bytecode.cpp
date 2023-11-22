@@ -16,7 +16,14 @@ ConstantIndex Chunk::add_constant(Value const constant) {
 	};
 };
 
-void Chunk::write(uint8_t op, bool newline) {
+// NOTE: may want to alter newline-based system due to blank lines
+void Chunk::write(uint8_t op, size_t line) {
 	instructions.push_back(op);
-	newlines.push_back(newline);
+	if (line > max_line) {
+		newlines.push_back(true);
+		max_line = line;
+	}
+	else {
+		newlines.push_back(false);
+	}
 };

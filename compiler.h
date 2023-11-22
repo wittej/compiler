@@ -20,6 +20,8 @@ private:
 	void consume(token_type expected, std::string error_message);
 	void expression();
 	void error(std::string error_message, Token token);
+	void write(uint8_t op);
+	Chunk& current_bytecode();
 public:
 	Compiler(std::string source, Chunk bytecode) : source{ source }, scanner{Scanner(source)}, bytecode{bytecode} {};
 	bool compile();

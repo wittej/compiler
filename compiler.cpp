@@ -8,6 +8,7 @@ Compiler::compile()
 	advance();
 	expression();
 	consume(token_type::END, "Expect end of expression.");
+	write(opcode::RETURN);
 	return !had_error;
 }
 
@@ -25,7 +26,7 @@ Compiler::advance()
 void
 Compiler::consume(token_type expected, std::string error_message)
 {
-	if (parse_current.type == expected) advance;
+	if (parse_current.type == expected) advance();
 	else error(error_message, parse_current);
 }
 
@@ -36,4 +37,22 @@ Compiler::error(std::string error_message, Token token)
 	std::cerr << "Error [line " << token.line << "] " << error_message << "\n";
 	had_error = true;
 	panic_mode = true;
+}
+
+void
+Compiler::write(uint8_t op)
+{
+	current_bytecode().write(op, parse_previous.line);
+}
+
+// This will be expanded later for lambdas etc.
+Chunk&
+Compiler::current_bytecode()
+{
+	return bytecode;
+}
+
+void
+Compiler::expression()
+{
 }

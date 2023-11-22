@@ -4,7 +4,7 @@
 void
 disassembleBytecode(Chunk& bytecode, std::string name)
 {
-	size_t line = bytecode.line;
+	size_t line = bytecode.base_line;
 	std::cerr << "== " << name << " ==\n";
 	for (size_t offset = 0; offset < bytecode.instructions.size();) {
 		offset = disassembleInstruction(bytecode, offset, line);

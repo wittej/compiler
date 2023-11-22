@@ -8,8 +8,8 @@
 Value
 VirtualMachine::stack_pop()
 {
-	Value value = this->stack.back();
-	this->stack.pop_back();
+	Value value = stack.back();
+	stack.pop_back();
 	return value;
 }
 
@@ -19,16 +19,18 @@ VirtualMachine::interpret(std::string source)
 	Chunk bytecode(1);
 
 	// Probably want the compiler to return the bytecode or some sort of struct
-	if (!compile(source, bytecode)) return interpret_result::COMPILE_ERROR;
+	Compiler compiler(source, bytecode);
+	if (!compiler.compile()) return interpret_result::COMPILE_ERROR;
 
-	return run(bytecode);
+	Chunk compiled_bytecode = compiler.get_bytecode();
+	return run(compiled_bytecode);
 }
 
 interpret_result
 VirtualMachine::run(Chunk& bytecode)
 {
 #ifdef DEBUG_TRACE_EXECUTION
-	size_t line = bytecode.line;
+	size_t line = bytecode.base_line;
 #endif
 	uint8_t *ip = bytecode.instructions.data();  // Here for speed for now.
 
@@ -57,7 +59,7 @@ VirtualMachine::run(Chunk& bytecode)
 			}
 			break;
 		case opcode::RETURN:
-			std::cout << stack.back() << '\n';
+			std::cout << stack.back() << '\n';  // Replace with stack pop
 			stack.pop_back();
 			return interpret_result::OK;
 		default:
