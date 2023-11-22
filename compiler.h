@@ -14,14 +14,16 @@ private:
 	Chunk bytecode;
 	Token parse_current;
 	Token parse_previous;
+	bool had_error = false;
+	bool panic_mode = false;
 	void advance();
-	void consume(token_type expect, std::string error);
+	void consume(token_type expected, std::string error_message);
 	void expression();
-	void error(std::string error, Token token);
+	void error(std::string error_message, Token token);
 public:
 	Compiler(std::string source, Chunk bytecode) : source{ source }, scanner{Scanner(source)}, bytecode{bytecode} {};
 	bool compile();
-	Chunk get_bytecode();
+	Chunk get_bytecode() { return bytecode; };
 };
 
 #endif
