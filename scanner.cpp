@@ -48,6 +48,7 @@ Scanner::scanSymbol()
 token_type
 Scanner::symbolType()
 {
+	// TODO: make these more lisp-y?
 	switch (source[start]) {
 	case 't':
 		return checkKeyword(1, 3, "rue", token_type::TRUE);
