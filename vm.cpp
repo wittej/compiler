@@ -15,7 +15,7 @@ VirtualMachine::stack_pop()
 Value
 VirtualMachine::stack_peek(size_t depth)
 {
-	return stack[stack.size() - depth];
+	return stack[stack.size() - depth - 1];
 }
 
 void
