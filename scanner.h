@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-enum token_type {
+enum class token_type {
 	END, ERROR,
 	PLUS,  // TEMP - for testing purposes
 	NUMBER,

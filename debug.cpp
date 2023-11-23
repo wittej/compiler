@@ -21,8 +21,23 @@ simpleInstruction(std::string name, size_t offset)
 static size_t
 constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 {
-	uint8_t constant = bytecode.instructions[offset + 1];
-	std::cerr << name << ' ' << bytecode.constants[constant] << '\n';
+	uint8_t index = bytecode.instructions[offset + 1];
+
+	Value value = bytecode.constants[index];
+	switch (value.type) {
+	case ValueType::NUMBER:
+		std::cerr << name << ' ' << value.as.number << '\n';
+		break;
+	case ValueType::BOOL:
+		std::cerr << name << ' ' << value.as.boolean << '\n';
+		break;
+	case ValueType::NIL:
+		std::cerr << name << ' ' << "nil" << '\n';
+		break;
+	default:
+		std::cerr << name << "type " << static_cast<int>(value.type) << '\n';
+	}
+
 	return offset + 2;
 }
 
@@ -33,7 +48,22 @@ longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 	uint8_t constant = bytecode.instructions[offset + 1];
 	uint8_t overflow = bytecode.instructions[offset + 2];
 	uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
-	std::cerr << name << ' ' << bytecode.constants[index] << '\n';
+	
+	Value value = bytecode.constants[index];
+	switch (value.type) {
+	case ValueType::NUMBER:
+		std::cerr << name << ' ' << value.as.number << '\n';
+		break;
+	case ValueType::BOOL:
+		std::cerr << name << ' ' << value.as.boolean << '\n';
+		break;
+	case ValueType::NIL:
+		std::cerr << name << ' ' << "nil" << '\n';
+		break;
+	default:
+		std::cerr << name << "type " << static_cast<int>(value.type) << '\n';
+	}
+
 	return offset + 3;
 }
 
