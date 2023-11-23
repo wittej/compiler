@@ -19,13 +19,13 @@ struct ConstantIndex {
 
 struct Chunk {
 private:
-	size_t max_line;
+	size_t max_line = 0;
 public:
 	const size_t base_line;
 	std::vector<uint8_t> instructions;
 	std::vector<Value> constants;
 	std::vector<bool> newlines;
-	Chunk(size_t line) : base_line{ line }, max_line{ line } {};
+	Chunk(size_t line) : base_line{ line } {};
 	ConstantIndex add_constant(Value constant);
 	void write(uint8_t op, size_t line);
 };
