@@ -52,14 +52,32 @@ VirtualMachine::run(Chunk& bytecode)
 			break;
 		case opcode::ADD:
 			{
-				double b = stack_pop();
-				double a = stack_pop();
-				stack.push_back(a + b);
+				Value b = stack_pop();
+				Value a = stack_pop();
+				if (a.type != ValueType::NUMBER || b.type != ValueType::NUMBER) {
+					return interpret_result::RUNTIME_ERROR;
+				}
+				stack.push_back(a.as.number + b.as.number);
 			}
 			break;
 		case opcode::RETURN:
-			std::cout << stack.back() << '\n';  // Replace with stack pop
-			stack.pop_back();
+			{
+				Value value = stack_pop();
+				switch (value.type) {
+				case ValueType::NUMBER:
+					std::cout << value.as.number << '\n';
+					break;
+				case ValueType::BOOL:
+					std::cout << value.as.boolean << '\n';
+					break;
+				case ValueType::NIL:
+					std::cout << "nil" << '\n';
+					break;
+				default:
+					std::cout << "type " << static_cast<int>(value.type) << '\n';
+					return interpret_result::RUNTIME_ERROR;
+				}
+			}
 			return interpret_result::OK;
 		default:
 			return interpret_result::RUNTIME_ERROR;
