@@ -35,7 +35,7 @@ constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 		std::cerr << name << ' ' << "nil" << '\n';
 		break;
 	default:
-		std::cerr << name << "type " << static_cast<int>(value.type) << '\n';
+		std::cerr << name << "unknown type" << '\n';
 	}
 
 	return offset + 2;
@@ -61,7 +61,7 @@ longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 		std::cerr << name << ' ' << "nil" << '\n';
 		break;
 	default:
-		std::cerr << name << "type " << static_cast<int>(value.type) << '\n';
+		std::cerr << name << "unknown type" << '\n';
 	}
 
 	return offset + 3;

@@ -74,7 +74,7 @@ VirtualMachine::run(Chunk& bytecode)
 					std::cout << "nil" << '\n';
 					break;
 				default:
-					std::cout << "type " << static_cast<int>(value.type) << '\n';
+					std::cout << "unknown type" << '\n';
 					return interpret_result::RUNTIME_ERROR;
 				}
 			}
