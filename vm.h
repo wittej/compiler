@@ -16,6 +16,7 @@ private:
 	interpret_result run(Chunk& bytecode);
 	std::vector<Value> stack;
 	Value stack_pop();
+	void runtime_error(std::string message);
 public:
 	interpret_result interpret(std::string source);
 };

@@ -12,6 +12,12 @@ VirtualMachine::stack_pop()
 	return value;
 }
 
+void
+VirtualMachine::runtime_error(std::string message)
+{
+	std::cerr << message << '\n';
+}
+
 interpret_result
 VirtualMachine::interpret(std::string source)
 {
@@ -55,6 +61,7 @@ VirtualMachine::run(Chunk& bytecode)
 				Value b = stack_pop();
 				Value a = stack_pop();
 				if (a.type != ValueType::NUMBER || b.type != ValueType::NUMBER) {
+					runtime_error("+: expected numeric operand");
 					return interpret_result::RUNTIME_ERROR;
 				}
 				stack.push_back(a.as.number + b.as.number);
