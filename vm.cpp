@@ -12,10 +12,17 @@ VirtualMachine::stack_pop()
 	return value;
 }
 
-void
-VirtualMachine::runtime_error(std::string message)
+Value
+VirtualMachine::stack_peek(size_t depth)
 {
-	std::cerr << message << '\n';
+	return stack[stack.size() - depth];
+}
+
+void
+VirtualMachine::runtime_error(std::string message, size_t line)
+{
+	std::cerr << message << " at line " << line << '\n';
+	stack.clear();
 }
 
 interpret_result
@@ -58,12 +65,13 @@ VirtualMachine::run(Chunk& bytecode)
 			break;
 		case opcode::ADD:
 			{
-				Value b = stack_pop();
-				Value a = stack_pop();
-				if (a.type != ValueType::NUMBER || b.type != ValueType::NUMBER) {
-					runtime_error("+: expected numeric operand");
+				if (stack_peek(0).type != ValueType::NUMBER ||
+					stack_peek(1).type != ValueType::NUMBER) {
+					runtime_error("+: expected numeric operand", line);
 					return interpret_result::RUNTIME_ERROR;
 				}
+				Value b = stack_pop();
+				Value a = stack_pop();
 				stack.push_back(a.as.number + b.as.number);
 			}
 			break;
