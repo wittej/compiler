@@ -6,7 +6,7 @@
 enum class token_type {
 	END, ERROR,
 	PLUS,  // TEMP - for testing purposes
-	NUMBER,
+	NUMBER, TRUE, FALSE, NIL, SYMBOL,
 };
 
 struct Token {
@@ -23,7 +23,10 @@ private:
 	size_t line = 1;
 	Token makeToken(token_type type);
 	Token makeError(std::string error);
-	Token scan_number();
+	Token scanNumber();
+	Token scanSymbol();
+	token_type symbolType();
+	token_type checkKeyword(size_t index, size_t length, std::string target, token_type type);
 public:
 	Scanner(std::string& source) :source{ source } {};
 	Token scan();

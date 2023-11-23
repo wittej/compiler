@@ -21,18 +21,51 @@ Scanner::scan()
 	}
 
 	// TEMP - currently just numbers
-	if (std::isdigit(c)) return scan_number();
+	if (std::isdigit(c)) return scanNumber();
+	if (std::isalpha(c)) return scanSymbol();
 
 	return makeError("Unexpected character.");
 }
 
 Token
-Scanner::scan_number()
+Scanner::scanNumber()
 {
 	// TODO: all kinds of identifiers
 	// TODO: state machine for this
 	while (std::isdigit(source[current])) ++current;
 	return makeToken(token_type::NUMBER);
+}
+
+// TODO: verify this is how this type of identifier is named in Lisp.
+Token
+Scanner::scanSymbol()
+{
+	while (std::isalnum(source[current])) ++current;
+	// substring check against...?
+	return makeToken(symbolType());
+}
+
+token_type
+Scanner::symbolType()
+{
+	switch (source[start]) {
+	case 't':
+		return checkKeyword(1, 3, "rue", token_type::TRUE);
+	case 'f':
+		return checkKeyword(1, 4, "alse", token_type::FALSE);
+	case 'n':
+		return checkKeyword(1, 2, "il", token_type::NIL);
+	}
+
+	return token_type::SYMBOL;
+}
+
+token_type
+Scanner::checkKeyword(size_t index, size_t length, std::string target, token_type type)
+{
+	if (current - start != index + length) return token_type::SYMBOL;
+	if (source.substr(index, length) == target) return type;
+	return token_type::SYMBOL;
 }
 
 Token

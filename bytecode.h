@@ -6,8 +6,7 @@
 
 
 enum opcode : uint8_t {
-	CONSTANT,
-	CONSTANT_LONG,
+	CONSTANT, CONSTANT_LONG, TRUE, FALSE, NIL,
 	ADD,
 	RETURN,
 };
