@@ -3,7 +3,6 @@
 #include "compiler.h"
 #include "debug.h"
 
-#define DEBUG_TRACE_EXECUTION
 
 Value
 VirtualMachine::stack_pop()

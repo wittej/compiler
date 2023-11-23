@@ -9,6 +9,11 @@ Compiler::compile()
 	expression();
 	consume(token_type::END, "Expect end of expression.");
 	write(opcode::RETURN);
+#ifdef DEBUG_BYTECODE_ERRORS
+	if (!had_error) {
+		disassembleBytecode(current_bytecode(), "CODE");
+	}
+#endif
 	return !had_error;
 }
 
@@ -69,8 +74,33 @@ Compiler::number()
 	constant(std::stod(parse_previous.string));
 }
 
+// Temporary - just to learn and make sure compiler is working.
+void
+Compiler::temp_add()
+{
+	parse();
+	parse();
+	write(opcode::ADD);
+}
+
 void
 Compiler::expression()
 {
-	constant(1.);
+	parse();
+}
+
+void
+Compiler::parse()
+{
+	advance();
+	switch (parse_previous.type) {
+	case token_type::NUMBER:
+		number();
+		break;
+	case token_type::PLUS:
+		temp_add();
+		break;
+	default:
+		error("Expected expression.", parse_previous);
+	}
 }
