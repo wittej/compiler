@@ -65,7 +65,7 @@ token_type
 Scanner::checkKeyword(size_t index, size_t length, std::string target, token_type type)
 {
 	if (current - start != index + length) return token_type::SYMBOL;
-	if (source.substr(index, length) == target) return type;
+	if (source.substr(start + index, length) == target) return type;
 	return token_type::SYMBOL;
 }
 

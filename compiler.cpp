@@ -100,7 +100,16 @@ Compiler::parse()
 	case token_type::PLUS:
 		temp_add();
 		break;
+	case token_type::FALSE:
+		write(opcode::FALSE);
+		break;
+	case token_type::TRUE:
+		write(opcode::TRUE);
+		break;
+	case token_type::NIL:
+		write(opcode::NIL);
+		break;
 	default:
-		error("Expected expression.", parse_previous);
+		error("Unknown token type.", parse_previous);
 	}
 }

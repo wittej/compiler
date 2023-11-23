@@ -90,6 +90,12 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 		return longConstantInstruction("CONSTANT_LONG", bytecode, offset);
 	case opcode::ADD:
 		return simpleInstruction("ADD", offset);
+	case opcode::TRUE:
+		return simpleInstruction("TRUE", offset);
+	case opcode::FALSE:
+		return simpleInstruction("FALSE", offset);
+	case opcode::NIL:
+		return simpleInstruction("NIL", offset);
 	default:
 		int undefined_opcode = static_cast<int>(instruction);
 		std::cerr << "Unknown opcode " << undefined_opcode << "\n";
