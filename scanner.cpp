@@ -18,6 +18,8 @@ Scanner::scan()
 	switch (c) {
 	case '+':
 		return makeToken(token_type::PLUS);
+	case '=':
+		return makeToken(token_type::EQUAL);
 	}
 
 	// TEMP - currently just numbers

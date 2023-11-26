@@ -79,7 +79,19 @@ VirtualMachine::run(Chunk& bytecode)
 				}
 				Value b = stack_pop();
 				Value a = stack_pop();
-				stack.push_back(a.as.number + b.as.number);
+				stack.push_back(Value(a.as.number + b.as.number));
+			}
+			break;
+		case opcode::EQUAL:
+			{
+				if (stack_peek(0).type != value_type::NUMBER ||
+					stack_peek(1).type != value_type::NUMBER) {
+					runtime_error("=: expected numeric operand", line);
+					return interpret_result::RUNTIME_ERROR;
+				}
+				Value b = stack_pop();
+				Value a = stack_pop();
+				stack.push_back(Value(a.as.number == b.as.number));
 			}
 			break;
 		case opcode::NOT:
