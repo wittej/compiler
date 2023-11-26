@@ -24,29 +24,7 @@ struct Value {
 	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
 	Value(Pair* val) : type{ value_type::PAIR }, as{ .pair = val } {}
 	Value() : type{ value_type::NIL }, as{ .boolean=false } {}
-	void print() {  // TODO: move to own file
-		switch (type) {
-		case value_type::NUMBER:
-			std::cout << as.number << '\n';
-			break;
-		case value_type::BOOL:
-			std::cout << as.boolean << '\n';
-			break;
-		case value_type::NIL:
-			std::cout << "nil" << '\n';
-			break;
-		case value_type::PAIR:
-			// Temporary - want to be able to print circular data structures, lists in lisp format, etc.
-			std::cout << "(";
-			as.pair->car.print();
-			std::cout << " . ";
-			as.pair->cdr.print();
-			std::cout << ")\n";
-			break;
-		default:
-			std::cout << "unknown type" << '\n';
-		}
-	}
+	void print();
 };
 
 struct Pair {
