@@ -107,23 +107,7 @@ VirtualMachine::run(Chunk& bytecode)
 			stack.push_back(Value());
 			break;
 		case opcode::RETURN:
-			{
-				Value value = stack_pop();
-				switch (value.type) {
-				case value_type::NUMBER:
-					std::cout << value.as.number << '\n';
-					break;
-				case value_type::BOOL:
-					std::cout << value.as.boolean << '\n';
-					break;
-				case value_type::NIL:
-					std::cout << "nil" << '\n';
-					break;
-				default:
-					std::cout << "unknown type" << '\n';
-					return interpret_result::RUNTIME_ERROR;
-				}
-			}
+			stack_pop().print();
 			return interpret_result::OK;
 		default:
 			return interpret_result::RUNTIME_ERROR;
