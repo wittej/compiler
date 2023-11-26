@@ -25,9 +25,14 @@ struct Value {
 	Value() : type{ value_type::NIL }, as{ .boolean=false } {}
 };
 
+struct Memory {
+	std::unique_ptr<Cons> next = nullptr;
+};
+
 struct Cons {
 	Value car;
 	Value cdr;
+	Memory mem;
 	Cons(Value car, Value cdr) : car{ car }, cdr{ cdr } {};
 };
 
