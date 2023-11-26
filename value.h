@@ -36,10 +36,10 @@ struct Value {
 			std::cout << "nil" << '\n';
 			break;
 		case value_type::PAIR:
-			// Temporary - want to be able to print circular data structures, lists, etc.
+			// Temporary - want to be able to print circular data structures, lists in lisp format, etc.
 			std::cout << "(";
 			as.pair->car.print();
-			std::cout << " ";
+			std::cout << " . ";
 			as.pair->cdr.print();
 			std::cout << ")\n";
 			break;
