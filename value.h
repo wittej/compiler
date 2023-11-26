@@ -8,29 +8,51 @@ enum class value_type {
 	BOOL,
 	NIL,
 	NUMBER,
-	LIST
+	PAIR
 };
 
-struct Cons;
+struct Pair;
 
 struct Value {
 	value_type type;
 	union {
 		bool boolean;
 		double number;
-		Cons* list;
+		Pair* pair;
 	} as;
 	Value(bool val) : type{ value_type::BOOL }, as{ .boolean=val } {}
 	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
-	Value(Cons* val) : type{ value_type::LIST }, as{ .list = val } {}
+	Value(Pair* val) : type{ value_type::PAIR }, as{ .pair = val } {}
 	Value() : type{ value_type::NIL }, as{ .boolean=false } {}
+	void print() {  // TODO: move to own file
+		switch (type) {
+		case value_type::NUMBER:
+			std::cout << as.number << '\n';
+			break;
+		case value_type::BOOL:
+			std::cout << as.boolean << '\n';
+			break;
+		case value_type::NIL:
+			std::cout << "nil" << '\n';
+			break;
+		case value_type::PAIR:
+			// Temporary - want to be able to print circular data structures, lists, etc.
+			std::cout << "(";
+			as.pair->car.print();
+			std::cout << " ";
+			as.pair->cdr.print();
+			std::cout << ")\n";
+			break;
+		default:
+			std::cout << "unknown type" << '\n';
+		}
+	}
 };
 
-struct Cons {
+struct Pair {
 	Value car;
 	Value cdr;
-	Memory mem;
-	Cons(Value car, Value cdr) : car{ car }, cdr{ cdr } {};
+	Pair(Value car, Value cdr) : car{ car }, cdr{ cdr } {};
 };
 
 #endif

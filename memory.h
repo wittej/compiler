@@ -4,10 +4,10 @@
 #include "common.h"
 #include "value.h"
 
-struct Cons;
+struct Pair;
 
 struct Memory {
-	std::unique_ptr<Cons> next = nullptr;
+	std::list<Pair> objects;
 };
 
 #endif
