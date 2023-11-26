@@ -75,6 +75,15 @@ VirtualMachine::run(Chunk& bytecode)
 				stack.push_back(a.as.number + b.as.number);
 			}
 			break;
+		case opcode::TRUE:
+			stack.push_back(Value(true));
+			break;
+		case opcode::FALSE:
+			stack.push_back(Value(false));
+			break;
+		case opcode::NIL:
+			stack.push_back(Value());
+			break;
 		case opcode::RETURN:
 			{
 				Value value = stack_pop();
