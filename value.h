@@ -2,6 +2,7 @@
 #define LISP_VALUE_H
 
 #include "common.h"
+#include "memory.h"
 
 enum class value_type {
 	BOOL,
@@ -23,10 +24,6 @@ struct Value {
 	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
 	Value(Cons* val) : type{ value_type::LIST }, as{ .list = val } {}
 	Value() : type{ value_type::NIL }, as{ .boolean=false } {}
-};
-
-struct Memory {
-	std::unique_ptr<Cons> next = nullptr;
 };
 
 struct Cons {
