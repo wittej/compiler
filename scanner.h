@@ -5,7 +5,7 @@
 
 enum class token_type {
 	END, ERROR,
-	PLUS,  // TEMP - for testing purposes
+	PLUS, NOT, // TEMP - for testing purposes
 	NUMBER, TRUE, FALSE, NIL, SYMBOL,
 };
 

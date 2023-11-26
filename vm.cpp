@@ -38,6 +38,13 @@ VirtualMachine::interpret(std::string source)
 	return run(compiled_bytecode);
 }
 
+// Scheme rules, everything but "false" is truthy
+bool
+VirtualMachine::truthValue(Value val)
+{
+	return (val.type == value_type::BOOL) ? val.as.boolean : true;
+}
+
 interpret_result
 VirtualMachine::run(Chunk& bytecode)
 {
@@ -65,8 +72,8 @@ VirtualMachine::run(Chunk& bytecode)
 			break;
 		case opcode::ADD:
 			{
-				if (stack_peek(0).type != ValueType::NUMBER ||
-					stack_peek(1).type != ValueType::NUMBER) {
+				if (stack_peek(0).type != value_type::NUMBER ||
+					stack_peek(1).type != value_type::NUMBER) {
 					runtime_error("+: expected numeric operand", line);
 					return interpret_result::RUNTIME_ERROR;
 				}
@@ -74,6 +81,9 @@ VirtualMachine::run(Chunk& bytecode)
 				Value a = stack_pop();
 				stack.push_back(a.as.number + b.as.number);
 			}
+			break;
+		case opcode::NOT:
+			stack.push_back(Value(!truthValue(stack_pop())));
 			break;
 		case opcode::TRUE:
 			stack.push_back(Value(true));
@@ -88,13 +98,13 @@ VirtualMachine::run(Chunk& bytecode)
 			{
 				Value value = stack_pop();
 				switch (value.type) {
-				case ValueType::NUMBER:
+				case value_type::NUMBER:
 					std::cout << value.as.number << '\n';
 					break;
-				case ValueType::BOOL:
+				case value_type::BOOL:
 					std::cout << value.as.boolean << '\n';
 					break;
-				case ValueType::NIL:
+				case value_type::NIL:
 					std::cout << "nil" << '\n';
 					break;
 				default:

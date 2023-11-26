@@ -55,7 +55,15 @@ Scanner::symbolType()
 	case 'f':
 		return checkKeyword(1, 4, "alse", token_type::FALSE);
 	case 'n':
-		return checkKeyword(1, 2, "il", token_type::NIL);
+		if (current > start + 1) {
+			switch (source[start + 1]) {
+			case 'i':
+				return checkKeyword(2, 1, "l", token_type::NIL);
+			case 'o':
+				return checkKeyword(2, 1, "t", token_type::NOT);
+			}
+		}
+		break;
 	}
 
 	return token_type::SYMBOL;

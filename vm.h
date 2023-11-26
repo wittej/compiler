@@ -18,6 +18,7 @@ private:
 	Value stack_pop();
 	Value stack_peek(size_t depth);
 	void runtime_error(std::string message, size_t line);
+	bool truthValue(Value val);
 public:
 	interpret_result interpret(std::string source);
 };

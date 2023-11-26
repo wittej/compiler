@@ -84,6 +84,13 @@ Compiler::temp_add()
 }
 
 void
+Compiler::temp_not()
+{
+	parse();
+	write(opcode::NOT);
+}
+
+void
 Compiler::expression()
 {
 	parse();
@@ -99,6 +106,9 @@ Compiler::parse()
 		break;
 	case token_type::PLUS:
 		temp_add();
+		break;
+	case token_type::NOT:
+		temp_not();
 		break;
 	case token_type::FALSE:
 		write(opcode::FALSE);

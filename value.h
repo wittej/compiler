@@ -3,21 +3,21 @@
 
 #include "common.h"
 
-enum class ValueType {
+enum class value_type {
 	BOOL,
 	NIL,
 	NUMBER
 };
 
 struct Value {
-	ValueType type;
+	value_type type;
 	union {
 		bool boolean;
 		double number;
 	} as;
-	Value(bool val) : type{ ValueType::BOOL }, as{ .boolean=val } {}
-	Value(double val) : type{ ValueType::NUMBER }, as{ .number=val } {}
-	Value() : type{ ValueType::NIL }, as{ .boolean=false } {}
+	Value(bool val) : type{ value_type::BOOL }, as{ .boolean=val } {}
+	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
+	Value() : type{ value_type::NIL }, as{ .boolean=false } {}
 };
 
 #endif

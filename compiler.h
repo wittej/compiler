@@ -27,6 +27,7 @@ private:
 	void write(uint8_t op);
 	void parse();  // Possible to simplify this a lot for a lisp
 	void temp_add();
+	void temp_not();
 	Chunk& current_bytecode();
 public:
 	Compiler(std::string& source, Chunk bytecode) : scanner{Scanner(source)}, bytecode{bytecode} {};

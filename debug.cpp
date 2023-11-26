@@ -25,13 +25,13 @@ constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 
 	Value value = bytecode.constants[index];
 	switch (value.type) {
-	case ValueType::NUMBER:
+	case value_type::NUMBER:
 		std::cerr << name << ' ' << value.as.number << '\n';
 		break;
-	case ValueType::BOOL:
+	case value_type::BOOL:
 		std::cerr << name << ' ' << value.as.boolean << '\n';
 		break;
-	case ValueType::NIL:
+	case value_type::NIL:
 		std::cerr << name << ' ' << "nil" << '\n';
 		break;
 	default:
@@ -51,13 +51,13 @@ longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 	
 	Value value = bytecode.constants[index];
 	switch (value.type) {
-	case ValueType::NUMBER:
+	case value_type::NUMBER:
 		std::cerr << name << ' ' << value.as.number << '\n';
 		break;
-	case ValueType::BOOL:
+	case value_type::BOOL:
 		std::cerr << name << ' ' << value.as.boolean << '\n';
 		break;
-	case ValueType::NIL:
+	case value_type::NIL:
 		std::cerr << name << ' ' << "nil" << '\n';
 		break;
 	default:
@@ -96,6 +96,8 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 		return simpleInstruction("FALSE", offset);
 	case opcode::NIL:
 		return simpleInstruction("NIL", offset);
+	case opcode::NOT:
+		return simpleInstruction("NOT", offset);
 	default:
 		int undefined_opcode = static_cast<int>(instruction);
 		std::cerr << "Unknown opcode " << undefined_opcode << "\n";
