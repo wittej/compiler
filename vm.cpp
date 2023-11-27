@@ -98,7 +98,8 @@ VirtualMachine::run(Chunk& bytecode)
 			{
 				Value b = stack_pop();
 				Value a = stack_pop();
-				stack.push_back(Value(new Pair(a, b)));  // TEMP: also need this in memory
+				memory.push_front(Pair(a, b));
+				stack.push_back(Value(&memory.front()));
 			}
 			break;
 		case opcode::NOT:

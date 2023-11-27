@@ -9,6 +9,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <list>
+#include <forward_list>
 
 #endif
