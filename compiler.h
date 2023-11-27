@@ -29,6 +29,7 @@ private:
 	void temp_add();
 	void temp_not();
 	void temp_equal();
+	void temp_cons();
 	Chunk& current_bytecode();
 public:
 	Compiler(std::string& source, Chunk bytecode) : scanner{Scanner(source)}, bytecode{bytecode} {};

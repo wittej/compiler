@@ -39,7 +39,7 @@ void
 Compiler::error(std::string error_message, Token token)
 {
 	if (panic_mode) return;
-	std::cerr << "Error [line " << token.line << "] " << error_message << "\n";
+	std::cerr << "Compiler error [line " << token.line << "] " << error_message << "\n";
 	had_error = true;
 	panic_mode = true;
 }
@@ -99,6 +99,14 @@ Compiler::temp_not()
 }
 
 void
+Compiler::temp_cons()
+{
+	parse();
+	parse();
+	write(opcode::CONS);
+}
+
+void
 Compiler::expression()
 {
 	parse();
@@ -121,6 +129,9 @@ Compiler::parse()
 	case token_type::EQUAL:
 		temp_equal();
 		break;
+	case token_type::CONS:
+		temp_cons();
+		break;
 	case token_type::FALSE:
 		write(opcode::FALSE);
 		break;
@@ -131,6 +142,6 @@ Compiler::parse()
 		write(opcode::NIL);
 		break;
 	default:
-		error("Unknown token type.", parse_previous);
+		error("unknown token type.", parse_previous);
 	}
 }

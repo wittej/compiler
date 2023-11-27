@@ -94,6 +94,13 @@ VirtualMachine::run(Chunk& bytecode)
 				stack.push_back(Value(a.as.number == b.as.number));
 			}
 			break;
+		case opcode::CONS:
+			{
+				Value b = stack_pop();
+				Value a = stack_pop();
+				stack.push_back(Value(new Pair(a, b)));  // TEMP: also need this in memory
+			}
+			break;
 		case opcode::NOT:
 			stack.push_back(Value(!truthValue(stack_pop())));
 			break;
@@ -107,7 +114,7 @@ VirtualMachine::run(Chunk& bytecode)
 			stack.push_back(Value());
 			break;
 		case opcode::RETURN:
-			stack_pop().print();
+			std::cout << stack_pop().print() << '\n';
 			return interpret_result::OK;
 		default:
 			return interpret_result::RUNTIME_ERROR;

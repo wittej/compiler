@@ -5,7 +5,7 @@
 
 enum class token_type {
 	END, ERROR,
-	PLUS, NOT, EQUAL, // TEMP - for testing purposes
+	PLUS, NOT, EQUAL, CONS, // TEMP - for testing purposes
 	NUMBER, TRUE, FALSE, NIL, SYMBOL,
 };
 
@@ -26,7 +26,7 @@ private:
 	Token scanNumber();
 	Token scanSymbol();
 	token_type symbolType();
-	token_type checkKeyword(size_t index, size_t length, std::string target, token_type type);
+	token_type checkKeyword(size_t index, std::string target, token_type type);
 public:
 	Scanner(std::string& source) :source{ source } {};
 	Token scan();

@@ -1,29 +1,21 @@
 #include "value.h"
 
-void
+std::string
 Value::print()
 {
-	{  // TODO: move to own file
+	{
 		switch (type) {
 		case value_type::NUMBER:
-			std::cout << as.number << '\n';
-			break;
+			return std::to_string(as.number);
 		case value_type::BOOL:
-			std::cout << as.boolean << '\n';
-			break;
+			return std::to_string(as.boolean);
 		case value_type::NIL:
-			std::cout << "nil" << '\n';
-			break;
+			return "nil";
 		case value_type::PAIR:
 			// Temporary - want to be able to print circular data structures, lists in lisp format, etc.
-			std::cout << "(";
-			as.pair->car.print();
-			std::cout << " . ";
-			as.pair->cdr.print();
-			std::cout << ")\n";
-			break;
+			return "(" + as.pair->car.print() + " . " + as.pair->cdr.print() + ")";
 		default:
-			std::cout << "unknown type" << '\n';
+			return "unknown type";
 		}
 	}
 }

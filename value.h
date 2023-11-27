@@ -24,7 +24,7 @@ struct Value {
 	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
 	Value(Pair* val) : type{ value_type::PAIR }, as{ .pair = val } {}
 	Value() : type{ value_type::NIL }, as{ .boolean=false } {}
-	void print();
+	std::string print();
 };
 
 struct Pair {

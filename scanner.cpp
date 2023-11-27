@@ -52,17 +52,19 @@ Scanner::symbolType()
 {
 	// TODO: make these more lisp-y?
 	switch (source[start]) {
+	case 'c':
+		return checkKeyword(1, "ons", token_type::CONS);
 	case 't':
-		return checkKeyword(1, 3, "rue", token_type::TRUE);
+		return checkKeyword(1, "rue", token_type::TRUE);
 	case 'f':
-		return checkKeyword(1, 4, "alse", token_type::FALSE);
+		return checkKeyword(1, "alse", token_type::FALSE);
 	case 'n':
 		if (current > start + 1) {
 			switch (source[start + 1]) {
 			case 'i':
-				return checkKeyword(2, 1, "l", token_type::NIL);
+				return checkKeyword(2, "l", token_type::NIL);
 			case 'o':
-				return checkKeyword(2, 1, "t", token_type::NOT);
+				return checkKeyword(2, "t", token_type::NOT);
 			}
 		}
 		break;
@@ -72,10 +74,10 @@ Scanner::symbolType()
 }
 
 token_type
-Scanner::checkKeyword(size_t index, size_t length, std::string target, token_type type)
+Scanner::checkKeyword(size_t index, std::string target, token_type type)
 {
-	if (current - start != index + length) return token_type::SYMBOL;
-	if (source.substr(start + index, length) == target) return type;
+	if (current - start != index + target.length()) return token_type::SYMBOL;
+	if (source.substr(start + index, target.length()) == target) return type;
 	return token_type::SYMBOL;
 }
 
