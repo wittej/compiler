@@ -92,6 +92,8 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 		return simpleInstruction("ADD", offset);
 	case opcode::EQUAL:
 		return simpleInstruction("EQUAL", offset);
+	case opcode::CONS:
+		return simpleInstruction("CONS", offset);
 	case opcode::TRUE:
 		return simpleInstruction("TRUE", offset);
 	case opcode::FALSE:
