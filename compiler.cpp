@@ -6,8 +6,9 @@ bool
 Compiler::compile()
 {
 	advance();
-	expression();
-	consume(token_type::END, "Expect end of expression.");
+	while (parse_current.type != token_type::END) {
+		definition();
+	}
 	write(opcode::RETURN);
 #ifdef DEBUG_BYTECODE_ERRORS
 	if (!had_error) {
@@ -104,6 +105,12 @@ Compiler::temp_cons()
 	parse();
 	parse();
 	write(opcode::CONS);
+}
+
+void
+Compiler::definition()
+{
+	expression();
 }
 
 void

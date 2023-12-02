@@ -22,6 +22,7 @@ private:
 	void consume(token_type expected, std::string error_message);
 	void number();
 	void constant(Value value);
+	void definition();
 	void expression();
 	void error(std::string error_message, Token token);
 	void write(uint8_t op);
