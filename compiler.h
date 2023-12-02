@@ -22,11 +22,12 @@ private:
 	void consume(token_type expected, std::string error_message);
 	void number();
 	void constant(Value value);
+	void definition_or_expression();  // TODO: synchronize here
 	void definition();
 	void expression();
 	void error(std::string error_message, Token token);
 	void write(uint8_t op);
-	void parse();  // Possible to simplify this a lot for a lisp
+	void parse();  // TODO: infix . for cons - excuse to practice parser design
 	void temp_add();
 	void temp_not();
 	void temp_equal();

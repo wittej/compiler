@@ -6,7 +6,7 @@
 enum class token_type {
 	END, ERROR,
 	PLUS, NOT, EQUAL, CONS, // TEMP - for testing purposes
-	NUMBER, TRUE, FALSE, NIL, SYMBOL,
+	NUMBER, TRUE, FALSE, NIL, SYMBOL, DEFINE
 };
 
 struct Token {

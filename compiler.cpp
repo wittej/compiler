@@ -45,6 +45,8 @@ Compiler::error(std::string error_message, Token token)
 	panic_mode = true;
 }
 
+// TODO: synchronize
+
 void
 Compiler::write(uint8_t op)
 {
@@ -108,9 +110,21 @@ Compiler::temp_cons()
 }
 
 void
+Compiler::definition_or_expression()
+{
+	if (parse_current.type == token_type::DEFINE) {
+		definition();
+	}
+	else {
+		expression();
+	}
+	//TODO: synchronize after error
+}
+
+void
 Compiler::definition()
 {
-	expression();
+
 }
 
 void

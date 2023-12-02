@@ -54,6 +54,8 @@ Scanner::symbolType()
 	switch (source[start]) {
 	case 'c':
 		return checkKeyword(1, "ons", token_type::CONS);
+	case 'd':
+		return checkKeyword(1, "efine", token_type::DEFINE);
 	case 't':
 		return checkKeyword(1, "rue", token_type::TRUE);
 	case 'f':
