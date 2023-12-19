@@ -7,7 +7,7 @@ Compiler::compile()
 {
 	advance();
 	while (parse_current.type != token_type::END) {
-		definition();
+		definition_or_expression();
 	}
 	write(opcode::RETURN);
 #ifdef DEBUG_BYTECODE_ERRORS
