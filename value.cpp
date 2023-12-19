@@ -11,9 +11,9 @@ Value::print()
 			return std::to_string(as.boolean);
 		case value_type::NIL:
 			return "nil";
-		case value_type::PAIR:
+		case value_type::DATA:
 			// Temporary - want to be able to print circular data structures, lists in lisp format, etc.
-			return "(" + as.pair->car.print() + " . " + as.pair->cdr.print() + ")";
+			return "(" + std::any_cast<Pair>(as.data->pair).car.print() + " . " + std::any_cast<Pair>(as.data->pair).cdr.print() + ")";
 		default:
 			return "unknown type";
 		}

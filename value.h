@@ -8,21 +8,21 @@ enum class value_type {
 	BOOL,
 	NIL,
 	NUMBER,
-	PAIR
+	DATA
 };
 
-struct Pair;
+struct Data;
 
 struct Value {
 	value_type type;
 	union {
 		bool boolean;
 		double number;
-		Pair* pair;
+		Data* data;
 	} as;
 	Value(bool val) : type{ value_type::BOOL }, as{ .boolean=val } {}
 	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
-	Value(Pair* val) : type{ value_type::PAIR }, as{ .pair = val } {}
+	Value(Data* val) : type{ value_type::DATA }, as{ .data=val } {}
 	Value() : type{ value_type::NIL }, as{ .boolean=false } {}
 	std::string print();
 };
@@ -31,6 +31,10 @@ struct Pair {
 	Value car;
 	Value cdr;
 	Pair(Value car, Value cdr) : car{ car }, cdr{ cdr } {};
+};
+
+struct Data {
+	std::any pair;
 };
 
 #endif

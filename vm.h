@@ -15,7 +15,7 @@ class VirtualMachine {
 private:
 	interpret_result run(Chunk& bytecode);
 	std::vector<Value> stack;
-	std::forward_list<Pair> memory;  // Trying in this format for now - maybe spun into new class?
+	std::forward_list<Data> memory;
 	Value stack_pop();
 	Value stack_peek(size_t depth);
 	void runtime_error(std::string message, size_t line);
