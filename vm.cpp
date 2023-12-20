@@ -98,7 +98,7 @@ VirtualMachine::run(Chunk& bytecode)
 			{
 				Value b = stack_pop();
 				Value a = stack_pop();
-				memory.push_front(Data{ Pair(a, b) });
+				memory.push_front(Data(Pair(a, b)));
 				stack.push_back(Value(&memory.front()));
 			}
 			break;

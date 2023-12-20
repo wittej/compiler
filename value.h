@@ -33,8 +33,14 @@ struct Pair {
 	Pair(Value car, Value cdr) : car{ car }, cdr{ cdr } {};
 };
 
+enum class data_type {
+	PAIR
+};
+
 struct Data {
-	std::any pair;
+	data_type type;
+	std::any data;
+	Data(Pair pair) : type{ data_type::PAIR }, data{ pair } {}
 };
 
 #endif
