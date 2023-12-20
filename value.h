@@ -34,13 +34,14 @@ struct Pair {
 };
 
 enum class data_type {
-	PAIR
+	PAIR, STRING
 };
 
 struct Data {
 	data_type type;
 	std::any data;
 	Data(Pair pair) : type{ data_type::PAIR }, data{ pair } {}
+	Data(std::string string) : type{ data_type::STRING }, data{ string } {}
 };
 
 #endif
