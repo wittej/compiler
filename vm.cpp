@@ -25,13 +25,20 @@ VirtualMachine::runtime_error(std::string message, size_t line)
 	stack.clear();
 }
 
+Value
+VirtualMachine::allocate(std::string string)
+{
+	memory.push_front(Data(string));
+	return Value(&memory.front());
+}
+
 interpret_result
 VirtualMachine::interpret(std::string source)
 {
 	Chunk bytecode(1);
 
 	// Probably want the compiler to return the bytecode or some sort of struct
-	Compiler compiler(source, bytecode);
+	Compiler compiler(source, *this, bytecode);
 	if (!compiler.compile()) return interpret_result::COMPILE_ERROR;
 
 	Chunk compiled_bytecode = compiler.get_bytecode();

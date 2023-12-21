@@ -124,7 +124,9 @@ Compiler::definition_or_expression()
 void
 Compiler::definition()
 {
-
+	consume(token_type::SYMBOL, "Expect symbol.");
+	//Value symbol(parse_previous.string);
+	//ConstantIndex c = current_bytecode().add_constant(value);
 }
 
 void

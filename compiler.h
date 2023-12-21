@@ -7,7 +7,7 @@
 #ifdef DEBUG_BYTECODE_ERRORS
 #include "debug.h"
 #endif
-#include <string>
+#include "vm.h"
 
 // Considering splitting this into a parser and compiler
 class Compiler {
@@ -34,7 +34,7 @@ private:
 	void temp_cons();
 	Chunk& current_bytecode();
 public:
-	Compiler(std::string& source, Chunk bytecode) : scanner{Scanner(source)}, bytecode{bytecode} {};
+	Compiler(std::string& source, VirtualMachine& vm, Chunk bytecode) : scanner{Scanner(source)}, bytecode{bytecode} {};
 	bool compile();
 	Chunk get_bytecode() { return bytecode; };
 };

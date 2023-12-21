@@ -22,6 +22,7 @@ private:
 	bool truthValue(Value val);
 public:
 	interpret_result interpret(std::string source);
+	Value allocate(std::string string);
 };
 
 #endif
