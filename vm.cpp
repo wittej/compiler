@@ -79,14 +79,19 @@ VirtualMachine::run(Chunk& bytecode)
 			break;
 		case opcode::DEFINE_GLOBAL:
 			{
-				stack.back().print();
-				Value var0 = stack_pop();
-				// TODO: this is assuming this is a valid string - need to check
-				std::string var = std::any_cast<std::string>(var0.as.data->data);
-				// TODO: check for defintion
-				Value var1 = stack_pop();
-				globals.insert(std::pair<std::string, Value>(var, var1));
+				std::string var = std::any_cast<std::string>(stack_pop().as.data->data);  // TODO: method with safety features
+				globals.insert(std::pair<std::string, Value>(var, stack_pop()));
 				stack.push_back(Value(true));  // TEMP
+			}
+			break;
+		case opcode::GET_GLOBAL:
+			{
+				std::string var = std::any_cast<std::string>(stack_pop().as.data->data);  // TODO: method with safety features
+				if (!globals.contains(var)) {
+					runtime_error("Undefined variable " + var, line);
+					return interpret_result::RUNTIME_ERROR;
+				}
+				stack.push_back(globals[var]);
 			}
 			break;
 		case opcode::ADD:

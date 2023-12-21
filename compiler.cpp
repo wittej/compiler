@@ -135,6 +135,14 @@ Compiler::definition()
 }
 
 void
+Compiler::symbol()
+{
+	Value symbol = vm.allocate(parse_previous.string);
+	constant(symbol);
+	write(opcode::GET_GLOBAL);
+}
+
+void
 Compiler::expression()
 {
 	parse();

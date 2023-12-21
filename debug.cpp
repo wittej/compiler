@@ -110,6 +110,8 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 		return simpleInstruction("NOT", offset);
 	case opcode::DEFINE_GLOBAL:
 		return simpleInstruction("DEFINE GLOBAL", offset);
+	case opcode::GET_GLOBAL:
+		return simpleInstruction("GET GLOBAL", offset);
 	default:
 		int undefined_opcode = static_cast<int>(instruction);
 		std::cerr << "Unknown opcode " << undefined_opcode << "\n";
