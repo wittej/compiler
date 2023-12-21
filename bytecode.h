@@ -4,12 +4,14 @@
 #include "common.h"
 #include "value.h"
 
-
-enum opcode : uint8_t {
-	CONSTANT, CONSTANT_LONG, TRUE, FALSE, NIL,
-	ADD, NOT, EQUAL, CONS,
-	RETURN,
-};
+namespace opcode {
+	enum opcode : uint8_t {
+		CONSTANT, CONSTANT_LONG, TRUE, FALSE, NIL,
+		ADD, NOT, EQUAL, CONS,
+		DEFINE_GLOBAL,
+		RETURN,
+	};
+}
 
 struct ConstantIndex {
 	uint8_t index;

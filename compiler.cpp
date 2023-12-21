@@ -125,8 +125,13 @@ void
 Compiler::definition()
 {
 	consume(token_type::SYMBOL, "Expect symbol.");
-	//Value symbol(parse_previous.string);
-	//ConstantIndex c = current_bytecode().add_constant(value);
+	std::cerr << parse_previous.string + '\n';
+	Value symbol = vm.allocate(parse_previous.string);
+
+	expression();
+
+	write(opcode::DEFINE_GLOBAL);
+	constant(symbol);
 }
 
 void

@@ -13,6 +13,7 @@
 class Compiler {
 private:
 	Scanner scanner; // Encapsulates source - probably don't need to work with it directly
+	VirtualMachine& vm;
 	Chunk bytecode;
 	Token parse_current;  // Note: this is probably still important because '(' can mean different things.
 	Token parse_previous;
@@ -34,7 +35,7 @@ private:
 	void temp_cons();
 	Chunk& current_bytecode();
 public:
-	Compiler(std::string& source, VirtualMachine& vm, Chunk bytecode) : scanner{Scanner(source)}, bytecode{bytecode} {};
+	Compiler(std::string& source, VirtualMachine& vm, Chunk bytecode) : scanner{ Scanner(source) }, vm{ vm }, bytecode{ bytecode } {};
 	bool compile();
 	Chunk get_bytecode() { return bytecode; };
 };
