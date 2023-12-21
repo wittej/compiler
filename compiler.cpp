@@ -124,14 +124,14 @@ Compiler::definition_or_expression()
 void
 Compiler::definition()
 {
+	advance();  // TEMP - implement match
 	consume(token_type::SYMBOL, "Expect symbol.");
-	std::cerr << parse_previous.string + '\n';
 	Value symbol = vm.allocate(parse_previous.string);
 
 	expression();
 
-	write(opcode::DEFINE_GLOBAL);
 	constant(symbol);
+	write(opcode::DEFINE_GLOBAL);
 }
 
 void
@@ -159,6 +159,9 @@ Compiler::parse()
 		break;
 	case token_type::CONS:
 		temp_cons();
+		break;
+	case token_type::SYMBOL:
+		symbol();
 		break;
 	case token_type::FALSE:
 		write(opcode::FALSE);

@@ -34,6 +34,9 @@ constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 	case value_type::NIL:
 		std::cerr << name << ' ' << "nil" << '\n';
 		break;
+	case value_type::DATA:
+		std::cerr << name << ' ' << "data" << '\n';
+		break;
 	default:
 		std::cerr << name << "unknown type" << '\n';
 	}
@@ -60,8 +63,11 @@ longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 	case value_type::NIL:
 		std::cerr << name << ' ' << "nil" << '\n';
 		break;
+	case value_type::DATA:
+		std::cerr << name << ' ' << "data" << '\n';
+		break;
 	default:
-		std::cerr << name << "unknown type" << '\n';
+		std::cerr << name << " unknown type" << '\n';
 	}
 
 	return offset + 3;
@@ -102,6 +108,8 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 		return simpleInstruction("NIL", offset);
 	case opcode::NOT:
 		return simpleInstruction("NOT", offset);
+	case opcode::DEFINE_GLOBAL:
+		return simpleInstruction("DEFINE GLOBAL", offset);
 	default:
 		int undefined_opcode = static_cast<int>(instruction);
 		std::cerr << "Unknown opcode " << undefined_opcode << "\n";

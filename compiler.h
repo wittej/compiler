@@ -33,6 +33,7 @@ private:
 	void temp_not();
 	void temp_equal();
 	void temp_cons();
+	void symbol();
 	Chunk& current_bytecode();
 public:
 	Compiler(std::string& source, VirtualMachine& vm, Chunk bytecode) : scanner{ Scanner(source) }, vm{ vm }, bytecode{ bytecode } {};

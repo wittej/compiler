@@ -16,6 +16,7 @@ private:
 	interpret_result run(Chunk& bytecode);
 	std::vector<Value> stack;
 	std::forward_list<Data> memory;
+	std::unordered_map<std::string, Value> globals;
 	Value stack_pop();
 	Value stack_peek(size_t depth);
 	void runtime_error(std::string message, size_t line);
