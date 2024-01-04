@@ -126,7 +126,7 @@ Compiler::definition()
 {
 	advance();  // TEMP - implement match
 	consume(token_type::SYMBOL, "Expect symbol.");
-	double index = vm.global(parse_previous.string);  // TOOD: consider dedicated uint Value
+	size_t index = vm.global(parse_previous.string);
 
 	expression();
 
@@ -137,7 +137,7 @@ Compiler::definition()
 void
 Compiler::symbol()
 {
-	double index = vm.global(parse_previous.string);  // TODO: consider dedicated uint Value
+	size_t index = vm.global(parse_previous.string);
 	constant(Value(index));
 	write(opcode::GET_GLOBAL);
 }

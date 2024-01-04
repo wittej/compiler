@@ -90,7 +90,7 @@ VirtualMachine::run(Chunk& bytecode)
 			}
 			break;
 		case opcode::DEFINE_GLOBAL: {
-				double index = stack_pop().as.number;
+				size_t index = stack_pop().as.uint;
 				globals[index] = stack_pop();  // TODO: consider unsigned Value
 				stack.push_back(Value(true));  // TEMP - assuming this will return
 			}
@@ -98,7 +98,7 @@ VirtualMachine::run(Chunk& bytecode)
 		case opcode::GET_GLOBAL: {
 			// TODO: instead get the global at this index
 			// Need "undefined" value - similar to how Python does it
-			double index = stack_pop().as.number;
+			size_t index = stack_pop().as.uint;
 			if (globals[index].type == value_type::UNINITIALIZED) {
 				runtime_error("Unintialized variable ", line);
 				return interpret_result::RUNTIME_ERROR;

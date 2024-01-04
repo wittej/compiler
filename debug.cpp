@@ -28,6 +28,9 @@ constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 	case value_type::NUMBER:
 		std::cerr << name << ' ' << value.as.number << '\n';
 		break;
+	case value_type::UINT:
+		std::cerr << name << ' ' << value.as.uint << '\n';
+		break;
 	case value_type::BOOL:
 		std::cerr << name << ' ' << value.as.boolean << '\n';
 		break;
@@ -38,7 +41,7 @@ constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 		std::cerr << name << ' ' << "data" << '\n';
 		break;
 	default:
-		std::cerr << name << "unknown type" << '\n';
+		std::cerr << name << " unknown type" << '\n';
 	}
 
 	return offset + 2;
@@ -56,6 +59,9 @@ longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 	switch (value.type) {
 	case value_type::NUMBER:
 		std::cerr << name << ' ' << value.as.number << '\n';
+		break;
+	case value_type::UINT:
+		std::cerr << name << ' ' << value.as.uint << '\n';
 		break;
 	case value_type::BOOL:
 		std::cerr << name << ' ' << value.as.boolean << '\n';

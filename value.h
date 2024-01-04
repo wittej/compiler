@@ -4,7 +4,7 @@
 #include "common.h"
 
 enum class value_type {
-	BOOL, NIL, NUMBER, DATA, UNINITIALIZED, UNDEFINED
+	BOOL, NIL, NUMBER, UINT, DATA, UNINITIALIZED, UNDEFINED
 };
 
 enum class data_type {
@@ -24,11 +24,13 @@ struct Value {
 	union {
 		bool boolean;
 		double number;
+		size_t uint;
 		Data* data;
 		value_type type;
 	} as;
 	Value(bool val) : type{ value_type::BOOL }, as{ .boolean=val } {}
 	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
+	Value(size_t val) : type{ value_type::UINT }, as{ .uint=val } {}
 	Value(Data* val) : type{ value_type::DATA }, as{ .data=val } {}
 	Value(value_type singleton_type) {
 		if (singleton_type == value_type::NIL ||
