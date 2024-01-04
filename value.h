@@ -4,7 +4,7 @@
 #include "common.h"
 
 enum class value_type {
-	BOOL, NIL, NUMBER, DATA, UNINITIALIZED
+	BOOL, NIL, NUMBER, DATA, UNINITIALIZED, UNDEFINED
 };
 
 enum class data_type {
@@ -32,13 +32,14 @@ struct Value {
 	Value(Data* val) : type{ value_type::DATA }, as{ .data=val } {}
 	Value(value_type singleton_type) {
 		// Make sure it's a valid singleton type.
-		if (singleton_type == value_type::NIL) {
+		if (singleton_type == value_type::NIL ||
+			singleton_type == value_type::UNINITIALIZED) {
 			type = singleton_type;
 			as = { .type = singleton_type };
 		}
 		else {
-			type = value_type::UNINITIALIZED;
-			as = { .type = value_type::UNINITIALIZED };
+			type = value_type::UNDEFINED;
+			as = { .type = value_type::UNDEFINED };
 		}
 	}
 	std::string print();
