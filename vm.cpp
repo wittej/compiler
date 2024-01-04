@@ -31,16 +31,15 @@ VirtualMachine::allocate(std::string string)
 	return Value(&memory.front());
 }
 
-// TODO: More complicated behavior
-// Will want two functions: one to access global on index, one to access on string
-// This one will likely be used by the compiler only - want to initialize to special
-// "undefined" Value and add the index of that value to the map. This can then be
-// used to quickly update values at runtime.
-inline int
-VirtualMachine::insert_global(std::string key, Value value)
+size_t
+VirtualMachine::global(std::string key)
 {
-	globals.insert(std::pair<std::string, Value>(key, value));
-	return 0;  // TODO: report error as -1
+	if (global_indexes.contains(key)) return global_indexes[key];
+	
+	size_t size = globals.size();
+	globals.push_back(Value(value_type::UNINITIALIZED));
+	global_indexes.insert(std::pair<std::string, size_t>(key, size));
+	return size;
 }
 
 interpret_result
@@ -62,6 +61,8 @@ VirtualMachine::truthValue(Value val)
 {
 	return (val.type == value_type::BOOL) ? val.as.boolean : true;
 }
+
+// TODO: clean up switch block formatting or break into functions
 
 interpret_result
 VirtualMachine::run(Chunk& bytecode)
@@ -89,24 +90,20 @@ VirtualMachine::run(Chunk& bytecode)
 			}
 			break;
 		case opcode::DEFINE_GLOBAL: {
-			// TODO: instead get the index associated with this global - define that
-			Value val = stack_pop();
-			data_cast<std::string> str = val.cast_string();
-			if (str.error || insert_global(str.value, stack_pop()) != 0)  // TODO: settle on single error-handling paradigm
-				return interpret_result::RUNTIME_ERROR;
-			stack.push_back(Value(true));  // TEMP
+				double index = stack_pop().as.number;
+				globals[index] = stack_pop();  // TODO: consider unsigned Value
+				stack.push_back(Value(true));  // TEMP - assuming this will return
+			}
 			break;
-		}
-		case opcode::GET_GLOBAL:
+		case opcode::GET_GLOBAL: {
 			// TODO: instead get the global at this index
 			// Need "undefined" value - similar to how Python does it
-			{
-				std::string var = std::any_cast<std::string>(stack_pop().as.data->data);  // TODO: method with safety features
-				if (!globals.contains(var)) {
-					runtime_error("Undefined variable " + var, line);
-					return interpret_result::RUNTIME_ERROR;
-				}
-				stack.push_back(globals[var]);
+			double index = stack_pop().as.number;
+			if (globals[index].type == value_type::UNINITIALIZED) {
+				runtime_error("Unintialized variable ", line);
+				return interpret_result::RUNTIME_ERROR;
+			}
+			stack.push_back(globals[index]);
 			}
 			break;
 		case opcode::ADD:

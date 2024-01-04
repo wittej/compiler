@@ -126,21 +126,19 @@ Compiler::definition()
 {
 	advance();  // TEMP - implement match
 	consume(token_type::SYMBOL, "Expect symbol.");
-	// TODO: get this as size_t - index, use that to write the constant
-	Value symbol = vm.allocate(parse_previous.string);
+	double index = vm.global(parse_previous.string);  // TOOD: consider dedicated uint Value
 
 	expression();
 
-	constant(symbol);
+	constant(Value(index));
 	write(opcode::DEFINE_GLOBAL);
 }
 
 void
 Compiler::symbol()
 {
-	// TODO: get this as size_t - index, use that to write the constant
-	Value symbol = vm.allocate(parse_previous.string);
-	constant(symbol);
+	double index = vm.global(parse_previous.string);  // TODO: consider dedicated uint Value
+	constant(Value(index));
 	write(opcode::GET_GLOBAL);
 }
 

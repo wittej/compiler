@@ -31,7 +31,6 @@ struct Value {
 	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
 	Value(Data* val) : type{ value_type::DATA }, as{ .data=val } {}
 	Value(value_type singleton_type) {
-		// Make sure it's a valid singleton type.
 		if (singleton_type == value_type::NIL ||
 			singleton_type == value_type::UNINITIALIZED) {
 			type = singleton_type;
