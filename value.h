@@ -30,7 +30,17 @@ struct Value {
 	Value(bool val) : type{ value_type::BOOL }, as{ .boolean=val } {}
 	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
 	Value(Data* val) : type{ value_type::DATA }, as{ .data=val } {}
-	Value(value_type type) : type{ type }, as{ .type=type} {}
+	Value(value_type singleton_type) {
+		// Make sure it's a valid singleton type.
+		if (singleton_type == value_type::NIL) {
+			type = singleton_type;
+			as = { .type = singleton_type };
+		}
+		else {
+			type = value_type::UNINITIALIZED;
+			as = { .type = value_type::UNINITIALIZED };
+		}
+	}
 	std::string print();
 	data_cast<std::string> cast_string();
 };
