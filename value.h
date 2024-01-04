@@ -4,10 +4,7 @@
 #include "common.h"
 
 enum class value_type {
-	BOOL,
-	NIL,
-	NUMBER,
-	DATA
+	BOOL, NIL, NUMBER, DATA, UNINITIALIZED
 };
 
 enum class data_type {
@@ -28,11 +25,12 @@ struct Value {
 		bool boolean;
 		double number;
 		Data* data;
+		value_type type;
 	} as;
 	Value(bool val) : type{ value_type::BOOL }, as{ .boolean=val } {}
 	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
 	Value(Data* val) : type{ value_type::DATA }, as{ .data=val } {}
-	Value() : type{ value_type::NIL }, as{ .boolean=false } {}
+	Value(value_type type) : type{ type }, as{ .type=type} {}
 	std::string print();
 	data_cast<std::string> cast_string();
 };
