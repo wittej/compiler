@@ -27,3 +27,14 @@ Value::print()
 		}
 	}
 }
+
+data_cast<std::string>
+Value::cast_string()
+{
+	if (type != value_type::DATA || as.data->type != data_type::STRING)
+		return data_cast<std::string>{"", true};
+	else {
+		std::string string = std::any_cast<std::string>(as.data->data);
+		return data_cast<std::string>{string, false};
+	}
+}

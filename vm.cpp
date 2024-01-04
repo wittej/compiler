@@ -1,7 +1,6 @@
-#include "common.h"
+
 #include "vm.h"
 #include "compiler.h"
-#include "debug.h"
 
 
 Value
@@ -30,6 +29,18 @@ VirtualMachine::allocate(std::string string)
 {
 	memory.push_front(Data(string));
 	return Value(&memory.front());
+}
+
+// TODO: More complicated behavior
+// Will want two functions: one to access global on index, one to access on string
+// This one will likely be used by the compiler only - want to initialize to special
+// "undefined" Value and add the index of that value to the map. This can then be
+// used to quickly update values at runtime.
+inline int
+VirtualMachine::insert_global(std::string key, Value value)
+{
+	globals.insert(std::pair<std::string, Value>(key, value));
+	return 0;  // TODO: report error as -1
 }
 
 interpret_result
@@ -77,14 +88,18 @@ VirtualMachine::run(Chunk& bytecode)
 				stack.push_back(bytecode.constants[index]);
 			}
 			break;
-		case opcode::DEFINE_GLOBAL:
-			{
-				std::string var = std::any_cast<std::string>(stack_pop().as.data->data);  // TODO: method with safety features
-				globals.insert(std::pair<std::string, Value>(var, stack_pop()));
-				stack.push_back(Value(true));  // TEMP
-			}
+		case opcode::DEFINE_GLOBAL: {
+			// TODO: instead get the index associated with this global - define that
+			Value val = stack_pop();
+			data_cast<std::string> str = val.cast_string();
+			if (str.error || insert_global(str.value, stack_pop()) != 0)  // TODO: settle on single error-handling paradigm
+				return interpret_result::RUNTIME_ERROR;
+			stack.push_back(Value(true));  // TEMP
 			break;
+		}
 		case opcode::GET_GLOBAL:
+			// TODO: instead get the global at this index
+			// Need "undefined" value - similar to how Python does it
 			{
 				std::string var = std::any_cast<std::string>(stack_pop().as.data->data);  // TODO: method with safety features
 				if (!globals.contains(var)) {

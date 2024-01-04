@@ -126,6 +126,7 @@ Compiler::definition()
 {
 	advance();  // TEMP - implement match
 	consume(token_type::SYMBOL, "Expect symbol.");
+	// TODO: get this as size_t - index, use that to write the constant
 	Value symbol = vm.allocate(parse_previous.string);
 
 	expression();
@@ -137,6 +138,7 @@ Compiler::definition()
 void
 Compiler::symbol()
 {
+	// TODO: get this as size_t - index, use that to write the constant
 	Value symbol = vm.allocate(parse_previous.string);
 	constant(symbol);
 	write(opcode::GET_GLOBAL);
