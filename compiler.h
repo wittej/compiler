@@ -33,6 +33,7 @@ private:
 	void temp_not();
 	void temp_equal();
 	void temp_cons();
+	void temp_let();
 	void symbol();
 	Chunk& current_bytecode();
 public:

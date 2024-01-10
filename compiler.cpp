@@ -121,6 +121,7 @@ Compiler::definition_or_expression()
 	//TODO: synchronize after error
 }
 
+// TODO: differentiate global / local
 void
 Compiler::definition()
 {
@@ -146,6 +147,15 @@ void
 Compiler::expression()
 {
 	parse();
+}
+
+void
+Compiler::temp_let()
+{
+	consume(token_type::LPAREN, "Expect '('.");
+	// TODO: local definitions
+	consume(token_type::RPAREN, "Expect ')'.");
+	expression();  // NB: should be something like <definition>* <expression>* <expression>
 }
 
 void
