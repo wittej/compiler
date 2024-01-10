@@ -16,6 +16,10 @@ Scanner::scan()
 	// 1. Is it one or more non-delimiters?
 	// 2. Is it a number?
 	switch (c) {
+	case '(':
+		return makeToken(token_type::LPAREN);
+	case ')':
+		return makeToken(token_type::RPAREN);
 	case '+':
 		return makeToken(token_type::PLUS);
 	case '=':
@@ -60,6 +64,8 @@ Scanner::symbolType()
 		return checkKeyword(1, "rue", token_type::TRUE);
 	case 'f':
 		return checkKeyword(1, "alse", token_type::FALSE);
+	case 'l':
+		return checkKeyword(1, "et", token_type::LET);
 	case 'n':
 		if (current > start + 1) {
 			switch (source[start + 1]) {

@@ -168,6 +168,9 @@ Compiler::parse()
 	case token_type::CONS:
 		temp_cons();
 		break;
+	case token_type::LET:
+		temp_let();
+		break;
 	case token_type::SYMBOL:
 		symbol();
 		break;
