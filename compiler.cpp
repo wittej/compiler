@@ -112,14 +112,19 @@ Compiler::temp_cons()
 void
 Compiler::definition_or_expression()
 {
-	consume(token_type::LPAREN, "Expect '('.");
-	if (parse_current.type == token_type::DEFINE) {
-		definition();
-	}
-	else {
+	if (parse_current.type != token_type::LPAREN) {
 		expression();
 	}
-	consume(token_type::RPAREN, "Expect ')'.");
+	else {
+		consume(token_type::LPAREN, "Expect '('.");
+		if (parse_current.type == token_type::DEFINE) {
+			definition();
+		}
+		else {
+			expression();
+		}
+		consume(token_type::RPAREN, "Expect ')'.");
+	}
 	//TODO: synchronize after error
 }
 
