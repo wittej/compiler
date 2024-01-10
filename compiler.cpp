@@ -112,12 +112,14 @@ Compiler::temp_cons()
 void
 Compiler::definition_or_expression()
 {
+	consume(token_type::LPAREN, "Expect '('.");
 	if (parse_current.type == token_type::DEFINE) {
 		definition();
 	}
 	else {
 		expression();
 	}
+	consume(token_type::RPAREN, "Expect ')'.");
 	//TODO: synchronize after error
 }
 
@@ -192,6 +194,10 @@ Compiler::parse()
 		break;
 	case token_type::NIL:
 		write(opcode::NIL);
+		break;
+	case token_type::LPAREN:
+		expression();
+		consume(token_type::RPAREN, "Expect ')'.");
 		break;
 	default:
 		error("unknown token type.", parse_previous);
