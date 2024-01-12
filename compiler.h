@@ -42,6 +42,7 @@ private:
 	void temp_cons();
 	void temp_let();
 	void symbol();
+	int resolve_local(Token token);
 	Chunk& current_bytecode();
 public:
 	Compiler(std::string& source, VirtualMachine& vm, Chunk bytecode) : scanner{ Scanner(source) }, vm{ vm }, bytecode{ bytecode } {};

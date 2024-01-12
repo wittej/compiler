@@ -132,6 +132,7 @@ Compiler::definition_or_expression()
 void
 Compiler::definition()
 {
+	// TODO: differentiate this from defintion syntax
 	advance();  // TEMP - implement match
 	consume(token_type::SYMBOL, "Expect symbol.");
 
@@ -143,6 +144,7 @@ Compiler::definition()
 		}
 		Local local{ .token = parse_previous, .depth = scope_depth };
 		locals.push_back(local);
+		expression();  // Needs to be tested
 	}
 	else {
 		size_t index = vm.global(parse_previous.string);
@@ -152,12 +154,29 @@ Compiler::definition()
 	}
 }
 
+int
+Compiler::resolve_local(Token token)
+{
+	for (int i = locals.size() - 1; i >= 0; i--) {
+		if (token.string == locals[i].token.string) return i;
+	}
+	return -1;
+}
+
 void
 Compiler::symbol()
 {
-	size_t index = vm.global(parse_previous.string);
-	constant(Value(index));
-	write(opcode::GET_GLOBAL);
+	int local = resolve_local(parse_previous);
+	if (local >= 0) {
+		size_t index = local;
+		constant(Value(index));
+		write(opcode::GET_LOCAL);
+	}
+	else {
+		size_t index = vm.global(parse_previous.string);
+		constant(Value(index));
+		write(opcode::GET_GLOBAL);
+	}
 }
 
 void
@@ -172,13 +191,19 @@ Compiler::temp_let()
 	consume(token_type::LPAREN, "Expect '('.");
 	++scope_depth;
 	// TODO: local definitions
+	while (parse_current.type == token_type::LPAREN) {
+		definition();
+		consume(token_type::RPAREN, "Expect ')'.");
+	}
+	
+	consume(token_type::RPAREN, "Expect ')'.");
+	expression();  // NB: should be something like <definition>* <expression>* <expression>
+
 	--scope_depth;
 	while (locals.size() > 0 && locals.back().depth > scope_depth) {
 		write(opcode::POP);
 		locals.pop_back();
 	}
-	consume(token_type::RPAREN, "Expect ')'.");
-	expression();  // NB: should be something like <definition>* <expression>* <expression>
 }
 
 void
