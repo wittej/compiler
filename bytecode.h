@@ -8,7 +8,7 @@ namespace opcode {
 	enum opcode : uint8_t {
 		CONSTANT, CONSTANT_LONG, TRUE, FALSE, NIL,
 		ADD, NOT, EQUAL, CONS,
-		DEFINE_GLOBAL, GET_GLOBAL,
+		DEFINE_GLOBAL, GET_GLOBAL, GET_LOCAL,
 		RETURN, POP,
 	};
 }

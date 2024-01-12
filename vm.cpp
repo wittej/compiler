@@ -106,6 +106,11 @@ VirtualMachine::run(Chunk& bytecode)
 			stack.push_back(globals[index]);
 			}
 			break;
+		case opcode::GET_LOCAL: {
+			size_t index = stack_pop().as.uint;
+			stack.push_back(stack[index]);
+			}
+			break;
 		case opcode::ADD:
 			{
 				if (stack_peek(0).type != value_type::NUMBER ||
