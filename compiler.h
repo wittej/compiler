@@ -11,7 +11,7 @@
 
 struct Local {
 	Token token;
-	size_t depth;
+	int depth;
 };
 
 // Considering splitting this into a parser and compiler

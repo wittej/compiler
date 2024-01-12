@@ -142,9 +142,11 @@ Compiler::definition()
 			if (parse_previous.string == locals[i].token.string)
 				error("Unexpected variable redefinition", parse_previous);
 		}
-		Local local{ .token = parse_previous, .depth = scope_depth };
+		// Depth -1 indicates variable hasn't been initialized in this scope.
+		Local local{ .token = parse_previous, .depth = -1 /*uninitialized*/ };
 		locals.push_back(local);
 		expression();  // Needs to be tested
+		locals.back().depth = scope_depth;
 	}
 	else {
 		size_t index = vm.global(parse_previous.string);
@@ -158,7 +160,9 @@ int
 Compiler::resolve_local(Token token)
 {
 	for (int i = locals.size() - 1; i >= 0; i--) {
-		if (token.string == locals[i].token.string) return i;
+		// TODO: double-check this - want it to reference 1 scope up
+		if (token.string == locals[i].token.string && locals[i].depth >= 0)
+			return i;
 	}
 	return -1;
 }
