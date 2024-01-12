@@ -109,6 +109,7 @@ Compiler::temp_cons()
 	write(opcode::CONS);
 }
 
+// TODO: implement definition as expression that returns nil (similar to ML)
 void
 Compiler::definition_or_expression()
 {
@@ -132,10 +133,11 @@ Compiler::definition_or_expression()
 void
 Compiler::definition()
 {
-	// TODO: differentiate this from defintion syntax
+	// TODO: differentiate define / let syntax?
 	advance();  // TEMP - implement match
 	consume(token_type::SYMBOL, "Expect symbol.");
 
+	// TODO: need stack frames for let so it can be used in expressions
 	if (scope_depth > 0) {
 		for (int i = locals.size() - 1; i >= 0; i--) {
 			if (locals[i].depth < scope_depth) break;
@@ -160,7 +162,7 @@ int
 Compiler::resolve_local(Token token)
 {
 	for (int i = locals.size() - 1; i >= 0; i--) {
-		// TODO: double-check this - want it to reference 1 scope up
+		// Intended behavior: get from closest initialized scope.
 		if (token.string == locals[i].token.string && locals[i].depth >= 0)
 			return i;
 	}
