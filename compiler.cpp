@@ -109,6 +109,7 @@ Compiler::temp_cons()
 	write(opcode::CONS);
 }
 
+
 void
 Compiler::definition_or_expression()
 {
@@ -160,7 +161,9 @@ void
 Compiler::temp_let()
 {
 	consume(token_type::LPAREN, "Expect '('.");
+	++local_scope;
 	// TODO: local definitions
+	--local_scope;
 	consume(token_type::RPAREN, "Expect ')'.");
 	expression();  // NB: should be something like <definition>* <expression>* <expression>
 }
@@ -200,6 +203,7 @@ Compiler::parse()
 	case token_type::NIL:
 		write(opcode::NIL);
 		break;
+	// NOTE: this will need to be smarter - parse correct number of args etc
 	case token_type::LPAREN:
 		expression();
 		consume(token_type::RPAREN, "Expect ')'.");
