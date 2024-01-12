@@ -150,6 +150,9 @@ VirtualMachine::run(Chunk& bytecode)
 		case opcode::NIL:
 			stack.push_back(Value(value_type::NIL));
 			break;
+		case opcode::POP:
+			stack_pop();
+			break;
 		case opcode::RETURN:
 			std::cout << stack_pop().print() << '\n';
 			return interpret_result::OK;

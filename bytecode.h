@@ -9,7 +9,7 @@ namespace opcode {
 		CONSTANT, CONSTANT_LONG, TRUE, FALSE, NIL,
 		ADD, NOT, EQUAL, CONS,
 		DEFINE_GLOBAL, GET_GLOBAL,
-		RETURN,
+		RETURN, POP,
 	};
 }
 

@@ -22,7 +22,7 @@ private:
 	Chunk bytecode;
 	Token parse_current;  // Note: this is probably still important because '(' can mean different things.
 	Token parse_previous;
-	size_t local_scope = 0;
+	size_t scope_depth = 0;
 	std::vector<Local> locals;
 	bool had_error = false;
 	bool panic_mode = false;

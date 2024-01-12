@@ -109,7 +109,6 @@ Compiler::temp_cons()
 	write(opcode::CONS);
 }
 
-
 void
 Compiler::definition_or_expression()
 {
@@ -135,12 +134,22 @@ Compiler::definition()
 {
 	advance();  // TEMP - implement match
 	consume(token_type::SYMBOL, "Expect symbol.");
-	size_t index = vm.global(parse_previous.string);
 
-	expression();
-
-	constant(Value(index));
-	write(opcode::DEFINE_GLOBAL);
+	if (scope_depth > 0) {
+		for (int i = locals.size() - 1; i >= 0; i--) {
+			if (locals[i].depth < scope_depth) break;
+			if (parse_previous.string == locals[i].token.string)
+				error("Unexpected variable redefinition", parse_previous);
+		}
+		Local local{ .token = parse_previous, .depth = scope_depth };
+		locals.push_back(local);
+	}
+	else {
+		size_t index = vm.global(parse_previous.string);
+		expression();
+		constant(Value(index));
+		write(opcode::DEFINE_GLOBAL);
+	}
 }
 
 void
@@ -161,9 +170,13 @@ void
 Compiler::temp_let()
 {
 	consume(token_type::LPAREN, "Expect '('.");
-	++local_scope;
+	++scope_depth;
 	// TODO: local definitions
-	--local_scope;
+	--scope_depth;
+	while (locals.size() > 0 && locals.back().depth > scope_depth) {
+		write(opcode::POP);
+		locals.pop_back();
+	}
 	consume(token_type::RPAREN, "Expect ')'.");
 	expression();  // NB: should be something like <definition>* <expression>* <expression>
 }
