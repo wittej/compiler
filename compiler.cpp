@@ -7,6 +7,7 @@ Compiler::compile()
 {
 	advance();
 	while (parse_current.type != token_type::END) {
+		// TODO: pop values that aren't returned to REPL
 		definition_or_expression();
 	}
 	write(opcode::RETURN);
@@ -122,20 +123,9 @@ Compiler::temp_cons()
 void
 Compiler::definition_or_expression()
 {
-	if (parse_current.type != token_type::LPAREN) {
-		expression();
-	}
-	else {
-		consume(token_type::LPAREN, "Expect '('.");
-		if (parse_current.type == token_type::DEFINE) {
-			definition();
-		}
-		else {
-			expression();
-		}
-		consume(token_type::RPAREN, "Expect ')'.");
-	}
-	//TODO: synchronize after error
+	expression();
+	// TODO: resolve thunks here?
+	// TODO: synchronize after error
 }
 
 // TODO: differentiate global / local
@@ -143,7 +133,6 @@ void
 Compiler::definition()
 {
 	// TODO: differentiate define / let syntax?
-	advance();  // TEMP - implement match
 	consume(token_type::SYMBOL, "Expect symbol.");
 
 	// TODO: need stack frames for let so it can be used in expressions
@@ -207,6 +196,7 @@ Compiler::temp_let()
 	++scope_depth;
 	// TODO: local definitions
 	while (parse_current.type == token_type::LPAREN) {
+		advance();
 		definition();
 		consume(token_type::RPAREN, "Expect ')'.");
 	}
@@ -247,6 +237,10 @@ Compiler::parse()
 		break;
 	case token_type::LET:
 		temp_let();
+		break;
+	case token_type::DEFINE:
+		definition();
+		write(opcode::NIL);  // TODO: consider moving this to definition
 		break;
 	case token_type::SYMBOL:
 		symbol();

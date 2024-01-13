@@ -60,10 +60,10 @@ Scanner::symbolType()
 		return checkKeyword(1, "ons", token_type::CONS);
 	case 'd':
 		return checkKeyword(1, "efine", token_type::DEFINE);
-	case 't':
-		return checkKeyword(1, "rue", token_type::TRUE);
 	case 'f':
 		return checkKeyword(1, "alse", token_type::FALSE);
+	case 'i':
+		return checkKeyword(1, "f", token_type::IF);
 	case 'l':
 		return checkKeyword(1, "et", token_type::LET);
 	case 'n':
@@ -76,6 +76,8 @@ Scanner::symbolType()
 			}
 		}
 		break;
+	case 't':
+		return checkKeyword(1, "rue", token_type::TRUE);
 	}
 
 	return token_type::SYMBOL;
