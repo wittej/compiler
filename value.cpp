@@ -7,8 +7,6 @@ Value::print()
 		switch (type) {
 		case value_type::NUMBER:
 			return std::to_string(as.number);
-		case value_type::UINT:
-			return std::to_string(as.uint);
 		case value_type::BOOL:
 			return std::to_string(as.boolean);
 		case value_type::NIL:

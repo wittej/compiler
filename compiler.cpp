@@ -53,6 +53,15 @@ Compiler::write(uint8_t op)
 	current_bytecode().write(op, parse_previous.line);
 }
 
+void
+Compiler::write_uint(uint16_t uint)
+{
+	uint8_t constant = static_cast<uint8_t>(uint & 255);
+	uint8_t overflow = static_cast<uint8_t>(uint >> 8);
+	write(constant);
+	write(overflow);
+}
+
 // This will be expanded later for lambdas etc.
 Chunk&
 Compiler::current_bytecode()
@@ -153,8 +162,8 @@ Compiler::definition()
 	else {
 		size_t index = vm.global(parse_previous.string);
 		expression();
-		constant(Value(index));
 		write(opcode::DEFINE_GLOBAL);
+		write_uint(index);
 	}
 }
 
@@ -175,13 +184,13 @@ Compiler::symbol()
 	int local = resolve_local(parse_previous);
 	if (local >= 0) {
 		size_t index = local;
-		constant(Value(index));
 		write(opcode::GET_LOCAL);
+		write_uint(index);
 	}
 	else {
 		size_t index = vm.global(parse_previous.string);
-		constant(Value(index));
 		write(opcode::GET_GLOBAL);
+		write_uint(index);
 	}
 }
 
@@ -204,12 +213,16 @@ Compiler::temp_let()
 	
 	consume(token_type::RPAREN, "Expect ')'.");
 	expression();  // NB: should be something like <definition>* <expression>* <expression>
+	write(opcode::POP);  // TEMP - throw away the result of that expression
+	// TODO: do this only for expressions that aren't the final result.
 
 	--scope_depth;
 	while (locals.size() > 0 && locals.back().depth > scope_depth) {
 		write(opcode::POP);
 		locals.pop_back();
 	}
+
+	write(opcode::NIL);  // TODO: replace with a return procedure
 }
 
 void

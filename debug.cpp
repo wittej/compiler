@@ -28,9 +28,6 @@ constantInstruction(std::string name, Chunk& bytecode, size_t offset)
 	case value_type::NUMBER:
 		std::cerr << name << ' ' << value.as.number << '\n';
 		break;
-	case value_type::UINT:
-		std::cerr << name << ' ' << value.as.uint << '\n';
-		break;
 	case value_type::BOOL:
 		std::cerr << name << ' ' << value.as.boolean << '\n';
 		break;
@@ -60,9 +57,6 @@ longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 	case value_type::NUMBER:
 		std::cerr << name << ' ' << value.as.number << '\n';
 		break;
-	case value_type::UINT:
-		std::cerr << name << ' ' << value.as.uint << '\n';
-		break;
 	case value_type::BOOL:
 		std::cerr << name << ' ' << value.as.boolean << '\n';
 		break;
@@ -78,6 +72,20 @@ longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 
 	return offset + 3;
 }
+
+static size_t
+uintInstruction(std::string name, Chunk& bytecode, size_t offset)
+{
+	// NB: Endianness is important here
+	uint8_t uint8 = bytecode.instructions[offset + 1];
+	uint8_t overflow = bytecode.instructions[offset + 2];
+	uint16_t uint16 = static_cast<uint16_t>(overflow) * 256 + uint8;
+
+	std::cerr << name << ' ' << uint16 << '\n';
+
+	return offset + 3;
+}
+
 
 size_t
 disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
@@ -117,11 +125,11 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 	case opcode::POP:
 		return simpleInstruction("POP", offset);
 	case opcode::DEFINE_GLOBAL:
-		return simpleInstruction("DEFINE GLOBAL", offset);
+		return uintInstruction("DEFINE GLOBAL", bytecode, offset);
 	case opcode::GET_GLOBAL:
-		return simpleInstruction("GET GLOBAL", offset);
+		return uintInstruction("GET GLOBAL", bytecode, offset);
 	case opcode::GET_LOCAL:
-		return simpleInstruction("GET LOCAL", offset);
+		return uintInstruction("GET LOCAL", bytecode, offset);
 	default:
 		int undefined_opcode = static_cast<int>(instruction);
 		std::cerr << "Unknown opcode " << undefined_opcode << "\n";

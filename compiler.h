@@ -42,6 +42,7 @@ private:
 	void temp_cons();
 	void temp_let();
 	void symbol();
+	void write_uint(uint16_t uint);
 	int resolve_local(Token token);
 	Chunk& current_bytecode();
 public:

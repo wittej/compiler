@@ -90,15 +90,19 @@ VirtualMachine::run(Chunk& bytecode)
 			}
 			break;
 		case opcode::DEFINE_GLOBAL: {
-				size_t index = stack_pop().as.uint;
-				globals[index] = stack_pop();  // TODO: consider unsigned Value
-				stack.push_back(Value(true));  // TEMP - assuming this will return
+			uint8_t constant = *ip++;
+			uint8_t overflow = *ip++;
+			uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
+			globals[index] = stack_pop();  // TODO: consider unsigned Value
+			stack.push_back(Value(true));  // TEMP - assuming this will return
 			}
 			break;
 		case opcode::GET_GLOBAL: {
 			// TODO: instead get the global at this index
 			// Need "undefined" value - similar to how Python does it
-			size_t index = stack_pop().as.uint;
+			uint8_t constant = *ip++;
+			uint8_t overflow = *ip++;
+			uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
 			if (globals[index].type == value_type::UNINITIALIZED) {
 				runtime_error("Unintialized variable ", line);
 				return interpret_result::RUNTIME_ERROR;
@@ -107,7 +111,9 @@ VirtualMachine::run(Chunk& bytecode)
 			}
 			break;
 		case opcode::GET_LOCAL: {
-			size_t index = stack_pop().as.uint;
+			uint8_t constant = *ip++;
+			uint8_t overflow = *ip++;
+			uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
 			stack.push_back(stack[index]);
 			}
 			break;
