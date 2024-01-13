@@ -119,7 +119,6 @@ Compiler::temp_cons()
 	write(opcode::CONS);
 }
 
-// TODO: implement definition as expression that returns nil (similar to ML)
 void
 Compiler::definition_or_expression()
 {
@@ -183,6 +182,7 @@ Compiler::symbol()
 	}
 }
 
+// TODO: is this needed?
 void
 Compiler::expression()
 {
