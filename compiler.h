@@ -33,6 +33,7 @@ private:
 	void definition_or_expression();  // TODO: synchronize here
 	void definition();
 	void expression();
+	void if_statement();
 	void error(std::string error_message, Token token);
 	void write(uint8_t op);
 	void parse();  // TODO: infix . for cons - excuse to practice parser design
@@ -43,6 +44,8 @@ private:
 	void temp_let();
 	void symbol();
 	void write_uint(uint16_t uint);
+	size_t write_jump(opcode::opcode jump);
+	void patch_jump(size_t jump_index);
 	int resolve_local(Token token);
 	Chunk& current_bytecode();
 public:

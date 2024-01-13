@@ -10,6 +10,7 @@ namespace opcode {
 		ADD, NOT, EQUAL, CONS,
 		DEFINE_GLOBAL, GET_GLOBAL, GET_LOCAL,
 		RETURN, POP,
+		JUMP, JUMP_IF_FALSE,
 	};
 }
 

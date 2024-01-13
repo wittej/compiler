@@ -7,8 +7,8 @@ Compiler::compile()
 {
 	advance();
 	while (parse_current.type != token_type::END) {
-		// TODO: pop values that aren't returned to REPL
 		definition_or_expression();
+		if (parse_current.type != token_type::END) write(opcode::POP);
 	}
 	write(opcode::RETURN);
 #ifdef DEBUG_BYTECODE_ERRORS
@@ -216,6 +216,23 @@ Compiler::temp_let()
 }
 
 void
+Compiler::if_statement()
+{
+	expression();  // predicate - value will be popped in either branch	
+	size_t jump_to_alternative = write_jump(opcode::JUMP_IF_FALSE);
+
+	write(opcode::POP);
+	expression();  // consequent
+	size_t jump_to_exit = write_jump(opcode::JUMP);
+
+	patch_jump(jump_to_alternative);
+	write(opcode::POP);
+	expression();  // alternative
+
+	patch_jump(jump_to_exit);
+}
+
+void
 Compiler::parse()
 {
 	advance();
@@ -241,6 +258,9 @@ Compiler::parse()
 	case token_type::DEFINE:
 		definition();
 		write(opcode::NIL);  // TODO: consider moving this to definition
+		break;
+	case token_type::IF:
+		if_statement();
 		break;
 	case token_type::SYMBOL:
 		symbol();
