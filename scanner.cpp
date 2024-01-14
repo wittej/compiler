@@ -56,6 +56,8 @@ Scanner::symbolType()
 {
 	// TODO: make these more lisp-y?
 	switch (source[start]) {
+	case 'a':
+		return checkKeyword(1, "nd", token_type::AND);
 	case 'c':
 		return checkKeyword(1, "ons", token_type::CONS);
 	case 'd':
@@ -76,6 +78,8 @@ Scanner::symbolType()
 			}
 		}
 		break;
+	case 'o':
+		return checkKeyword(1, "r", token_type::OR);
 	case 't':
 		return checkKeyword(1, "rue", token_type::TRUE);
 	}

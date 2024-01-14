@@ -136,6 +136,30 @@ Compiler::temp_not()
 	write(opcode::NOT);
 }
 
+// Implements short-circuit logic
+void
+Compiler::temp_and()
+{
+	parse();
+	size_t jump_to_exit = write_jump(opcode::JUMP_IF_FALSE);
+	write(opcode::POP);
+	parse();  // TODO: verify this is boolean?
+	patch_jump(jump_to_exit);
+}
+
+// Implements short-circuit logic
+void
+Compiler::temp_or()
+{
+	parse();
+	size_t jump_to_second = write_jump(opcode::JUMP_IF_FALSE);
+	size_t jump_to_exit = write_jump(opcode::JUMP);
+	patch_jump(jump_to_second);
+	write(opcode::POP);
+	parse();  // TODO: verify this is boolean?
+	patch_jump(jump_to_exit);
+}
+
 void
 Compiler::temp_cons()
 {
@@ -270,6 +294,12 @@ Compiler::parse()
 		break;
 	case token_type::NOT:
 		temp_not();
+		break;
+	case token_type::AND:
+		temp_and();
+		break;
+	case token_type::OR:
+		temp_or();
 		break;
 	case token_type::EQUAL:
 		temp_equal();

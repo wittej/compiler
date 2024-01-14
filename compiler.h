@@ -39,6 +39,8 @@ private:
 	void parse();  // TODO: infix . for cons - excuse to practice parser design
 	void temp_add();
 	void temp_not();
+	void temp_and();
+	void temp_or();
 	void temp_equal();
 	void temp_cons();
 	void temp_let();
