@@ -117,6 +117,20 @@ VirtualMachine::run(Chunk& bytecode)
 			stack.push_back(stack[index]);
 			}
 			break;
+		case opcode::JUMP: {
+			uint8_t offset = *ip++;
+			uint8_t overflow = *ip++;
+			ip += static_cast<uint16_t>(overflow) * 256 + offset;
+			}
+			break;
+		case opcode::JUMP_IF_FALSE: {
+			uint8_t offset = *ip++;
+			uint8_t overflow = *ip++;
+			if (stack_peek(0).type == value_type::BOOL &&
+				stack_peek(0).as.boolean == false)
+				ip += static_cast<uint16_t>(overflow) * 256 + offset;
+			}
+			break;
 		case opcode::ADD:
 			{
 				if (stack_peek(0).type != value_type::NUMBER ||

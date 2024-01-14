@@ -7,7 +7,9 @@
 * @param constant : store this Value in the constant table
 * @return : index in constant table
 */
-ConstantIndex Chunk::add_constant(Value const constant) {
+ConstantIndex
+Chunk::add_constant(Value const constant)
+{
 	constants.push_back(constant);
 	uint16_t c = static_cast<uint16_t>(constants.size() - 1);
 	return ConstantIndex{
@@ -17,7 +19,9 @@ ConstantIndex Chunk::add_constant(Value const constant) {
 };
 
 // NOTE: may want to alter newline-based system due to blank lines
-void Chunk::write(uint8_t op, size_t line) {
+void
+Chunk::write(uint8_t op, size_t line)
+{
 	instructions.push_back(op);
 	if (line > max_line) {
 		newlines.push_back(true);
@@ -27,3 +31,9 @@ void Chunk::write(uint8_t op, size_t line) {
 		newlines.push_back(false);
 	}
 };
+
+void
+Chunk::replace(size_t index, uint8_t op)
+{
+	instructions[index] = op;
+}

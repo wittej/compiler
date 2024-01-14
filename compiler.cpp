@@ -63,6 +63,31 @@ Compiler::write_uint(uint16_t uint)
 	write(overflow);
 }
 
+size_t
+Compiler::write_jump(opcode::opcode jump)
+{
+	write(jump);
+	write(255);  // Will be overwritten by patch_jump
+	write(255);
+	return current_bytecode().instructions.size() - 2;
+}
+
+void
+Compiler::patch_jump(size_t jump_index)
+{
+	int jump = current_bytecode().instructions.size() - jump_index - 2;
+	
+	// error if > uint16t max
+
+	uint16_t uint16_offset = static_cast<uint16_t>(jump);
+
+	uint8_t offset = static_cast<uint8_t>(uint16_offset & 255);
+	uint8_t overflow = static_cast<uint8_t>(uint16_offset >> 8);
+
+	current_bytecode().replace(jump_index, offset);
+	current_bytecode().replace(jump_index + 1, overflow);
+}
+
 // This will be expanded later for lambdas etc.
 Chunk&
 Compiler::current_bytecode()

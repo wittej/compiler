@@ -30,6 +30,7 @@ public:
 	Chunk(size_t line) : base_line{ line } {};
 	ConstantIndex add_constant(Value constant);
 	void write(uint8_t op, size_t line);
+	void replace(size_t index, uint8_t op);
 };
 
 #endif
