@@ -19,22 +19,21 @@ Value::print()
 				Pair pair = std::any_cast<Pair>(as.data->data);
 				return "(" + pair.car.print() + " . " + pair.cdr.print() + ")";
 			}
+			case data_type::FUNCTION:
+			{
+				Function function = std::any_cast<Function>(as.data->data);
+				if (function.anonymous()) {
+					return "Function at " + function.bytecode.base_line;
+				}
+				else {
+					return function.name;
+				}
+			}
 			default:
 				return "unknown data type";
 			};
 		default:
 			return "unknown type";
 		}
-	}
-}
-
-data_cast<std::string>
-Value::cast_string()
-{
-	if (type != value_type::DATA || as.data->type != data_type::STRING)
-		return data_cast<std::string>{"", true};
-	else {
-		std::string string = std::any_cast<std::string>(as.data->data);
-		return data_cast<std::string>{string, false};
 	}
 }

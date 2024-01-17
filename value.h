@@ -2,22 +2,17 @@
 #define LISP_VALUE_H
 
 #include "common.h"
+#include "bytecode.h"
 
 enum class value_type {
 	BOOL, NIL, NUMBER, DATA, UNINITIALIZED, UNDEFINED
 };
 
 enum class data_type {
-	PAIR, STRING
+	PAIR, FUNCTION, STRING
 };
 
 struct Data;
-
-template<typename T>
-struct data_cast {
-	T value;
-	bool error;
-};
 
 struct Value {
 	value_type type;
@@ -42,7 +37,6 @@ struct Value {
 		}
 	}
 	std::string print();
-	data_cast<std::string> cast_string();
 };
 
 struct Pair {
@@ -51,11 +45,19 @@ struct Pair {
 	Pair(Value car, Value cdr) : car{ car }, cdr{ cdr } {};
 };
 
+struct Function {
+	size_t arity = 0;
+	Chunk bytecode;
+	std::string name;
+	bool anonymous() { return name.size() == 0; }
+};
+
 struct Data {
 	data_type type;
 	std::any data;
 	Data(Pair pair) : type{ data_type::PAIR }, data{ pair } {}
 	Data(std::string string) : type{ data_type::STRING }, data{ string } {}
+	Data(Function function) : type{ data_type::FUNCTION }, data{ function } {}
 };
 
 #endif

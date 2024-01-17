@@ -238,6 +238,7 @@ Compiler::expression()
 	parse();
 }
 
+// TODO: implement as special case of lambda?
 void
 Compiler::temp_let()
 {
