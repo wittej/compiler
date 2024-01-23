@@ -2,7 +2,8 @@
 #define LISP_BYTECODE_H
 
 #include "common.h"
-#include "value.h"
+
+struct Value;
 
 namespace opcode {
 	enum opcode : uint8_t {

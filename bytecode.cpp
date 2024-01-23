@@ -1,4 +1,5 @@
 #include "bytecode.h"
+#include "value.h"
 
 /**
 * NB: this one's pretty dangerous. Easy to reason through, but lots of casts
