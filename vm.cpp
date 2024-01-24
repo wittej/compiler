@@ -17,6 +17,7 @@ VirtualMachine::stack_peek(size_t depth)
 	return stack[stack.size() - depth - 1];
 }
 
+// TODO: unwind stack?
 void
 VirtualMachine::runtime_error(std::string message, size_t line)
 {
@@ -47,10 +48,17 @@ VirtualMachine::interpret(std::string source)
 {
 	// Probably want the compiler to return the bytecode or some sort of struct
 	Compiler compiler(source, *this);
-	if (compiler.error()) return interpret_result::COMPILE_ERROR;
+	std::shared_ptr<Function> function = compiler.get_function();
+	if (function == nullptr) return interpret_result::COMPILE_ERROR;
 
-	Chunk compiled_bytecode = compiler.get_bytecode();
-	return run(compiled_bytecode);
+	// TODO: revisit this?
+	stack.push_back(Value(value_type::NIL));  // Placeholder
+	frames.push_back(CallFrame{
+		.function = function,
+		.ip = &function->bytecode.instructions[0],
+		.stack_index = stack.size() - 1});
+
+	return run(function->bytecode);
 }
 
 // Scheme rules, everything but "false" is truthy
@@ -68,28 +76,29 @@ VirtualMachine::run(Chunk& bytecode)
 #ifdef DEBUG_TRACE_EXECUTION
 	size_t line = bytecode.base_line;
 #endif
-	uint8_t *ip = bytecode.instructions.data();  // Here for speed for now.
+	CallFrame frame = frames.back();  // TODO: benchmark?
 
 	for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-		disassembleInstruction(bytecode, ip - bytecode.instructions.data(), line);
-		if (bytecode.newlines[ip - bytecode.instructions.data()]) ++line;
+		disassembleInstruction(bytecode, frame.ip - bytecode.instructions.data(), line);
+		if (bytecode.newlines[frame.ip - bytecode.instructions.data()]) ++line;
 #endif
-		switch (uint8_t instruction = *ip++) {
+		switch (uint8_t instruction = *frame.ip++) {
 		case opcode::CONSTANT:
-			stack.push_back(bytecode.constants[*ip++]);
+			stack.push_back(bytecode.constants[*frame.ip++]);
 			break;
 		case opcode::CONSTANT_LONG:
 			{
-				uint8_t constant = *ip++;
-				uint8_t overflow = *ip++;
+				// TODO: consider macro here?
+				uint8_t constant = *frame.ip++;
+				uint8_t overflow = *frame.ip++;
 				uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
 				stack.push_back(bytecode.constants[index]);
 			}
 			break;
 		case opcode::DEFINE_GLOBAL: {
-			uint8_t constant = *ip++;
-			uint8_t overflow = *ip++;
+			uint8_t constant = *frame.ip++;
+			uint8_t overflow = *frame.ip++;
 			uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
 			globals[index] = stack_pop();  // TODO: consider unsigned Value
 			stack.push_back(Value(true));  // TEMP - assuming this will return
@@ -98,8 +107,8 @@ VirtualMachine::run(Chunk& bytecode)
 		case opcode::GET_GLOBAL: {
 			// TODO: instead get the global at this index
 			// Need "undefined" value - similar to how Python does it
-			uint8_t constant = *ip++;
-			uint8_t overflow = *ip++;
+			uint8_t constant = *frame.ip++;
+			uint8_t overflow = *frame.ip++;
 			uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
 			if (globals[index].type == value_type::UNINITIALIZED) {
 				runtime_error("Unintialized variable ", line);
@@ -109,24 +118,25 @@ VirtualMachine::run(Chunk& bytecode)
 			}
 			break;
 		case opcode::GET_LOCAL: {
-			uint8_t constant = *ip++;
-			uint8_t overflow = *ip++;
+			uint8_t constant = *frame.ip++;
+			uint8_t overflow = *frame.ip++;
 			uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
-			stack.push_back(stack[index]);
+			// TODO: make sure this still indexes correctly
+			stack.push_back(stack[frame.stack_index + index]);
 			}
 			break;
 		case opcode::JUMP: {
-			uint8_t offset = *ip++;
-			uint8_t overflow = *ip++;
-			ip += static_cast<uint16_t>(overflow) * 256 + offset;
+			uint8_t offset = *frame.ip++;
+			uint8_t overflow = *frame.ip++;
+			frame.ip += static_cast<uint16_t>(overflow) * 256 + offset;
 			}
 			break;
 		case opcode::JUMP_IF_FALSE: {
-			uint8_t offset = *ip++;
-			uint8_t overflow = *ip++;
+			uint8_t offset = *frame.ip++;
+			uint8_t overflow = *frame.ip++;
 			if (stack_peek(0).type == value_type::BOOL &&
 				stack_peek(0).as.boolean == false)
-				ip += static_cast<uint16_t>(overflow) * 256 + offset;
+				frame.ip += static_cast<uint16_t>(overflow) * 256 + offset;
 			}
 			break;
 		case opcode::ADD:

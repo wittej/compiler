@@ -47,6 +47,7 @@ struct Pair {
 
 // TODO: consider moving function to own header file
 // TODO: consider visitor pattern for function / program dispatch
+// TOOD: right abstraction might be a bytecode subclass with arity / name?
 
 struct Function {
 	size_t arity = 0;
@@ -61,6 +62,7 @@ struct Data {
 	std::any data;
 	Data(Pair pair) : type{ data_type::PAIR }, data{ pair } {}
 	Data(std::string string) : type{ data_type::STRING }, data{ string } {}
+	// TODO: revisit this
 	Data(Function function) : type{ data_type::FUNCTION }, data{ function } {}
 };
 

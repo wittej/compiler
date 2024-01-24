@@ -58,8 +58,7 @@ public:
 	Compiler(std::string& source, VirtualMachine& vm) : scanner{ Scanner(source) }, vm{ vm }
 	{
 		// TODO: revisit
-		function = std::make_shared<Function>();
-		//locals.push_back(Local{ .token = Token{ .type=token_type::BEGIN, .line=0 }, .depth = 0});
+		locals.push_back(Local{ .token = Token{ .type=token_type::BEGIN, .line=0 }, .depth = 0});
 
 		compile();
 	};

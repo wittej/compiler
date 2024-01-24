@@ -6,7 +6,8 @@
 #include "value.h"
 #include "debug.h"
 
-#define STACK_MAX 256
+#define RECURSION_MAX 64
+#define STACK_MAX 256 * RECURSION_MAX
 
 enum class interpret_result {
 	OK,
@@ -14,10 +15,17 @@ enum class interpret_result {
 	RUNTIME_ERROR,
 };
 
+struct CallFrame {
+	std::shared_ptr<Function> function;  // TODO: determine shared ptr or reference
+	uint8_t* ip;
+	size_t stack_index;
+};
+
 class VirtualMachine {
 private:
 	interpret_result run(Chunk& bytecode);
 	std::vector<Value> stack;
+	std::vector<CallFrame> frames;
 	std::forward_list<Data> memory;
 	// TODO: benchmark vector vs. map performance here
 	// Hybrid solution - string-index map, value vector globals
