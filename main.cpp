@@ -14,7 +14,14 @@ repl(VirtualMachine vm)
 	for (;;) {
 		std::cout << "> ";
 		if (!std::getline(std::cin, line)) break;
-		vm.interpret(line);
+		switch (vm.interpret(line)) {
+		case interpret_result::COMPILE_ERROR:
+			std::cout << "COMPILER ERROR\n";
+			break;
+		case interpret_result::RUNTIME_ERROR:
+			std::cout << "RUNTIME ERROR\n";
+			break;
+		}
 	}
 }
 

@@ -45,11 +45,15 @@ struct Pair {
 	Pair(Value car, Value cdr) : car{ car }, cdr{ cdr } {};
 };
 
+// TODO: consider moving function to own header file
+// TODO: consider visitor pattern for function / program dispatch
+
 struct Function {
 	size_t arity = 0;
 	Chunk bytecode;
 	std::string name;
 	bool anonymous() { return name.size() == 0; }
+	Function() : bytecode{ Chunk(0) } {}  // TEMP
 };
 
 struct Data {

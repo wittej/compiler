@@ -4,6 +4,7 @@
 #include "common.h"
 #include "bytecode.h"
 #include "scanner.h"
+#include "value.h"
 #ifdef DEBUG_BYTECODE_ERRORS
 #include "debug.h"
 #endif
@@ -19,12 +20,14 @@ class Compiler {
 private:
 	Scanner scanner; // Encapsulates source - probably don't need to work with it directly
 	VirtualMachine& vm;
-	Chunk bytecode;
+	// TODO: consider some additional state to say what level we're at?
+	// TODO: Might be covered by scope depth as well.
+	std::shared_ptr<Function> function = std::make_shared<Function>();
 	Token parse_current;  // Note: this is probably still important because '(' can mean different things.
 	Token parse_previous;
 	size_t scope_depth = 0;
 	std::vector<Local> locals;
-	bool had_error = false;
+	bool had_error = false;  // TODO: clean this up
 	bool panic_mode = false;
 	void advance();
 	void consume(token_type expected, std::string error_message);
@@ -49,11 +52,21 @@ private:
 	size_t write_jump(opcode::opcode jump);
 	void patch_jump(size_t jump_index);
 	int resolve_local(Token token);
+	bool compile();
 	Chunk& current_bytecode();
 public:
-	Compiler(std::string& source, VirtualMachine& vm, Chunk bytecode) : scanner{ Scanner(source) }, vm{ vm }, bytecode{ bytecode } {};
-	bool compile();
-	Chunk get_bytecode() { return bytecode; };
+	Compiler(std::string& source, VirtualMachine& vm) : scanner{ Scanner(source) }, vm{ vm }
+	{
+		// TODO: revisit
+		function = std::make_shared<Function>();
+		//locals.push_back(Local{ .token = Token{ .type=token_type::BEGIN, .line=0 }, .depth = 0});
+
+		compile();
+	};
+	bool error() { return had_error; };
+	// TODO: revisit if this is needed - might just want to make it public?
+	std::shared_ptr<Function> get_function() { return had_error ? nullptr : function; };
+	Chunk get_bytecode() { return current_bytecode(); };
 };
 
 #endif

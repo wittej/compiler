@@ -4,7 +4,7 @@
 #include "common.h"
 
 enum class token_type {
-	END, ERROR,
+	BEGIN, END, ERROR,
 	LPAREN, RPAREN,
 	PLUS, NOT, AND, OR, EQUAL, CONS,  // TODO: consider if we want a "reserved symbol" token type or similar
 	LET, IF,

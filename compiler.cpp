@@ -92,7 +92,7 @@ Compiler::patch_jump(size_t jump_index)
 Chunk&
 Compiler::current_bytecode()
 {
-	return bytecode;
+	return function->bytecode;
 }
 
 // This needs to get tested for long constants.

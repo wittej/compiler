@@ -45,11 +45,9 @@ VirtualMachine::global(std::string key)
 interpret_result
 VirtualMachine::interpret(std::string source)
 {
-	Chunk bytecode(1);
-
 	// Probably want the compiler to return the bytecode or some sort of struct
-	Compiler compiler(source, *this, bytecode);
-	if (!compiler.compile()) return interpret_result::COMPILE_ERROR;
+	Compiler compiler(source, *this);
+	if (compiler.error()) return interpret_result::COMPILE_ERROR;
 
 	Chunk compiled_bytecode = compiler.get_bytecode();
 	return run(compiled_bytecode);

@@ -12,5 +12,6 @@
 #include <forward_list>
 #include <unordered_map>
 #include <any>
+#include <memory>
 
 #endif
