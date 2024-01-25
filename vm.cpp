@@ -135,7 +135,6 @@ VirtualMachine::run()
 		case opcode::DEFINE_GLOBAL: {
 			size_t index = read_uint16_and_update_ip(frames.back().ip);
 			globals[index] = stack_pop();  // TODO: consider unsigned Value
-			stack.push_back(Value(true));  // TEMP - assuming this will return
 			}
 			break;
 		case opcode::GET_GLOBAL: {
@@ -228,7 +227,6 @@ VirtualMachine::run()
 				return interpret_result::OK;
 			}
 
-			// TODO: verify indexing is correct here
 			stack.erase(stack.begin() + frames.back().stack_index, stack.end());
 			stack.push_back(result);
 			frames.pop_back();
