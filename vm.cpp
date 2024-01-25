@@ -50,6 +50,17 @@ VirtualMachine::global(std::string key)
 	return size;
 }
 
+// NB: will mutate ip
+// TODO: think on name - want to be exceptionally clear that ip state changes
+// TODO: consider if this is a good idea in general
+inline uint16_t
+VirtualMachine::read_uint16_and_update_ip(uint8_t*& ip)
+{
+	uint8_t constant = *ip++;
+	uint8_t overflow = *ip++;
+	return static_cast<uint16_t>(overflow) * 256 + constant;
+}
+
 interpret_result
 VirtualMachine::interpret(std::string source)
 {
@@ -59,13 +70,11 @@ VirtualMachine::interpret(std::string source)
 	if (function == nullptr) return interpret_result::COMPILE_ERROR;
 
 	// TODO: revisit this?
-	stack.push_back(Value(value_type::NIL));  // Placeholder
-	frames.push_back(CallFrame{
-		.function = function,
-		.ip = &function->bytecode.instructions[0],
-		.stack_index = stack.size() - 1});
+	Data script = Data(function);
+	stack.push_back(Value(&script));
+	call(0);
 
-	return run(function->bytecode);
+	return run();
 }
 
 // Scheme rules, everything but "false" is truthy
@@ -75,24 +84,40 @@ VirtualMachine::truthValue(Value val)
 	return (val.type == value_type::BOOL) ? val.as.boolean : true;
 }
 
+bool
+VirtualMachine::call(size_t number_arguments)
+{
+	Value val = stack_peek(number_arguments);
+	if (!val.match_data_type(data_type::FUNCTION)) return false;
+
+	std::shared_ptr<Function> function = std::any_cast<std::shared_ptr<Function>>(val.as.data->data);
+	CallFrame frame{
+		.function = function,
+		.ip = &function->bytecode.instructions[0],
+		.stack_index = stack.size() - number_arguments - 1 };
+
+	frames.push_back(frame);
+	return true;
+}
+
 // TODO: clean up switch block formatting or break into functions
 
 interpret_result
-VirtualMachine::run(Chunk& bytecode)
+VirtualMachine::run()
 {
-#ifdef DEBUG_TRACE_EXECUTION
-	size_t line = bytecode.base_line;
-#endif
 	CallFrame frame = frames.back();  // TODO: benchmark?
+#ifdef DEBUG_TRACE_EXECUTION
+	size_t line = frame.function->bytecode.base_line;
+#endif
 
 	for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-		disassembleInstruction(bytecode, frame.ip - bytecode.instructions.data(), line);
-		if (bytecode.newlines[frame.ip - bytecode.instructions.data()]) ++line;
+		disassembleInstruction(frame.function->bytecode, frame.ip - frame.function->bytecode.instructions.data(), line);
+		if (frame.function->bytecode.newlines[frame.ip - frame.function->bytecode.instructions.data()]) ++line;
 #endif
 		switch (uint8_t instruction = *frame.ip++) {
 		case opcode::CONSTANT:
-			stack.push_back(bytecode.constants[*frame.ip++]);
+			stack.push_back(frame.function->bytecode.constants[*frame.ip++]);
 			break;
 		case opcode::CONSTANT_LONG:
 			{
@@ -100,7 +125,7 @@ VirtualMachine::run(Chunk& bytecode)
 				uint8_t constant = *frame.ip++;
 				uint8_t overflow = *frame.ip++;
 				uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
-				stack.push_back(bytecode.constants[index]);
+				stack.push_back(frame.function->bytecode.constants[index]);
 			}
 			break;
 		case opcode::DEFINE_GLOBAL: {
@@ -177,6 +202,12 @@ VirtualMachine::run(Chunk& bytecode)
 				memory.push_front(Data(Pair(a, b)));
 				stack.push_back(Value(&memory.front()));
 			}
+			break;
+		case opcode::CALL: {
+			size_t number_argments = read_uint16_and_update_ip(frame.ip);
+			if (!call(number_argments)) return interpret_result::RUNTIME_ERROR;
+			}
+			frame = frames.back();
 			break;
 		case opcode::NOT:
 			stack.push_back(Value(!truthValue(stack_pop())));

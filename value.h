@@ -37,6 +37,7 @@ struct Value {
 		}
 	}
 	std::string print();
+	bool match_data_type(data_type match);
 };
 
 struct Pair {

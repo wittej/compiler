@@ -224,6 +224,7 @@ Compiler::lambda()
 	}
 	consume(token_type::RPAREN, "Expected ')' after function parameters");
 	expression();
+	write(opcode::RETURN);
 
 	std::shared_ptr<Function> lambda = function;
 	function = saved_function;

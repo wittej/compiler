@@ -23,7 +23,7 @@ struct CallFrame {
 
 class VirtualMachine {
 private:
-	interpret_result run(Chunk& bytecode);
+	interpret_result run();
 	std::vector<Value> stack;
 	std::vector<CallFrame> frames;
 	std::forward_list<Data> memory;
@@ -35,6 +35,8 @@ private:
 	Value stack_peek(size_t depth);
 	void runtime_error(std::string message, size_t line);
 	bool truthValue(Value val);
+	inline uint16_t read_uint16_and_update_ip(uint8_t*& ip);
+	bool call(size_t number_arguments);
 public:
 	interpret_result interpret(std::string source);
 	Value allocate(std::string string);

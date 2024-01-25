@@ -37,3 +37,9 @@ Value::print()
 		}
 	}
 }
+
+bool
+Value::match_data_type(data_type match)
+{
+	return type == value_type::DATA && as.data->type == match;
+}
