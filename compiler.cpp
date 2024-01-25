@@ -217,6 +217,11 @@ Compiler::lambda()
 	function = std::make_shared<Function>();
 
 	consume(token_type::LPAREN, "Expected '(' before function parameters");
+	while (parse_current.type != token_type::RPAREN) {
+		consume(token_type::SYMBOL, "Expect symbol parameter");
+		locals.push_back(Local{.token = parse_previous, .depth=static_cast<int>(scope_depth)});
+		function->arity++;
+	}
 	consume(token_type::RPAREN, "Expected ')' after function parameters");
 	expression();
 
