@@ -17,12 +17,19 @@ VirtualMachine::stack_peek(size_t depth)
 	return stack[stack.size() - depth - 1];
 }
 
-// TODO: unwind stack?
+// TODO: better line handling
 void
 VirtualMachine::runtime_error(std::string message, size_t line)
 {
-	std::cerr << message << " at line " << line << '\n';
-	stack.clear();
+	std::cerr << message << '\n';
+
+	for (size_t i = frames.size(); i > 0; i--) {
+		CallFrame& frame = frames[i - 1];
+		size_t instruction = frame.ip - frame.function->bytecode.instructions.data() - 1;
+		std::cerr << "in " << frame.function->name << '\n';  // TODO: anonymous function names
+	}
+
+	stack.clear();  // TODO - clear func?
 }
 
 Value
@@ -105,33 +112,28 @@ VirtualMachine::call(size_t number_arguments)
 interpret_result
 VirtualMachine::run()
 {
-	CallFrame frame = frames.back();  // TODO: benchmark?
 #ifdef DEBUG_TRACE_EXECUTION
-	size_t line = frame.function->bytecode.base_line;
+	size_t line = frames.back().function->bytecode.base_line;
 #endif
 
 	for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-		disassembleInstruction(frame.function->bytecode, frame.ip - frame.function->bytecode.instructions.data(), line);
-		if (frame.function->bytecode.newlines[frame.ip - frame.function->bytecode.instructions.data()]) ++line;
+		disassembleInstruction(frames.back().function->bytecode, frames.back().ip - frames.back().function->bytecode.instructions.data(), line);
+		if (frames.back().function->bytecode.newlines[frames.back().ip - frames.back().function->bytecode.instructions.data()]) ++line;
 #endif
-		switch (uint8_t instruction = *frame.ip++) {
+		switch (uint8_t instruction = *frames.back().ip++) {
 		case opcode::CONSTANT:
-			stack.push_back(frame.function->bytecode.constants[*frame.ip++]);
+			stack.push_back(frames.back().function->bytecode.constants[*frames.back().ip++]);
 			break;
 		case opcode::CONSTANT_LONG:
 			{
-				// TODO: consider macro here?
-				uint8_t constant = *frame.ip++;
-				uint8_t overflow = *frame.ip++;
-				uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
-				stack.push_back(frame.function->bytecode.constants[index]);
+				// TODO test this
+				size_t index = read_uint16_and_update_ip(frames.back().ip);
+				stack.push_back(frames.back().function->bytecode.constants[index]);
 			}
 			break;
 		case opcode::DEFINE_GLOBAL: {
-			uint8_t constant = *frame.ip++;
-			uint8_t overflow = *frame.ip++;
-			uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
+			size_t index = read_uint16_and_update_ip(frames.back().ip);
 			globals[index] = stack_pop();  // TODO: consider unsigned Value
 			stack.push_back(Value(true));  // TEMP - assuming this will return
 			}
@@ -139,9 +141,7 @@ VirtualMachine::run()
 		case opcode::GET_GLOBAL: {
 			// TODO: instead get the global at this index
 			// Need "undefined" value - similar to how Python does it
-			uint8_t constant = *frame.ip++;
-			uint8_t overflow = *frame.ip++;
-			uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
+			size_t index = read_uint16_and_update_ip(frames.back().ip);
 			if (globals[index].type == value_type::UNINITIALIZED) {
 				runtime_error("Unintialized variable", line);
 				return interpret_result::RUNTIME_ERROR;
@@ -150,25 +150,20 @@ VirtualMachine::run()
 			}
 			break;
 		case opcode::GET_LOCAL: {
-			uint8_t constant = *frame.ip++;
-			uint8_t overflow = *frame.ip++;
-			uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
+			size_t index = read_uint16_and_update_ip(frames.back().ip);
 			// TODO: make sure this still indexes correctly
-			stack.push_back(stack[frame.stack_index + index]);
+			stack.push_back(stack[frames.back().stack_index + index]);
 			}
 			break;
 		case opcode::JUMP: {
-			uint8_t offset = *frame.ip++;
-			uint8_t overflow = *frame.ip++;
-			frame.ip += static_cast<uint16_t>(overflow) * 256 + offset;
+			frames.back().ip += read_uint16_and_update_ip(frames.back().ip);
 			}
 			break;
 		case opcode::JUMP_IF_FALSE: {
-			uint8_t offset = *frame.ip++;
-			uint8_t overflow = *frame.ip++;
+			size_t jump = read_uint16_and_update_ip(frames.back().ip);
 			if (stack_peek(0).type == value_type::BOOL &&
 				stack_peek(0).as.boolean == false)
-				frame.ip += static_cast<uint16_t>(overflow) * 256 + offset;
+				frames.back().ip += jump;
 			}
 			break;
 		case opcode::ADD:
@@ -204,10 +199,9 @@ VirtualMachine::run()
 			}
 			break;
 		case opcode::CALL: {
-			size_t number_argments = read_uint16_and_update_ip(frame.ip);
-			if (!call(number_argments)) return interpret_result::RUNTIME_ERROR;
+			size_t number_arguments = read_uint16_and_update_ip(frames.back().ip);
+			if (!call(number_arguments)) return interpret_result::RUNTIME_ERROR;
 			}
-			frame = frames.back();
 			break;
 		case opcode::NOT:
 			stack.push_back(Value(!truthValue(stack_pop())));
@@ -224,9 +218,22 @@ VirtualMachine::run()
 		case opcode::POP:
 			stack_pop();
 			break;
-		case opcode::RETURN:
-			std::cout << stack_pop().print() << '\n';
-			return interpret_result::OK;
+		case opcode::RETURN: {
+			Value result = stack_pop();
+
+			if (frames.size() == 1) {
+				stack_pop();
+				frames.pop_back();
+				std::cout << result.print() << '\n';
+				return interpret_result::OK;
+			}
+
+			// TODO: verify indexing is correct here
+			stack.erase(stack.begin() + frames.back().stack_index, stack.end());
+			stack.push_back(result);
+			frames.pop_back();
+			}
+			break;
 		default:
 			return interpret_result::RUNTIME_ERROR;
 		}
