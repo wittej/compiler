@@ -7,7 +7,7 @@ enum class token_type {
 	BEGIN, END, ERROR,
 	LPAREN, RPAREN,
 	PLUS, NOT, AND, OR, EQUAL, CONS,  // TODO: consider if we want a "reserved symbol" token type or similar
-	LET, IF,
+	LET, IF, LAMBDA,
 	NUMBER, TRUE, FALSE, NIL, SYMBOL, DEFINE
 };
 

@@ -41,7 +41,8 @@ void
 Compiler::error(std::string error_message, Token token)
 {
 	if (panic_mode) return;
-	std::cerr << "Compiler error [line " << token.line << "] " << error_message << "\n";
+	std::cerr << "Compiler error [line " << token.line << "] " << error_message << '\n';
+	std::cerr << token.string << '\n';
 	had_error = true;
 	panic_mode = true;
 }
@@ -191,6 +192,7 @@ Compiler::definition()
 				error("Unexpected variable redefinition", parse_previous);
 		}
 		// Depth -1 indicates variable hasn't been initialized in this scope.
+		// TODO: don't do this for lambdas - should be able to be recursive
 		Local local{ .token = parse_previous, .depth = -1 /*uninitialized*/ };
 		locals.push_back(local);
 		expression();  // Needs to be tested
@@ -202,6 +204,25 @@ Compiler::definition()
 		write(opcode::DEFINE_GLOBAL);
 		write_uint(index);
 	}
+}
+
+// TODO: figure out how to do this
+// Notes: there's a lot of potentially messy shared state here - need to
+// make sure solution is rational and handles various edge cases.
+
+void
+Compiler::lambda()
+{
+	std::shared_ptr<Function> saved_function = function;
+	function = std::make_shared<Function>();
+
+	consume(token_type::LPAREN, "Expected '(' before function parameters");
+	consume(token_type::RPAREN, "Expected ')' after function parameters");
+	expression();
+
+	std::shared_ptr<Function> lambda = function;
+	function = saved_function;
+	constant(vm.allocate(lambda));
 }
 
 int
@@ -314,6 +335,9 @@ Compiler::parse()
 	case token_type::DEFINE:
 		definition();
 		write(opcode::NIL);  // TODO: consider moving this to definition
+		break;
+	case token_type::LAMBDA:
+		lambda();
 		break;
 	case token_type::IF:
 		if_statement();

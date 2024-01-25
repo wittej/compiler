@@ -38,6 +38,7 @@ private:
 public:
 	interpret_result interpret(std::string source);
 	Value allocate(std::string string);
+	Value allocate(std::shared_ptr<Function> function);
 	size_t global(std::string key);
 };
 

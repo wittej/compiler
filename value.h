@@ -63,7 +63,7 @@ struct Data {
 	Data(Pair pair) : type{ data_type::PAIR }, data{ pair } {}
 	Data(std::string string) : type{ data_type::STRING }, data{ string } {}
 	// TODO: revisit this
-	Data(Function function) : type{ data_type::FUNCTION }, data{ function } {}
+	Data(std::shared_ptr<Function> function) : type{ data_type::FUNCTION }, data{ function } {}
 };
 
 #endif

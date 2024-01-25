@@ -32,6 +32,13 @@ VirtualMachine::allocate(std::string string)
 	return Value(&memory.front());
 }
 
+Value
+VirtualMachine::allocate(std::shared_ptr<Function> function)
+{
+	memory.push_front(Data(function));
+	return Value(&memory.front());
+}
+
 size_t
 VirtualMachine::global(std::string key)
 {

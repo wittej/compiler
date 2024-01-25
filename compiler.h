@@ -23,6 +23,7 @@ private:
 	// TODO: consider some additional state to say what level we're at?
 	// TODO: Might be covered by scope depth as well.
 	std::shared_ptr<Function> function = std::make_shared<Function>();
+	// TODO: abstract these 
 	Token parse_current;  // Note: this is probably still important because '(' can mean different things.
 	Token parse_previous;
 	size_t scope_depth = 0;
@@ -36,6 +37,7 @@ private:
 	void definition_or_expression();  // TODO: synchronize here
 	void definition();
 	void expression();
+	void lambda();
 	void if_statement();
 	void error(std::string error_message, Token token);
 	void write(uint8_t op);

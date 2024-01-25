@@ -67,7 +67,14 @@ Scanner::symbolType()
 	case 'i':
 		return checkKeyword(1, "f", token_type::IF);
 	case 'l':
-		return checkKeyword(1, "et", token_type::LET);
+		if (current > start + 1) {
+			switch (source[start + 1]) {
+			case 'a':
+				return checkKeyword(2, "mbda", token_type::LAMBDA);
+			case 'e':
+				return checkKeyword(2, "t", token_type::LET);
+			}
+		}
 	case 'n':
 		if (current > start + 1) {
 			switch (source[start + 1]) {
