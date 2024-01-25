@@ -134,6 +134,8 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 		return uintInstruction("JUMP", bytecode, offset);
 	case opcode::JUMP_IF_FALSE:
 		return uintInstruction("JUMP IF FALSE", bytecode, offset);
+	case opcode::CALL:
+		return uintInstruction("CALL", bytecode, offset);
 	default:
 		int undefined_opcode = static_cast<int>(instruction);
 		std::cerr << "Unknown opcode " << undefined_opcode << "\n";

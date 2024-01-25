@@ -310,6 +310,18 @@ Compiler::if_statement()
 }
 
 void
+Compiler::call()
+{
+	uint16_t number_arguments = 0;
+	while (parse_current.type != token_type::RPAREN) {
+		expression();
+		number_arguments++;
+	}
+	write(opcode::CALL);
+	write_uint(number_arguments);
+}
+
+void
 Compiler::parse()
 {
 	advance();
@@ -330,7 +342,8 @@ Compiler::parse()
 		write(opcode::NIL);
 		break;
 	case token_type::LPAREN:
-		combination();
+		if (parse_current.type == token_type::RPAREN) write(opcode::NIL);
+		else combination();
 		consume(token_type::RPAREN, "Expect ')'.");
 		break;
 	default:
@@ -375,10 +388,8 @@ Compiler::combination()
 		if_statement();
 		break;
 	case token_type::SYMBOL:
-		// TODO: implement as call 
-		while (parse_current.type != token_type::RPAREN) {
-			expression();
-		}
+		symbol();
+		call();
 		break;
 	default:
 		error("expected symbol or built-in when reading combination.", parse_previous);

@@ -118,7 +118,7 @@ VirtualMachine::run(Chunk& bytecode)
 			uint8_t overflow = *frame.ip++;
 			uint16_t index = static_cast<uint16_t>(overflow) * 256 + constant;
 			if (globals[index].type == value_type::UNINITIALIZED) {
-				runtime_error("Unintialized variable ", line);
+				runtime_error("Unintialized variable", line);
 				return interpret_result::RUNTIME_ERROR;
 			}
 			stack.push_back(globals[index]);

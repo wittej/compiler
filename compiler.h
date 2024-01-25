@@ -51,6 +51,7 @@ private:
 	void temp_cons();
 	void temp_let();
 	void symbol();
+	void call();
 	void write_uint(uint16_t uint);
 	size_t write_jump(opcode::opcode jump);
 	void patch_jump(size_t jump_index);
