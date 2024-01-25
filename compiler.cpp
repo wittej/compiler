@@ -261,6 +261,7 @@ Compiler::symbol()
 void
 Compiler::expression()
 {
+	// TODO - differentiate self-evaluating and combination?
 	parse();
 }
 
@@ -316,6 +317,32 @@ Compiler::parse()
 	case token_type::NUMBER:
 		number();
 		break;
+	case token_type::SYMBOL:
+		symbol();
+		break;
+	case token_type::FALSE:
+		write(opcode::FALSE);
+		break;
+	case token_type::TRUE:
+		write(opcode::TRUE);
+		break;
+	case token_type::NIL:
+		write(opcode::NIL);
+		break;
+	case token_type::LPAREN:
+		combination();
+		consume(token_type::RPAREN, "Expect ')'.");
+		break;
+	default:
+		error("unknown self-evaluating token type.", parse_previous);
+	}
+}
+
+void
+Compiler::combination()
+{
+	advance();
+	switch (parse_previous.type) {
 	case token_type::PLUS:
 		temp_add();
 		break;
@@ -348,23 +375,12 @@ Compiler::parse()
 		if_statement();
 		break;
 	case token_type::SYMBOL:
-		symbol();
-		break;
-	case token_type::FALSE:
-		write(opcode::FALSE);
-		break;
-	case token_type::TRUE:
-		write(opcode::TRUE);
-		break;
-	case token_type::NIL:
-		write(opcode::NIL);
-		break;
-	// NOTE: this will need to be smarter - parse correct number of args etc
-	case token_type::LPAREN:
-		expression();
-		consume(token_type::RPAREN, "Expect ')'.");
+		// TODO: implement as call 
+		while (parse_current.type != token_type::RPAREN) {
+			expression();
+		}
 		break;
 	default:
-		error("unknown token type.", parse_previous);
+		error("expected symbol or built-in when reading combination.", parse_previous);
 	}
 }

@@ -42,6 +42,7 @@ private:
 	void error(std::string error_message, Token token);
 	void write(uint8_t op);
 	void parse();  // TODO: infix . for cons - excuse to practice parser design
+	void combination();
 	void temp_add();
 	void temp_not();
 	void temp_and();
