@@ -1,4 +1,5 @@
 #include "value.h"
+#include "vm.h"  // TODO: move this and functions to their own file
 
 std::string
 Value::print()
@@ -42,4 +43,14 @@ bool
 Value::match_data_type(data_type match)
 {
 	return type == value_type::DATA && as.data->type == match;
+}
+
+
+Value
+BuiltinCons::call(std::vector<Value>::iterator args, size_t count)
+{
+	if (count != 2) return Value(value_type::NIL);  // TEMP
+	Value left = *args++;
+	Value right = *args++;
+	return vm.allocate(Pair(left, right));
 }

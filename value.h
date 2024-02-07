@@ -4,6 +4,8 @@
 #include "common.h"
 #include "bytecode.h"
 
+class VirtualMachine;  // TODO: move this and functions to own file
+
 enum class value_type {
 	BOOL, NIL, NUMBER, DATA, UNINITIALIZED, UNDEFINED
 };
@@ -58,8 +60,17 @@ struct Function {
 	Function() : bytecode{ Chunk(0) } {}  // TEMP
 };
 
+// TODO: give this some way of throwing an error
 struct BuiltinFunction {
-	virtual Value call(std::vector<Value>::iterator args, size_t arity) = 0;
+	virtual Value call(std::vector<Value>::iterator args, size_t count) = 0;
+};
+
+struct BuiltinCons : BuiltinFunction {
+private:
+	VirtualMachine& vm;
+public:
+	Value call(std::vector<Value>::iterator args, size_t count);
+	BuiltinCons(VirtualMachine& vm) : vm{ vm } {};
 };
 
 struct Data {
