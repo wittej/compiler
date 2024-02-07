@@ -217,38 +217,6 @@ VirtualMachine::run()
 				frames.back().ip += jump;
 			}
 			break;
-		case opcode::ADD:
-			{
-				if (stack_peek(0).type != value_type::NUMBER ||
-					stack_peek(1).type != value_type::NUMBER) {
-					runtime_error("+: expected numeric operand", line);
-					return interpret_result::RUNTIME_ERROR;
-				}
-				Value b = stack_pop();
-				Value a = stack_pop();
-				stack.push_back(Value(a.as.number + b.as.number));
-			}
-			break;
-		case opcode::EQUAL:
-			{
-				if (stack_peek(0).type != value_type::NUMBER ||
-					stack_peek(1).type != value_type::NUMBER) {
-					runtime_error("=: expected numeric operand", line);
-					return interpret_result::RUNTIME_ERROR;
-				}
-				Value b = stack_pop();
-				Value a = stack_pop();
-				stack.push_back(Value(a.as.number == b.as.number));
-			}
-			break;
-		case opcode::CONS:
-			{
-				Value b = stack_pop();
-				Value a = stack_pop();
-				memory.push_front(Data(Pair(a, b)));
-				stack.push_back(Value(&memory.front()));
-			}
-			break;
 		case opcode::CALL: {
 			size_t number_arguments = read_uint16_and_update_ip(frames.back().ip);
 			if (!call(number_arguments)) return interpret_result::RUNTIME_ERROR;

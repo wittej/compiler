@@ -198,7 +198,10 @@ Compiler::lambda()
 		function->arity++;
 	}
 	consume(token_type::RPAREN, "Expected ')' after function parameters");
-	expression();
+	while (parse_current.type != token_type::RPAREN && parse_current.type != token_type::END) {
+		definition_or_expression();
+		if (parse_current.type != token_type::RPAREN && parse_current.type != token_type::END) write(opcode::POP);
+	}
 	write(opcode::RETURN);
 
 	std::shared_ptr<Function> lambda = function;
