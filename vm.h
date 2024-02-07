@@ -10,6 +10,8 @@
 #define RECURSION_MAX 64
 #define STACK_MAX 256 * RECURSION_MAX
 
+// TODO: correct return process for blank line
+
 enum class interpret_result {
 	OK,
 	COMPILE_ERROR,
