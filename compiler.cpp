@@ -191,6 +191,7 @@ Compiler::lambda()
 	std::shared_ptr<Function> saved_function = function;
 	function = std::make_shared<Function>();
 
+	++scope_depth;
 	consume(token_type::LPAREN, "Expected '(' before function parameters");
 	while (parse_current.type != token_type::RPAREN) {
 		consume(token_type::SYMBOL, "Expect symbol parameter");
@@ -203,6 +204,7 @@ Compiler::lambda()
 		if (parse_current.type != token_type::RPAREN && parse_current.type != token_type::END) write(opcode::POP);
 	}
 	write(opcode::RETURN);
+	--scope_depth;
 
 	std::shared_ptr<Function> lambda = function;
 	function = saved_function;
