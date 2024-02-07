@@ -95,7 +95,9 @@ bool
 VirtualMachine::call(size_t number_arguments)
 {
 	Value val = stack_peek(number_arguments);
-	if (!val.match_data_type(data_type::FUNCTION)) return false;
+	if (val.match_data_type(data_type::FUNCTION)) return call_function;
+	else if (val.match_data_type(data_type::BUILTIN)) return call_builtin;
+	else return false;
 
 	std::shared_ptr<Function> function = std::any_cast<std::shared_ptr<Function>>(val.as.data->data);
 	CallFrame frame{
@@ -106,6 +108,8 @@ VirtualMachine::call(size_t number_arguments)
 	frames.push_back(frame);
 	return true;
 }
+
+
 
 // TODO: clean up switch block formatting or break into functions
 

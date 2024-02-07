@@ -37,6 +37,8 @@ private:
 	bool truthValue(Value val);
 	inline uint16_t read_uint16_and_update_ip(uint8_t*& ip);
 	bool call(size_t number_arguments);
+	bool call_function(size_t number_arguments);
+	bool call_builtin(size_t number_arguments);
 public:
 	interpret_result interpret(std::string source);
 	Value allocate(std::string string);

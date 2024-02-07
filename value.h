@@ -9,7 +9,7 @@ enum class value_type {
 };
 
 enum class data_type {
-	PAIR, FUNCTION, STRING
+	PAIR, FUNCTION, BUILTIN, STRING
 };
 
 struct Data;
@@ -69,6 +69,7 @@ struct Data {
 	Data(std::string string) : type{ data_type::STRING }, data{ string } {}
 	// TODO: revisit this
 	Data(std::shared_ptr<Function> function) : type{ data_type::FUNCTION }, data{ function } {}
+	Data(std::shared_ptr<BuiltinFunction> builtin) : type{ data_type::BUILTIN }, data{ builtin } {}
 };
 
 #endif
