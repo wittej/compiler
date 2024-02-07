@@ -113,23 +113,6 @@ Compiler::number()
 	constant(std::stod(parse_previous.string));
 }
 
-// Temporary - just to learn and make sure compiler is working.
-void
-Compiler::temp_add()
-{
-	parse();
-	parse();
-	write(opcode::ADD);
-}
-
-void
-Compiler::temp_equal()
-{
-	parse();
-	parse();
-	write(opcode::EQUAL);
-}
-
 void
 Compiler::temp_not()
 {
@@ -159,14 +142,6 @@ Compiler::temp_or()
 	write(opcode::POP);
 	parse();  // TODO: verify this is boolean?
 	patch_jump(jump_to_exit);
-}
-
-void
-Compiler::temp_cons()
-{
-	parse();
-	parse();
-	write(opcode::CONS);
 }
 
 void
@@ -362,9 +337,6 @@ Compiler::combination()
 {
 	advance();
 	switch (parse_previous.type) {
-	case token_type::PLUS:
-		temp_add();
-		break;
 	case token_type::NOT:
 		temp_not();
 		break;
@@ -373,12 +345,6 @@ Compiler::combination()
 		break;
 	case token_type::OR:
 		temp_or();
-		break;
-	case token_type::EQUAL:
-		temp_equal();
-		break;
-	case token_type::CONS:
-		temp_cons();
 		break;
 	case token_type::LET:
 		temp_let();

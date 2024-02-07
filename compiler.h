@@ -43,12 +43,9 @@ private:
 	void write(uint8_t op);
 	void parse();  // TODO: infix . for cons - excuse to practice parser design
 	void combination();
-	void temp_add();
 	void temp_not();
 	void temp_and();
 	void temp_or();
-	void temp_equal();
-	void temp_cons();
 	void temp_let();
 	void symbol();
 	void call();

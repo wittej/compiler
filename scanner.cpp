@@ -21,9 +21,9 @@ Scanner::scan()
 	case ')':
 		return makeToken(token_type::RPAREN);
 	case '+':
-		return makeToken(token_type::PLUS);
+		return makeToken(token_type::SYMBOL);
 	case '=':
-		return makeToken(token_type::EQUAL);
+		return makeToken(token_type::SYMBOL);
 	}
 
 	// TEMP - currently just numbers
@@ -73,6 +73,7 @@ Scanner::symbolType()
 				return checkKeyword(2, "t", token_type::LET);
 			}
 		}
+		break;
 	case 'n':
 		if (current > start + 1) {
 			switch (source[start + 1]) {

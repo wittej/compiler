@@ -4,8 +4,9 @@
 
 VirtualMachine::VirtualMachine()
 {
-	size_t index = global("cons");
-	globals[index] = allocate(std::make_shared<BuiltinCons>(*this));
+	globals[global("cons")] = allocate(std::make_shared<BuiltinCons>(*this));
+	globals[global("+")] = allocate(std::make_shared<BuiltinAdd>(*this));
+	globals[global("=")] = allocate(std::make_shared<BuiltinEqual>(*this));
 }
 
 Value

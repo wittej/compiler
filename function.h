@@ -28,4 +28,20 @@ public:
 	BuiltinCons(VirtualMachine& vm) : vm{ vm } {};
 };
 
+struct BuiltinAdd : BuiltinFunction {
+private:
+	VirtualMachine& vm;
+public:
+	Value call(std::vector<Value>::iterator args, size_t count);
+	BuiltinAdd(VirtualMachine& vm) : vm{ vm } {};
+};
+
+struct BuiltinEqual : BuiltinFunction {
+private:
+	VirtualMachine& vm;
+public:
+	Value call(std::vector<Value>::iterator args, size_t count);
+	BuiltinEqual(VirtualMachine& vm) : vm{ vm } {};
+};
+
 #endif
