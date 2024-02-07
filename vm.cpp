@@ -94,19 +94,27 @@ VirtualMachine::truthValue(Value val)
 bool
 VirtualMachine::call(size_t number_arguments)
 {
+	bool result = false;
+
 	Value val = stack_peek(number_arguments);
-	if (val.match_data_type(data_type::FUNCTION))
-		return call_function(number_arguments);
-	else if (val.match_data_type(data_type::BUILTIN))
-		return call_builtin(number_arguments);
-	else return false;
+	if (val.match_data_type(data_type::FUNCTION)) {
+		std::shared_ptr<Function> function;
+		// TODO: consider making a shortcut for this stuff
+		function = std::any_cast<std::shared_ptr<Function>>(val.as.data->data);
+		result = call(function, number_arguments);
+	}
+	else if (val.match_data_type(data_type::BUILTIN)) {
+		std::shared_ptr<BuiltinFunction> function;
+		function = std::any_cast<std::shared_ptr<BuiltinFunction>>(val.as.data->data);
+		result = call(function, number_arguments);
+	}
+	
+	return result;
 }
 
 bool
-VirtualMachine::call_function(size_t number_arguments)
+VirtualMachine::call(std::shared_ptr<Function> function, size_t number_arguments)
 {
-	std::shared_ptr<Function> function;
-	function = std::any_cast<std::shared_ptr<Function>>(stack_peek(number_arguments).as.data->data);
 	CallFrame frame{
 		.function = function,
 		.ip = &function->bytecode.instructions[0],
@@ -116,11 +124,14 @@ VirtualMachine::call_function(size_t number_arguments)
 	return true;
 }
 
-
 bool
-VirtualMachine::call_builtin(size_t number_arguments)
+VirtualMachine::call(std::shared_ptr<BuiltinFunction> function, size_t number_arguments)
 {
-	return false;
+	std::vector<Value>::iterator iterator;
+	iterator = stack.begin() + stack.size() - number_arguments;
+	function->call(iterator, number_arguments);
+
+	return true;
 }
 
 
@@ -244,6 +255,7 @@ VirtualMachine::run()
 				return interpret_result::OK;
 			}
 
+			// Look for indexing issues here
 			stack.erase(stack.begin() + frames.back().stack_index, stack.end());
 			stack.push_back(result);
 			frames.pop_back();
