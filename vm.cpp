@@ -95,11 +95,18 @@ bool
 VirtualMachine::call(size_t number_arguments)
 {
 	Value val = stack_peek(number_arguments);
-	if (val.match_data_type(data_type::FUNCTION)) return call_function;
-	else if (val.match_data_type(data_type::BUILTIN)) return call_builtin;
+	if (val.match_data_type(data_type::FUNCTION))
+		return call_function(number_arguments);
+	else if (val.match_data_type(data_type::BUILTIN))
+		return call_builtin(number_arguments);
 	else return false;
+}
 
-	std::shared_ptr<Function> function = std::any_cast<std::shared_ptr<Function>>(val.as.data->data);
+bool
+VirtualMachine::call_function(size_t number_arguments)
+{
+	std::shared_ptr<Function> function;
+	function = std::any_cast<std::shared_ptr<Function>>(stack_peek(number_arguments).as.data->data);
 	CallFrame frame{
 		.function = function,
 		.ip = &function->bytecode.instructions[0],
@@ -109,6 +116,12 @@ VirtualMachine::call(size_t number_arguments)
 	return true;
 }
 
+
+bool
+VirtualMachine::call_builtin(size_t number_arguments)
+{
+	return false;
+}
 
 
 // TODO: clean up switch block formatting or break into functions
