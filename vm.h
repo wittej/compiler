@@ -44,8 +44,10 @@ public:
 	// TODO: template?
 	Value allocate(std::string string);
 	Value allocate(std::shared_ptr<Function> function);
+	Value allocate(std::shared_ptr<BuiltinFunction> builtin);
 	Value allocate(Pair pair);
 	size_t global(std::string key);
+	VirtualMachine();
 };
 
 #endif

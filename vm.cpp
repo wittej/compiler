@@ -2,6 +2,11 @@
 #include "vm.h"
 #include "compiler.h"
 
+VirtualMachine::VirtualMachine()
+{
+	size_t index = global("cons");
+	globals[index] = allocate(std::make_shared<BuiltinCons>(*this));
+}
 
 Value
 VirtualMachine::stack_pop()
@@ -45,6 +50,14 @@ VirtualMachine::allocate(std::shared_ptr<Function> function)
 	memory.push_front(Data(function));
 	return Value(&memory.front());
 }
+
+Value
+VirtualMachine::allocate(std::shared_ptr<BuiltinFunction> builtin)
+{
+	memory.push_front(Data(builtin));
+	return Value(&memory.front());
+}
+
 
 Value
 VirtualMachine::allocate(Pair pair)
@@ -136,7 +149,10 @@ VirtualMachine::call(std::shared_ptr<BuiltinFunction> function, size_t number_ar
 {
 	std::vector<Value>::iterator iterator;
 	iterator = stack.begin() + stack.size() - number_arguments;
-	function->call(iterator, number_arguments);
+	Value result = function->call(iterator, number_arguments);
+
+	stack.erase(stack.begin() + stack.size() - number_arguments - 1, stack.end());
+	stack.push_back(result);
 
 	return true;
 }

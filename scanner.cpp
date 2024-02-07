@@ -58,8 +58,6 @@ Scanner::symbolType()
 	switch (source[start]) {
 	case 'a':
 		return checkKeyword(1, "nd", token_type::AND);
-	case 'c':
-		return checkKeyword(1, "ons", token_type::CONS);
 	case 'd':
 		return checkKeyword(1, "efine", token_type::DEFINE);
 	case 'f':
