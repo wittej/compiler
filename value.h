@@ -4,8 +4,6 @@
 #include "common.h"
 #include "bytecode.h"
 
-class VirtualMachine;  // TODO: move this and functions to own file
-
 enum class value_type {
 	BOOL, NIL, NUMBER, DATA, UNINITIALIZED, UNDEFINED
 };
@@ -15,6 +13,8 @@ enum class data_type {
 };
 
 struct Data;
+struct Function;
+struct BuiltinFunction;
 
 struct Value {
 	value_type type;
@@ -46,31 +46,6 @@ struct Pair {
 	Value car;
 	Value cdr;
 	Pair(Value car, Value cdr) : car{ car }, cdr{ cdr } {};
-};
-
-// TODO: consider moving function to own header file
-// TODO: consider visitor pattern for function / program dispatch
-// TOOD: right abstraction might be a bytecode subclass with arity / name?
-
-struct Function {
-	size_t arity = 0;
-	Chunk bytecode;
-	std::string name;
-	bool anonymous() { return name.size() == 0; }
-	Function() : bytecode{ Chunk(0) } {}  // TEMP
-};
-
-// TODO: give this some way of throwing an error
-struct BuiltinFunction {
-	virtual Value call(std::vector<Value>::iterator args, size_t count) = 0;
-};
-
-struct BuiltinCons : BuiltinFunction {
-private:
-	VirtualMachine& vm;
-public:
-	Value call(std::vector<Value>::iterator args, size_t count);
-	BuiltinCons(VirtualMachine& vm) : vm{ vm } {};
 };
 
 struct Data {

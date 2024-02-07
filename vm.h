@@ -5,6 +5,7 @@
 #include "bytecode.h"
 #include "value.h"
 #include "debug.h"
+#include "function.h"
 
 #define RECURSION_MAX 64
 #define STACK_MAX 256 * RECURSION_MAX
