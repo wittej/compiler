@@ -315,6 +315,11 @@ Compiler::call()
 {
 	uint16_t number_arguments = 0;
 	while (parse_current.type != token_type::RPAREN) {
+		// TODO: want a function body that evaluates thunks
+		if (parse_current.type == token_type::END) {  // TEMP
+			error("Expected closing ')'", parse_current);
+			break;
+		}
 		expression();
 		number_arguments++;
 	}
