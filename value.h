@@ -58,6 +58,10 @@ struct Function {
 	Function() : bytecode{ Chunk(0) } {}  // TEMP
 };
 
+struct BuiltinFunction {
+	virtual Value call(std::vector<Value>::iterator args, size_t arity) = 0;
+};
+
 struct Data {
 	data_type type;
 	std::any data;
