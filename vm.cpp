@@ -229,6 +229,14 @@ VirtualMachine::run()
 			if (!call(number_arguments)) return interpret_result::RUNTIME_ERROR;
 			}
 			break;
+		case opcode::CLOSURE: {
+			size_t index = read_uint16_and_update_ip(frames.back().ip);
+			Value val = frames.back().function->bytecode.constants[index];
+			if (!val.match_data_type(data_type::FUNCTION)) return interpret_result::RUNTIME_ERROR;
+			auto closure = std::make_shared<Closure>(val.as.data);
+			stack.push_back(allocate(closure));
+			}
+			break;
 		case opcode::NOT:
 			stack.push_back(Value(!truthValue(stack_pop())));
 			break;
