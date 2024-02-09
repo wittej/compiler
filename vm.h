@@ -19,7 +19,7 @@ enum class interpret_result {
 };
 
 struct CallFrame {
-	std::shared_ptr<Function> function;  // TODO: determine shared ptr or reference
+	std::shared_ptr<Closure> closure;  // env?
 	uint8_t* ip;
 	size_t stack_index;
 };
@@ -40,7 +40,7 @@ private:
 	bool truthValue(Value val);
 	inline uint16_t read_uint16_and_update_ip(uint8_t*& ip);
 	bool call(size_t number_arguments);
-	bool call(std::shared_ptr<Function> function, size_t number_arguments);
+	bool call(std::shared_ptr<Closure> function, size_t number_arguments);
 	bool call(std::shared_ptr<BuiltinFunction> function, size_t number_arguments);
 public:
 	interpret_result interpret(std::string source);

@@ -31,8 +31,9 @@ VirtualMachine::runtime_error(std::string message, size_t line)
 
 	for (size_t i = frames.size(); i > 0; i--) {
 		CallFrame& frame = frames[i - 1];
-		size_t instruction = frame.ip - frame.function->bytecode.instructions.data() - 1;
-		std::cerr << "in " << frame.function->name << '\n';  // TODO: anonymous function names
+		uint8_t* start = frame.closure->function_ptr()->bytecode.instructions.data();
+		size_t instruction = frame.ip - start - 1;
+		std::cerr << "in " << frame.closure->function_ptr()->name << '\n';  // TODO: anonymous function names
 	}
 
 	stack.clear();  // TODO - clear func?
@@ -106,7 +107,8 @@ VirtualMachine::interpret(std::string source)
 
 	// TODO: revisit this?
 	Data script = Data(function);
-	stack.push_back(Value(&script));
+	auto closure = Data(std::make_shared<Closure>(&script));
+	stack.push_back(Value(&closure));
 	call(0);
 
 	return run();
@@ -125,11 +127,11 @@ VirtualMachine::call(size_t number_arguments)
 	bool result = false;
 
 	Value val = stack_peek(number_arguments);
-	if (val.match_data_type(data_type::FUNCTION)) {
-		std::shared_ptr<Function> function;
+	if (val.match_data_type(data_type::CLOSURE)) {
+		std::shared_ptr<Closure> closure;
 		// TODO: consider making a shortcut for this stuff
-		function = std::any_cast<std::shared_ptr<Function>>(val.as.data->data);
-		result = call(function, number_arguments);
+		closure = std::any_cast<std::shared_ptr<Closure>>(val.as.data->data);
+		result = call(closure, number_arguments);
 	}
 	else if (val.match_data_type(data_type::BUILTIN)) {
 		std::shared_ptr<BuiltinFunction> function;
@@ -141,11 +143,11 @@ VirtualMachine::call(size_t number_arguments)
 }
 
 bool
-VirtualMachine::call(std::shared_ptr<Function> function, size_t number_arguments)
+VirtualMachine::call(std::shared_ptr<Closure> closure, size_t number_arguments)
 {
 	CallFrame frame{
-		.function = function,
-		.ip = &function->bytecode.instructions[0],
+		.closure = closure,
+		.ip = &closure->function_ptr()->bytecode.instructions[0],
 		.stack_index = stack.size() - number_arguments - 1 };
 
 	frames.push_back(frame);
@@ -172,23 +174,24 @@ interpret_result
 VirtualMachine::run()
 {
 #ifdef DEBUG_TRACE_EXECUTION
-	size_t line = frames.back().function->bytecode.base_line;
+	size_t line = frames.back().closure->function_ptr()->bytecode.base_line;
 #endif
 
 	for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-		disassembleInstruction(frames.back().function->bytecode, frames.back().ip - frames.back().function->bytecode.instructions.data(), line);
-		if (frames.back().function->bytecode.newlines[frames.back().ip - frames.back().function->bytecode.instructions.data()]) ++line;
+
+		disassembleInstruction(frames.back().closure->function_ptr()->bytecode, frames.back().ip - frames.back().closure->function_ptr()->bytecode.instructions.data(), line);
+		if (frames.back().closure->function_ptr()->bytecode.newlines[frames.back().ip - frames.back().closure->function_ptr()->bytecode.instructions.data()]) ++line;
 #endif
 		switch (uint8_t instruction = *frames.back().ip++) {
 		case opcode::CONSTANT:
-			stack.push_back(frames.back().function->bytecode.constants[*frames.back().ip++]);
+			stack.push_back(frames.back().closure->function_ptr()->bytecode.constants[*frames.back().ip++]);
 			break;
 		case opcode::CONSTANT_LONG:
 			{
 				// TODO test this
 				size_t index = read_uint16_and_update_ip(frames.back().ip);
-				stack.push_back(frames.back().function->bytecode.constants[index]);
+				stack.push_back(frames.back().closure->function_ptr()->bytecode.constants[index]);
 			}
 			break;
 		case opcode::DEFINE_GLOBAL: {
@@ -231,7 +234,7 @@ VirtualMachine::run()
 			break;
 		case opcode::CLOSURE: {
 			size_t index = read_uint16_and_update_ip(frames.back().ip);
-			Value val = frames.back().function->bytecode.constants[index];
+			Value val = frames.back().closure->function_ptr()->bytecode.constants[index];
 			if (!val.match_data_type(data_type::FUNCTION)) return interpret_result::RUNTIME_ERROR;
 			auto closure = std::make_shared<Closure>(val.as.data);
 			stack.push_back(allocate(closure));

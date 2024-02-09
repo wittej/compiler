@@ -9,6 +9,7 @@ class VirtualMachine;
 
 struct Closure {
 	Data* function;  // TOOD: reconsider - idea is to make GC easier
+	std::shared_ptr<Function> function_ptr();
 	Closure(Data* function) : function{ function } {};
 };
 

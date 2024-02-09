@@ -2,6 +2,13 @@
 #include "vm.h"
 
 
+std::shared_ptr<Function>
+Closure::function_ptr()
+{
+	return std::any_cast<std::shared_ptr<Function>>(function->data);
+}
+
+
 Value
 BuiltinCons::call(std::vector<Value>::iterator args, size_t count)
 {
