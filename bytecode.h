@@ -12,7 +12,7 @@ namespace opcode {
 		DEFINE_GLOBAL, GET_GLOBAL, GET_LOCAL,
 		RETURN, POP,
 		JUMP, JUMP_IF_FALSE,
-		CALL,
+		CALL, CLOSURE,
 	};
 }
 

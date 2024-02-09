@@ -208,6 +208,7 @@ Compiler::lambda()
 
 	std::shared_ptr<Function> lambda = function;
 	function = saved_function;
+	write(opcode::CLOSURE);
 	constant(vm.allocate(lambda));
 }
 
