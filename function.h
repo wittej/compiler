@@ -8,8 +8,8 @@ class VirtualMachine;
 
 
 struct Closure {
-	std::shared_ptr<Function> function;
-	Closure(std::shared_ptr<Function> function) : function{ function } {};
+	Data& function;  // TOOD: reconsider - idea is to make GC easier
+	Closure(Data& function) : function{ function } {};
 };
 
 
