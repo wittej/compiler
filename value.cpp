@@ -37,6 +37,7 @@ Value::print()
 				auto closure = std::any_cast<std::shared_ptr<Closure>>(as.data->data);
 				auto function = std::any_cast<std::shared_ptr<Function>>(closure->function->data);
 				if (function->anonymous()) {
+					// TODO remove this
 					return "Function (CLOSURE) at " + std::to_string(function->bytecode.base_line);
 				}
 				else {
