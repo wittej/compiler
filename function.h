@@ -24,6 +24,7 @@ struct Function {
 // TODO: give this some way of throwing an error
 struct BuiltinFunction {
 	virtual Value call(std::vector<Value>::iterator args, size_t count) = 0;
+	virtual std::string name() = 0;
 };
 
 struct BuiltinCons : BuiltinFunction {
@@ -31,6 +32,7 @@ private:
 	VirtualMachine& vm;
 public:
 	Value call(std::vector<Value>::iterator args, size_t count);
+	std::string name() { return "cons"; };
 	BuiltinCons(VirtualMachine& vm) : vm{ vm } {};
 };
 
@@ -39,6 +41,7 @@ private:
 	VirtualMachine& vm;
 public:
 	Value call(std::vector<Value>::iterator args, size_t count);
+	std::string name() { return "+"; };
 	BuiltinAdd(VirtualMachine& vm) : vm{ vm } {};
 };
 
@@ -47,6 +50,7 @@ private:
 	VirtualMachine& vm;
 public:
 	Value call(std::vector<Value>::iterator args, size_t count);
+	std::string name() { return "="; };
 	BuiltinEqual(VirtualMachine& vm) : vm{ vm } {};
 };
 

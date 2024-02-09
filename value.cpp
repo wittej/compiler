@@ -15,6 +15,7 @@ Value::print()
 			return "nil";
 		case value_type::DATA:
 			// Temporary - want to be able to print circular data structures, lists in lisp format, etc.
+			// May also consider data print - this helps handle printing cons structures
 			switch (as.data->type) {
 			case data_type::PAIR:
 			{
@@ -23,13 +24,29 @@ Value::print()
 			}
 			case data_type::FUNCTION:
 			{
-				std::shared_ptr<Function> function = std::any_cast<std::shared_ptr<Function>>(as.data->data);
+				auto function = std::any_cast<std::shared_ptr<Function>>(as.data->data);
 				if (function->anonymous()) {
 					return "Function at " + std::to_string(function->bytecode.base_line);
 				}
 				else {
 					return function->name;
 				}
+			}
+			case data_type::CLOSURE:
+			{
+				auto closure = std::any_cast<std::shared_ptr<Closure>>(as.data->data);
+				auto function = std::any_cast<std::shared_ptr<Function>>(closure->function.data);
+				if (function->anonymous()) {
+					return "Function at " + std::to_string(function->bytecode.base_line);
+				}
+				else {
+					return function->name;
+				}
+			}
+			case data_type::BUILTIN:
+			{
+				auto builtin = std::any_cast<std::shared_ptr<BuiltinFunction>>(as.data->data);
+				return "Built-in function " + builtin->name();
 			}
 			default:
 				return "unknown data type";
