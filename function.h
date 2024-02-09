@@ -7,6 +7,12 @@
 class VirtualMachine;
 
 
+struct Closure {
+	std::shared_ptr<Function> function;
+	Closure(std::shared_ptr<Function> function) : function{ function } {};
+};
+
+
 struct Function {
 	size_t arity = 0;
 	Chunk bytecode;

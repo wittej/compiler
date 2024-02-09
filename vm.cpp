@@ -53,6 +53,13 @@ VirtualMachine::allocate(std::shared_ptr<Function> function)
 }
 
 Value
+VirtualMachine::allocate(std::shared_ptr<Closure> closure)
+{
+	memory.push_front(Data(closure));
+	return Value(&memory.front());
+}
+
+Value
 VirtualMachine::allocate(std::shared_ptr<BuiltinFunction> builtin)
 {
 	memory.push_front(Data(builtin));

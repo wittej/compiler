@@ -9,11 +9,12 @@ enum class value_type {
 };
 
 enum class data_type {
-	PAIR, FUNCTION, BUILTIN, STRING
+	PAIR, FUNCTION, BUILTIN, CLOSURE, STRING
 };
 
 struct Data;
 struct Function;
+struct Closure;
 struct BuiltinFunction;
 
 struct Value {
@@ -55,6 +56,7 @@ struct Data {
 	Data(std::string string) : type{ data_type::STRING }, data{ string } {}
 	// TODO: revisit this
 	Data(std::shared_ptr<Function> function) : type{ data_type::FUNCTION }, data{ function } {}
+	Data(std::shared_ptr<Closure> closure) : type{ data_type::CLOSURE }, data{ closure } {}
 	Data(std::shared_ptr<BuiltinFunction> builtin) : type{ data_type::BUILTIN }, data{ builtin } {}
 };
 

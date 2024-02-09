@@ -44,9 +44,9 @@ private:
 	bool call(std::shared_ptr<BuiltinFunction> function, size_t number_arguments);
 public:
 	interpret_result interpret(std::string source);
-	// TODO: template?
 	Value allocate(std::string string);
 	Value allocate(std::shared_ptr<Function> function);
+	Value allocate(std::shared_ptr<Closure> closure);
 	Value allocate(std::shared_ptr<BuiltinFunction> builtin);
 	Value allocate(Pair pair);
 	size_t global(std::string key);
