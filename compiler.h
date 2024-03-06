@@ -15,6 +15,11 @@ struct Local {
 	int depth;
 };
 
+struct Upvalue {
+	size_t index;
+	bool is_local;
+};
+
 // Considering splitting this into a parser and compiler
 class Compiler {
 private:
@@ -23,11 +28,14 @@ private:
 	// TODO: consider some additional state to say what level we're at?
 	// TODO: Might be covered by scope depth as well.
 	std::shared_ptr<Function> function = std::make_shared<Function>();
+	Compiler* enclosing = nullptr;  // This needs to be nullable - how we handle scope depth
+
 	// TODO: abstract these 
 	Token parse_current;  // Note: this is probably still important because '(' can mean different things.
 	Token parse_previous;
 	size_t scope_depth = 0;
 	std::vector<Local> locals;
+	std::vector<Upvalue> upvalues;
 	bool had_error = false;  // TODO: clean this up
 	bool panic_mode = false;
 	void advance();
@@ -53,6 +61,7 @@ private:
 	size_t write_jump(opcode::opcode jump);
 	void patch_jump(size_t jump_index);
 	int resolve_local(Token token);
+	int resolve_upvalue(Token token);
 	bool compile();
 	Chunk& current_bytecode();
 public:

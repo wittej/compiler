@@ -113,6 +113,7 @@ Compiler::number()
 	constant(std::stod(parse_previous.string));
 }
 
+// TODO: consider making this a built-in function
 void
 Compiler::temp_not()
 {
@@ -223,6 +224,30 @@ Compiler::resolve_local(Token token)
 	return -1;
 }
 
+int
+Compiler::resolve_upvalue(Token token)
+{
+	if (this->enclosing == nullptr) return -1;
+
+	int local = this->enclosing->resolve_local(token);
+	if (local >= 0) {
+		size_t index = static_cast<size_t>(local);
+
+		for (size_t i = 0; i < upvalues.size(); i++) {
+			if (upvalues[i].index == index && upvalues[i].is_local) return i;
+		}
+
+		upvalues.push_back(Upvalue{
+			.index = index,
+			.is_local = true
+		});
+		// Note: function will need to know how many upvalues it has?
+		return upvalues.size() - 1;
+	}
+
+	return -1;
+}
+
 void
 Compiler::symbol()
 {
@@ -232,6 +257,13 @@ Compiler::symbol()
 		write(opcode::GET_LOCAL);
 		write_uint(index);
 	}
+
+	else if ((local = resolve_upvalue(parse_previous)) != -1) {
+		size_t index = local;
+		write(opcode::GET_UPVALUE);
+		write_uint(index);
+	}
+	
 	else {
 		size_t index = vm.global(parse_previous.string);
 		write(opcode::GET_GLOBAL);

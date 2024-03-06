@@ -2,6 +2,8 @@
 #include "vm.h"
 #include "compiler.h"
 
+// TODO: clean up after runtime error - reproduce with global index failure with stack vars, followed by a literal
+
 VirtualMachine::VirtualMachine()
 {
 	globals[global("cons")] = allocate(std::make_shared<BuiltinCons>(*this));
@@ -107,6 +109,7 @@ VirtualMachine::interpret(std::string source)
 
 	// TODO: revisit this?
 	Data script = Data(function);
+	// TODO: make sure GC knows these exist
 	auto closure = Data(std::make_shared<Closure>(&script));
 	stack.push_back(Value(&closure));
 	call(0);
