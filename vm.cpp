@@ -38,6 +38,7 @@ VirtualMachine::runtime_error(std::string message, size_t line)
 		std::cerr << "in " << frame.closure->function_ptr()->name << '\n';  // TODO: anonymous function names
 	}
 
+	frames.clear();
 	stack.clear();  // TODO - clear func?
 }
 
