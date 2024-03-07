@@ -8,11 +8,10 @@ class VirtualMachine;
 
 
 struct Closure {
-	Data* function;  // TOOD: reconsider - idea is to make GC easier
+	Data* function;  // TODO: reconsider - idea is to make GC easier
 	std::shared_ptr<Function> function_ptr();
 	Closure(Data* function) : function{ function } {};
 };
-
 
 struct Function {
 	size_t arity = 0;

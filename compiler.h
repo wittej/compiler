@@ -20,19 +20,22 @@ struct Upvalue {
 	bool is_local;
 };
 
+struct ParseState {
+	Token current;  // Note: this is probably still important because '(' can mean different things.
+	Token previous;
+};
+
 // Considering splitting this into a parser and compiler
 class Compiler {
 private:
-	Scanner scanner; // Encapsulates source - probably don't need to work with it directly
+	Scanner scanner; // TODO: move to parser?
+	ParseState parse;  // TODO: move features to here?
 	VirtualMachine& vm;
 	// TODO: consider some additional state to say what level we're at?
 	// TODO: Might be covered by scope depth as well.
 	std::shared_ptr<Function> function = std::make_shared<Function>();
 	Compiler* enclosing = nullptr;  // This needs to be nullable - how we handle scope depth
 
-	// TODO: abstract these 
-	Token parse_current;  // Note: this is probably still important because '(' can mean different things.
-	Token parse_previous;
 	size_t scope_depth = 0;
 	std::vector<Local> locals;
 	std::vector<Upvalue> upvalues;
@@ -49,7 +52,7 @@ private:
 	void if_statement();
 	void error(std::string error_message, Token token);
 	void write(uint8_t op);
-	void parse();  // TODO: infix . for cons - excuse to practice parser design
+	void parse_next();  // TODO: infix . for cons - excuse to practice parser design
 	void combination();
 	void temp_not();
 	void temp_and();
@@ -62,6 +65,7 @@ private:
 	void patch_jump(size_t jump_index);
 	int resolve_local(Token token);
 	int resolve_upvalue(Token token);
+	int push_upvalue(int index, bool local);
 	bool compile();
 	Chunk& current_bytecode();
 public:

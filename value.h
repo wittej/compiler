@@ -9,13 +9,14 @@ enum class value_type {
 };
 
 enum class data_type {
-	PAIR, FUNCTION, BUILTIN, CLOSURE, STRING
+	PAIR, FUNCTION, BUILTIN, CLOSURE, STRING, UPVALUE
 };
 
 struct Data;
 struct Function;
 struct Closure;
 struct BuiltinFunction;
+struct RuntimeUpvalue;
 
 struct Value {
 	value_type type;
@@ -58,6 +59,11 @@ struct Data {
 	Data(std::shared_ptr<Function> function) : type{ data_type::FUNCTION }, data{ function } {}
 	Data(std::shared_ptr<Closure> closure) : type{ data_type::CLOSURE }, data{ closure } {}
 	Data(std::shared_ptr<BuiltinFunction> builtin) : type{ data_type::BUILTIN }, data{ builtin } {}
+	Data(std::shared_ptr<RuntimeUpvalue> upvalue) : type{ data_type::UPVALUE }, data{ upvalue } {}
+};
+
+struct RuntimeUpvalue {
+	Value* location;  // For GC - needs to be nullable
 };
 
 #endif

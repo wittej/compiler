@@ -6,9 +6,9 @@ bool
 Compiler::compile()
 {
 	advance();
-	while (parse_current.type != token_type::END) {
+	while (parse.current.type != token_type::END) {
 		definition_or_expression();
-		if (parse_current.type != token_type::END) write(opcode::POP);
+		if (parse.current.type != token_type::END) write(opcode::POP);
 	}
 	write(opcode::RETURN);
 #ifdef DEBUG_BYTECODE_ERRORS
@@ -22,19 +22,19 @@ Compiler::compile()
 void
 Compiler::advance()
 {
-	parse_previous = parse_current;
+	parse.previous = parse.current;
 	for (;;) {
-		parse_current = scanner.scan();
-		if (parse_current.type != token_type::ERROR) break;
-		error("Unrecognized token " + parse_current.string, parse_current);
+		parse.current = scanner.scan();
+		if (parse.current.type != token_type::ERROR) break;
+		error("Unrecognized token " + parse.current.string, parse.current);
 	}
 }
 
 void
 Compiler::consume(token_type expected, std::string error_message)
 {
-	if (parse_current.type == expected) advance();
-	else error(error_message, parse_current);
+	if (parse.current.type == expected) advance();
+	else error(error_message, parse.current);
 }
 
 void
@@ -52,7 +52,7 @@ Compiler::error(std::string error_message, Token token)
 void
 Compiler::write(uint8_t op)
 {
-	current_bytecode().write(op, parse_previous.line);
+	current_bytecode().write(op, parse.previous.line);
 }
 
 void
@@ -110,14 +110,14 @@ Compiler::constant(Value value)
 void
 Compiler::number()
 {
-	constant(std::stod(parse_previous.string));
+	constant(std::stod(parse.previous.string));
 }
 
 // TODO: consider making this a built-in function
 void
 Compiler::temp_not()
 {
-	parse();
+	parse_next();
 	write(opcode::NOT);
 }
 
@@ -125,10 +125,10 @@ Compiler::temp_not()
 void
 Compiler::temp_and()
 {
-	parse();
+	parse_next();
 	size_t jump_to_exit = write_jump(opcode::JUMP_IF_FALSE);
 	write(opcode::POP);
-	parse();  // TODO: verify this is boolean?
+	parse_next();  // TODO: verify this is boolean?
 	patch_jump(jump_to_exit);
 }
 
@@ -136,12 +136,12 @@ Compiler::temp_and()
 void
 Compiler::temp_or()
 {
-	parse();
+	parse_next();
 	size_t jump_to_second = write_jump(opcode::JUMP_IF_FALSE);
 	size_t jump_to_exit = write_jump(opcode::JUMP);
 	patch_jump(jump_to_second);
 	write(opcode::POP);
-	parse();  // TODO: verify this is boolean?
+	parse_next();  // TODO: verify this is boolean?
 	patch_jump(jump_to_exit);
 }
 
@@ -164,18 +164,18 @@ Compiler::definition()
 	if (scope_depth > 0) {
 		for (int i = locals.size() - 1; i >= 0; i--) {
 			if (locals[i].depth < scope_depth) break;
-			if (parse_previous.string == locals[i].token.string)
-				error("Unexpected variable redefinition", parse_previous);
+			if (parse.previous.string == locals[i].token.string)
+				error("Unexpected variable redefinition", parse.previous);
 		}
 		// Depth -1 indicates variable hasn't been initialized in this scope.
 		// TODO: don't do this for lambdas - should be able to be recursive
-		Local local{ .token = parse_previous, .depth = -1 /*uninitialized*/ };
+		Local local{ .token = parse.previous, .depth = -1 /*uninitialized*/ };
 		locals.push_back(local);
 		expression();  // Needs to be tested
 		locals.back().depth = scope_depth;
 	}
 	else {
-		size_t index = vm.global(parse_previous.string);
+		size_t index = vm.global(parse.previous.string);
 		expression();
 		write(opcode::DEFINE_GLOBAL);
 		write_uint(index);
@@ -194,15 +194,15 @@ Compiler::lambda()
 
 	++scope_depth;
 	consume(token_type::LPAREN, "Expected '(' before function parameters");
-	while (parse_current.type != token_type::RPAREN) {
+	while (parse.current.type != token_type::RPAREN) {
 		consume(token_type::SYMBOL, "Expect symbol parameter");
-		locals.push_back(Local{.token = parse_previous, .depth=static_cast<int>(scope_depth)});
+		locals.push_back(Local{.token = parse.previous, .depth=static_cast<int>(scope_depth)});
 		function->arity++;
 	}
 	consume(token_type::RPAREN, "Expected ')' after function parameters");
-	while (parse_current.type != token_type::RPAREN && parse_current.type != token_type::END) {
+	while (parse.current.type != token_type::RPAREN && parse.current.type != token_type::END) {
 		definition_or_expression();
-		if (parse_current.type != token_type::RPAREN && parse_current.type != token_type::END) write(opcode::POP);
+		if (parse.current.type != token_type::RPAREN && parse.current.type != token_type::END) write(opcode::POP);
 	}
 	write(opcode::RETURN);
 	--scope_depth;
@@ -211,6 +211,8 @@ Compiler::lambda()
 	function = saved_function;
 	write(opcode::CLOSURE);
 	constant(vm.allocate(lambda));
+
+	// Will need to obtain function upvalue count
 }
 
 int
@@ -231,41 +233,53 @@ Compiler::resolve_upvalue(Token token)
 
 	int local = this->enclosing->resolve_local(token);
 	if (local >= 0) {
-		size_t index = static_cast<size_t>(local);
+		push_upvalue(local, true);
+	}
 
-		for (size_t i = 0; i < upvalues.size(); i++) {
-			if (upvalues[i].index == index && upvalues[i].is_local) return i;
-		}
-
-		upvalues.push_back(Upvalue{
-			.index = index,
-			.is_local = true
-		});
-		// Note: function will need to know how many upvalues it has?
-		return upvalues.size() - 1;
+	int upvalue = this->enclosing->resolve_upvalue(token);
+	if (upvalue >= 0) {
+		return push_upvalue(upvalue, false);		
 	}
 
 	return -1;
 }
 
+int
+Compiler::push_upvalue(int index, bool local)
+{
+	if (index < 0) return -1;
+
+	for (size_t i = 0; i < upvalues.size(); i++) {
+		if (upvalues[i].index == index && upvalues[i].is_local) return i;
+	}
+
+	// TODO: function?
+	upvalues.push_back(Upvalue{
+		.index = static_cast<size_t>(index),
+		.is_local = local
+		});
+	// Note: function will need to know how many upvalues it has?
+	return static_cast<int>(upvalues.size() - 1);
+}
+
 void
 Compiler::symbol()
 {
-	int local = resolve_local(parse_previous);
+	int local = resolve_local(parse.previous);
 	if (local >= 0) {
 		size_t index = local;
 		write(opcode::GET_LOCAL);
 		write_uint(index);
 	}
 
-	else if ((local = resolve_upvalue(parse_previous)) != -1) {
+	else if ((local = resolve_upvalue(parse.previous)) != -1) {
 		size_t index = local;
 		write(opcode::GET_UPVALUE);
 		write_uint(index);
 	}
 	
 	else {
-		size_t index = vm.global(parse_previous.string);
+		size_t index = vm.global(parse.previous.string);
 		write(opcode::GET_GLOBAL);
 		write_uint(index);
 	}
@@ -276,7 +290,7 @@ void
 Compiler::expression()
 {
 	// TODO - differentiate self-evaluating and combination?
-	parse();
+	parse_next();
 }
 
 // TODO: implement as special case of lambda?
@@ -286,7 +300,7 @@ Compiler::temp_let()
 	consume(token_type::LPAREN, "Expect '('.");
 	++scope_depth;
 	// TODO: local definitions
-	while (parse_current.type == token_type::LPAREN) {
+	while (parse.current.type == token_type::LPAREN) {
 		advance();
 		definition();
 		consume(token_type::RPAREN, "Expect ')'.");
@@ -327,10 +341,10 @@ void
 Compiler::call()
 {
 	uint16_t number_arguments = 0;
-	while (parse_current.type != token_type::RPAREN) {
+	while (parse.current.type != token_type::RPAREN) {
 		// TODO: want a function body that evaluates thunks
-		if (parse_current.type == token_type::END) {  // TEMP
-			error("Expected closing ')'", parse_current);
+		if (parse.current.type == token_type::END) {  // TEMP
+			error("Expected closing ')'", parse.current);
 			break;
 		}
 		expression();
@@ -341,10 +355,10 @@ Compiler::call()
 }
 
 void
-Compiler::parse()
+Compiler::parse_next()
 {
 	advance();
-	switch (parse_previous.type) {
+	switch (parse.previous.type) {
 	case token_type::NUMBER:
 		number();
 		break;
@@ -361,12 +375,12 @@ Compiler::parse()
 		write(opcode::NIL);
 		break;
 	case token_type::LPAREN:
-		if (parse_current.type == token_type::RPAREN) write(opcode::NIL);
+		if (parse.current.type == token_type::RPAREN) write(opcode::NIL);
 		else combination();
 		consume(token_type::RPAREN, "Expect ')'.");
 		break;
 	default:
-		error("unknown self-evaluating token type.", parse_previous);
+		error("unknown self-evaluating token type.", parse.previous);
 	}
 }
 
@@ -374,7 +388,7 @@ void
 Compiler::combination()
 {
 	advance();
-	switch (parse_previous.type) {
+	switch (parse.previous.type) {
 	case token_type::NOT:
 		temp_not();
 		break;
@@ -402,6 +416,6 @@ Compiler::combination()
 		call();
 		break;
 	default:
-		error("expected symbol or built-in when reading combination.", parse_previous);
+		error("expected symbol or built-in when reading combination.", parse.previous);
 	}
 }

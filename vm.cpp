@@ -181,7 +181,7 @@ VirtualMachine::run()
 
 	for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-
+		// TODO: clean this up
 		disassembleInstruction(frames.back().closure->function_ptr()->bytecode, frames.back().ip - frames.back().closure->function_ptr()->bytecode.instructions.data(), line);
 		if (frames.back().closure->function_ptr()->bytecode.newlines[frames.back().ip - frames.back().closure->function_ptr()->bytecode.instructions.data()]) ++line;
 #endif
