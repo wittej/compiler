@@ -1,5 +1,6 @@
 #include "debug.h"
 #include "value.h"
+#include "function.h"
 
 void
 disassembleBytecode(Chunk& bytecode, std::string name)
@@ -87,6 +88,36 @@ uintInstruction(std::string name, Chunk& bytecode, size_t offset)
 }
 
 
+static size_t
+closure(std::string name, Chunk& bytecode, size_t offset)
+{
+	// NB: Endianness is important here
+	uint8_t uint8 = bytecode.instructions[offset + 1];
+	uint8_t overflow = bytecode.instructions[offset + 2];
+	uint16_t uint16 = static_cast<uint16_t>(overflow) * 256 + uint8;
+
+	std::cerr << name << ' ' << uint16 << '\n';
+	offset += 3;
+
+	Value data = bytecode.constants[uint16];
+	if (!data.match_data_type(data_type::FUNCTION)) {
+		std::cerr << "ERROR READING FUNCTION VARIABLES" << '\n';
+		return offset;
+	}
+
+	std::shared_ptr<Function> func = std::any_cast<std::shared_ptr<Function>>(data.as.data->data);
+	for (size_t i = 0; i < func->upvalues; i++) {
+		int local = bytecode.instructions[offset++];
+		uint8_t index_uint8 = bytecode.instructions[offset++];
+		uint8_t index_overflow = bytecode.instructions[offset++];
+		uint16_t index = static_cast<uint16_t>(index_overflow) * 256 + index_uint8;
+		std::cerr << "   | " << (local ? "local " : "upvalue ") << index << '\n';
+	}
+
+	return offset;
+}
+
+
 size_t
 disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 {
@@ -128,6 +159,8 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 		return uintInstruction("DEFINE GLOBAL", bytecode, offset);
 	case opcode::GET_GLOBAL:
 		return uintInstruction("GET GLOBAL", bytecode, offset);
+	case opcode::GET_UPVALUE:
+		return uintInstruction("GET UPVALUE", bytecode, offset);
 	case opcode::GET_LOCAL:
 		return uintInstruction("GET LOCAL", bytecode, offset);
 	case opcode::JUMP:
@@ -137,7 +170,7 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 	case opcode::CALL:
 		return uintInstruction("CALL", bytecode, offset);
 	case opcode::CLOSURE:
-		return uintInstruction("CLOSURE", bytecode, offset);
+		return closure("CLOSURE", bytecode, offset);
 	default:
 		int undefined_opcode = static_cast<int>(instruction);
 		std::cerr << "Unknown opcode " << undefined_opcode << "\n";

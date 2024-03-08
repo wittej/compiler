@@ -213,6 +213,12 @@ VirtualMachine::run()
 			stack.push_back(globals[index]);
 			}
 			break;
+		case opcode::GET_UPVALUE: {
+			size_t index = read_uint16_and_update_ip(frames.back().ip);
+			// TODO: make sure this still indexes correctly
+			stack.push_back(frames.back().closure->upvalues[index].data);
+			}
+			break;
 		case opcode::GET_LOCAL: {
 			size_t index = read_uint16_and_update_ip(frames.back().ip);
 			// TODO: make sure this still indexes correctly
@@ -241,6 +247,27 @@ VirtualMachine::run()
 			if (!val.match_data_type(data_type::FUNCTION)) return interpret_result::RUNTIME_ERROR;
 			auto closure = std::make_shared<Closure>(val.as.data);
 			stack.push_back(allocate(closure));
+
+			// TODO: consider getting rid of this if redundant
+			size_t count = std::any_cast<std::shared_ptr<Function>>(closure->function->data)->upvalues;
+			for (size_t i = 0; i < count; i++) {
+				auto local = *frames.back().ip++;
+				auto up_index = read_uint16_and_update_ip(frames.back().ip);
+
+				// TEMP - always want to close off!
+				RuntimeUpvalue upvalue{ .data = Value(false) };
+				if (local) {
+					upvalue = RuntimeUpvalue{
+						.location = &stack[frames.back().stack_index + up_index + 1],
+						// TEMP: always want to close off
+						.data = stack[frames.back().stack_index + up_index + 1]
+					};
+				}
+				else {
+					upvalue = frames.back().closure->upvalues[up_index];
+				}
+				closure->upvalues.push_back(upvalue);
+			}
 			}
 			break;
 		case opcode::NOT:

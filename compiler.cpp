@@ -212,9 +212,16 @@ Compiler::lambda()
 
 	parse = compiler.parse;
 	write(opcode::CLOSURE);
-	constant(vm.allocate(compiler.function));
+	
+	compiler.function->upvalues = compiler.upvalues.size();
+	ConstantIndex c = current_bytecode().add_constant((vm.allocate(compiler.function)));
+	write(c.index);
+	write(c.overflow);
 
-	// Will need to obtain function upvalue count
+	for (size_t i = 0; i < compiler.function->upvalues; i++) {
+		write(compiler.upvalues[i].is_local ? 1 : 0);
+		write_uint(compiler.upvalues[i].index);  // NOTE: uint16
+	}
 }
 
 int
@@ -235,7 +242,7 @@ Compiler::resolve_upvalue(Token token)
 
 	int local = this->enclosing->resolve_local(token);
 	if (local >= 0) {
-		push_upvalue(local, true);
+		return push_upvalue(local, true);
 	}
 
 	int upvalue = this->enclosing->resolve_upvalue(token);

@@ -10,11 +10,13 @@ class VirtualMachine;
 struct Closure {
 	Data* function;  // TODO: reconsider - idea is to make GC easier
 	std::shared_ptr<Function> function_ptr();
+	std::vector<RuntimeUpvalue> upvalues;
 	Closure(Data* function) : function{ function } {};
 };
 
 struct Function {
 	size_t arity = 0;
+	size_t upvalues = 0;  // Make sure this goes here and not in closure
 	Chunk bytecode;
 	std::string name;
 	bool anonymous() { return name.size() == 0; }
