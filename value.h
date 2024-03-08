@@ -62,9 +62,10 @@ struct Data {
 	Data(std::shared_ptr<RuntimeUpvalue> upvalue) : type{ data_type::UPVALUE }, data{ upvalue } {}
 };
 
-// NOTE: pointer at vector doesn't work - just always close off.
+// NOTE: pointer at vector doesn't work - just always close off or use an index.
+// Also note - GC will need to care about this - maybe.
 struct RuntimeUpvalue {
-	Value* location;  // For GC - needs to be nullable
+	size_t index;
 	Value data;
 };
 

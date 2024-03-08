@@ -216,7 +216,7 @@ VirtualMachine::run()
 		case opcode::GET_UPVALUE: {
 			size_t index = read_uint16_and_update_ip(frames.back().ip);
 			// TODO: make sure this still indexes correctly
-			stack.push_back(frames.back().closure->upvalues[index].data);
+			stack.push_back(stack[frames.back().closure->upvalues[index].index]);
 			}
 			break;
 		case opcode::GET_LOCAL: {
@@ -255,10 +255,10 @@ VirtualMachine::run()
 				auto up_index = read_uint16_and_update_ip(frames.back().ip);
 
 				// TEMP - always want to close off!
-				RuntimeUpvalue upvalue{ .data = Value(false) };
+				RuntimeUpvalue upvalue{ .index = 0, .data = Value(false) };
 				if (local) {
 					upvalue = RuntimeUpvalue{
-						.location = &stack[frames.back().stack_index + up_index + 1],
+						.index = frames.back().stack_index + up_index + 1,
 						// TEMP: always want to close off
 						.data = stack[frames.back().stack_index + up_index + 1]
 					};
