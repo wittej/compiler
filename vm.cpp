@@ -102,7 +102,8 @@ interpret_result
 VirtualMachine::interpret(std::string source)
 {
 	// Probably want the compiler to return the bytecode or some sort of struct
-	Compiler compiler(source, *this);
+	Scanner scanner(source);
+	Compiler compiler(scanner, *this);
 	std::shared_ptr<Function> function = compiler.get_function();
 	if (function == nullptr) return interpret_result::COMPILE_ERROR;
 
@@ -215,7 +216,7 @@ VirtualMachine::run()
 		case opcode::GET_LOCAL: {
 			size_t index = read_uint16_and_update_ip(frames.back().ip);
 			// TODO: make sure this still indexes correctly
-			stack.push_back(stack[frames.back().stack_index + index]);
+			stack.push_back(stack[frames.back().stack_index + index + 1]);
 			}
 			break;
 		case opcode::JUMP: {

@@ -28,7 +28,7 @@ struct ParseState {
 // Considering splitting this into a parser and compiler
 class Compiler {
 private:
-	Scanner scanner; // TODO: move to parser?
+	Scanner& scanner; // TODO: move to parser?
 	ParseState parse;  // TODO: move features to here?
 	VirtualMachine& vm;
 	// TODO: consider some additional state to say what level we're at?
@@ -69,13 +69,15 @@ private:
 	bool compile();
 	Chunk& current_bytecode();
 public:
-	Compiler(std::string& source, VirtualMachine& vm) : scanner{ Scanner(source) }, vm{ vm }
+	Compiler(Scanner& scanner, VirtualMachine& vm) : scanner{ scanner }, vm{ vm }
 	{
 		// TODO: revisit
 		locals.push_back(Local{ .token = Token{ .type=token_type::BEGIN, .line=0 }, .depth = 0});
 
 		compile();
 	};
+	Compiler(Compiler* enclosing) : enclosing{ enclosing }, scanner{ enclosing->scanner },
+		vm{ enclosing->vm }, scope_depth{enclosing->scope_depth + 1} {};
 	bool error() { return had_error; };
 	// TODO: revisit if this is needed - might just want to make it public?
 	std::shared_ptr<Function> get_function() { return had_error ? nullptr : function; };

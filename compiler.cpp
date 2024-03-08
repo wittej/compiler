@@ -154,6 +154,7 @@ Compiler::definition_or_expression()
 }
 
 // TODO: differentiate global / local
+// TODO: consider simplifying scope depth - no block scope
 void
 Compiler::definition()
 {
@@ -185,32 +186,33 @@ Compiler::definition()
 // TODO: figure out how to do this
 // Notes: there's a lot of potentially messy shared state here - need to
 // make sure solution is rational and handles various edge cases.
+// Transitional state - secondary compiler.
+// Medium-term - make this a method? Scope struct?
 
 void
 Compiler::lambda()
 {
-	std::shared_ptr<Function> saved_function = function;
-	function = std::make_shared<Function>();
+	Compiler compiler(this);
+	compiler.parse = parse;
 
-	++scope_depth;
-	consume(token_type::LPAREN, "Expected '(' before function parameters");
-	while (parse.current.type != token_type::RPAREN) {
-		consume(token_type::SYMBOL, "Expect symbol parameter");
-		locals.push_back(Local{.token = parse.previous, .depth=static_cast<int>(scope_depth)});
-		function->arity++;
+	compiler.consume(token_type::LPAREN, "Expected '(' before function parameters");
+	while (compiler.parse.current.type != token_type::RPAREN) {
+		compiler.consume(token_type::SYMBOL, "Expect symbol parameter");
+		compiler.locals.push_back(Local{.token = compiler.parse.previous,
+			.depth=static_cast<int>(compiler.scope_depth)});
+		compiler.function->arity++;
 	}
-	consume(token_type::RPAREN, "Expected ')' after function parameters");
-	while (parse.current.type != token_type::RPAREN && parse.current.type != token_type::END) {
-		definition_or_expression();
-		if (parse.current.type != token_type::RPAREN && parse.current.type != token_type::END) write(opcode::POP);
+	compiler.consume(token_type::RPAREN, "Expected ')' after function parameters");
+	while (compiler.parse.current.type != token_type::RPAREN && compiler.parse.current.type != token_type::END) {
+		compiler.definition_or_expression();
+		if (compiler.parse.current.type != token_type::RPAREN && compiler.parse.current.type != token_type::END)
+			compiler.write(opcode::POP);
 	}
-	write(opcode::RETURN);
-	--scope_depth;
+	compiler.write(opcode::RETURN);
 
-	std::shared_ptr<Function> lambda = function;
-	function = saved_function;
+	parse = compiler.parse;
 	write(opcode::CLOSURE);
-	constant(vm.allocate(lambda));
+	constant(vm.allocate(compiler.function));
 
 	// Will need to obtain function upvalue count
 }
