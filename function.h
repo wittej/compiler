@@ -10,7 +10,7 @@ class VirtualMachine;
 struct Closure {
 	Data* function;  // TODO: reconsider - idea is to make GC easier
 	std::shared_ptr<Function> function_ptr();
-	std::vector<RuntimeUpvalue> upvalues;
+	std::vector<std::shared_ptr<RuntimeUpvalue>> upvalues;
 	Closure(Data* function) : function{ function } {};
 };
 

@@ -13,6 +13,7 @@
 struct Local {
 	Token token;
 	int depth;
+	bool captured = false;
 };
 
 struct Upvalue {

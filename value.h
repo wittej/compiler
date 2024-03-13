@@ -66,7 +66,8 @@ struct Data {
 // Also note - GC will need to care about this - maybe.
 struct RuntimeUpvalue {
 	size_t index;
-	Value data;
+	Value data = Value(value_type::UNINITIALIZED);
+	RuntimeUpvalue(size_t index) : index{ index } {}
 };
 
 #endif

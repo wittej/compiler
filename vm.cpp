@@ -170,6 +170,25 @@ VirtualMachine::call(std::shared_ptr<BuiltinFunction> function, size_t number_ar
 	return true;
 }
 
+std::shared_ptr<RuntimeUpvalue>
+VirtualMachine::captureUpvalue(size_t index)
+{
+	auto upvalue = std::make_shared<RuntimeUpvalue>(index);
+
+	auto start = open_upvalues.begin();
+	auto end = open_upvalues.end();
+	for (auto i = start; i != end; i++) {
+		if ((*i)->index == upvalue->index) return *i;
+
+		if ((*i)->index > index) {
+			open_upvalues.insert(i, upvalue);
+			return upvalue;
+		}
+	}
+
+	open_upvalues.push_back(upvalue);
+	return upvalue;
+}
 
 // TODO: clean up switch block formatting or break into functions
 
@@ -215,8 +234,10 @@ VirtualMachine::run()
 			break;
 		case opcode::GET_UPVALUE: {
 			size_t index = read_uint16_and_update_ip(frames.back().ip);
-			// TODO: make sure this still indexes correctly
-			stack.push_back(stack[frames.back().closure->upvalues[index].index]);
+			auto upvalue = frames.back().closure->upvalues[index];
+			if (upvalue->data.type != value_type::UNINITIALIZED)
+				stack.push_back(upvalue->data);
+			else stack.push_back(stack[upvalue->index]);
 			}
 			break;
 		case opcode::GET_LOCAL: {
@@ -254,19 +275,15 @@ VirtualMachine::run()
 				auto local = *frames.back().ip++;
 				auto up_index = read_uint16_and_update_ip(frames.back().ip);
 
-				// TEMP - always want to close off!
-				RuntimeUpvalue upvalue{ .index = 0, .data = Value(false) };
 				if (local) {
-					upvalue = RuntimeUpvalue{
-						.index = frames.back().stack_index + up_index + 1,
-						// TEMP: always want to close off
-						.data = stack[frames.back().stack_index + up_index + 1]
-					};
+					auto upvalue = captureUpvalue(frames.back().stack_index + up_index + 1);
+					closure->upvalues.push_back(upvalue);
 				}
+
 				else {
-					upvalue = frames.back().closure->upvalues[up_index];
+					auto upvalue = frames.back().closure->upvalues[up_index];
+					closure->upvalues.push_back(upvalue);
 				}
-				closure->upvalues.push_back(upvalue);
 			}
 			}
 			break;
@@ -294,6 +311,17 @@ VirtualMachine::run()
 				std::cout << result.print() << '\n';
 				return interpret_result::OK;
 			}
+
+			// Close upvalues
+			auto start = open_upvalues.rbegin();
+			auto end = open_upvalues.rend();
+			size_t removed = 0;
+			for (auto i = start; i != end; i++) {
+				if ((*i)->index < frames.back().stack_index) break;
+				(*i)->data = stack[(*i)->index];
+				removed++;
+			}
+			open_upvalues.erase(std::prev(open_upvalues.end(), removed), open_upvalues.end());
 
 			// Look for indexing issues here
 			stack.erase(stack.begin() + frames.back().stack_index, stack.end());

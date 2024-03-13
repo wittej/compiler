@@ -242,6 +242,7 @@ Compiler::resolve_upvalue(Token token)
 
 	int local = this->enclosing->resolve_local(token);
 	if (local >= 0) {
+		this->enclosing->locals[local].captured = true;
 		return push_upvalue(local, true);
 	}
 

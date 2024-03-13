@@ -30,6 +30,8 @@ private:
 	std::vector<Value> stack;
 	std::vector<CallFrame> frames;
 	std::forward_list<Data> memory;
+	// TODO: benchmark map performance here too
+	std::list<std::shared_ptr<RuntimeUpvalue>> open_upvalues;
 	// TODO: benchmark vector vs. map performance here
 	// Hybrid solution - string-index map, value vector globals
 	std::unordered_map<std::string, size_t> global_indexes;
@@ -42,6 +44,7 @@ private:
 	bool call(size_t number_arguments);
 	bool call(std::shared_ptr<Closure> function, size_t number_arguments);
 	bool call(std::shared_ptr<BuiltinFunction> function, size_t number_arguments);
+	std::shared_ptr<RuntimeUpvalue> captureUpvalue(size_t index);
 public:
 	interpret_result interpret(std::string source);
 	Value allocate(std::string string);
