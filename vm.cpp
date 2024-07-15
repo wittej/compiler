@@ -119,7 +119,7 @@ VirtualMachine::interpret(std::string source)
 
 // Scheme rules, everything but "false" is truthy
 bool
-VirtualMachine::truthValue(Value val)
+VirtualMachine::truth_value(Value val)
 {
 	return (val.type == value_type::BOOL) ? val.as.boolean : true;
 }
@@ -171,7 +171,7 @@ VirtualMachine::call(std::shared_ptr<BuiltinFunction> function, size_t number_ar
 }
 
 std::shared_ptr<RuntimeUpvalue>
-VirtualMachine::captureUpvalue(size_t index)
+VirtualMachine::capture_upvalue(size_t index)
 {
 	auto upvalue = std::make_shared<RuntimeUpvalue>(index);
 
@@ -277,7 +277,7 @@ VirtualMachine::run()
 				auto up_index = read_uint16_and_update_ip(frames.back().ip);
 
 				if (local) {
-					auto upvalue = captureUpvalue(frames.back().stack_index + up_index + 1);
+					auto upvalue = capture_upvalue(frames.back().stack_index + up_index + 1);
 					closure->upvalues.push_back(upvalue);
 				}
 
@@ -289,7 +289,7 @@ VirtualMachine::run()
 			}
 			break;
 		case opcode::NOT:
-			stack.push_back(Value(!truthValue(stack_pop())));
+			stack.push_back(Value(!truth_value(stack_pop())));
 			break;
 		case opcode::TRUE:
 			stack.push_back(Value(true));

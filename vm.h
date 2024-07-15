@@ -7,9 +7,8 @@
 #include "debug.h"
 #include "function.h"
 
-// TODO: constexpr
-#define RECURSION_MAX 64
-#define STACK_MAX 256 * RECURSION_MAX
+constexpr size_t RECURSION_MAX = 64;
+constexpr size_t STACK_MAX = 256 * RECURSION_MAX;
 
 // TODO: correct return process for blank line
 
@@ -40,12 +39,12 @@ private:
 	Value stack_pop();
 	Value stack_peek(size_t depth);
 	void runtime_error(std::string message, size_t line);
-	bool truthValue(Value val);
+	bool truth_value(Value val);
 	inline uint16_t read_uint16_and_update_ip(uint8_t*& ip);
 	bool call(size_t number_arguments);
 	bool call(std::shared_ptr<Closure> function, size_t number_arguments);
 	bool call(std::shared_ptr<BuiltinFunction> function, size_t number_arguments);
-	std::shared_ptr<RuntimeUpvalue> captureUpvalue(size_t index);
+	std::shared_ptr<RuntimeUpvalue> capture_upvalue(size_t index);
 public:
 	interpret_result interpret(std::string source);
 	Value allocate(std::string string);
