@@ -7,6 +7,7 @@
 #include "debug.h"
 #include "function.h"
 
+// TODO: constexpr
 #define RECURSION_MAX 64
 #define STACK_MAX 256 * RECURSION_MAX
 

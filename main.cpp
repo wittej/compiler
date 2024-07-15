@@ -4,6 +4,16 @@
 #include "vm.h"
 
 
+/*
+TODOs:
+
+Better reporting for compilation inside function
+Add new features to test file as they are implemented
+Recursion
+Error type
+*/
+
+
 #define LINE_SIZE 1024
 
 

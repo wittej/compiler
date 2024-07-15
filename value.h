@@ -29,6 +29,7 @@ struct Value {
 	Value(bool val) : type{ value_type::BOOL }, as{ .boolean=val } {}
 	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
 	Value(Data* val) : type{ value_type::DATA }, as{ .data=val } {}
+	// TODO: consider error type per type systems and programming languages
 	Value(value_type singleton_type) {
 		if (singleton_type == value_type::NIL ||
 			singleton_type == value_type::UNINITIALIZED) {

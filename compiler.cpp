@@ -1,6 +1,9 @@
 #include "compiler.h"
 #include "scanner.h"
 
+// TODO: put this in compiler header?
+constexpr int UNINITIALIZED_VAR = -1;
+
 
 bool
 Compiler::compile()
@@ -169,8 +172,9 @@ Compiler::definition()
 				error("Unexpected variable redefinition", parse.previous);
 		}
 		// Depth -1 indicates variable hasn't been initialized in this scope.
-		// TODO: don't do this for lambdas - should be able to be recursive
-		Local local{ .token = parse.previous, .depth = -1 /*uninitialized*/ };
+		// Don't do this for lambdas - should be able to be recursive
+		// TODO: Verify lambda initialization special case is documented
+		Local local{ .token = parse.previous, .depth = UNINITIALIZED_VAR };
 		locals.push_back(local);
 		expression();  // Needs to be tested
 		locals.back().depth = scope_depth;

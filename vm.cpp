@@ -226,7 +226,8 @@ VirtualMachine::run()
 			// Need "undefined" value - similar to how Python does it
 			size_t index = read_uint16_and_update_ip(frames.back().ip);
 			if (globals[index].type == value_type::UNINITIALIZED) {
-				runtime_error("Unintialized variable", line);
+				// TODO: this isn't reporting correctly
+				runtime_error("Uninitialized variable", line);
 				return interpret_result::RUNTIME_ERROR;
 			}
 			stack.push_back(globals[index]);
