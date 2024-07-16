@@ -12,21 +12,20 @@ Scanner::scan()
 
 	char c = source[current++];
 
-	// NOTE: I probably want to do something like Scheme here.
-	// 1. Is it one or more non-delimiters?
-	// 2. Is it a number?
 	switch (c) {
-	case '(':
-		return makeToken(token_type::LPAREN);
-	case ')':
-		return makeToken(token_type::RPAREN);
-	case '+':
-		return makeToken(token_type::SYMBOL);
-	case '=':
-		return makeToken(token_type::SYMBOL);
+		case '(':
+			return makeToken(token_type::LPAREN);
+		case ')':
+			return makeToken(token_type::RPAREN);
+		case '=':
+			return makeToken(token_type::SYMBOL);
+		case '+':
+		case '-':
+			if (!std::isspace(source[current])) return scanNumber();
+			else return makeToken(token_type::SYMBOL);
 	}
 
-	// TEMP - currently just numbers
+	// TODO: negative numbers
 	if (std::isdigit(c)) return scanNumber();
 	if (std::isalpha(c)) return scanSymbol();
 
@@ -38,6 +37,7 @@ Scanner::scanNumber()
 {
 	// TODO: all kinds of identifiers
 	// TODO: state machine for this
+	// NB: this works with negative numbers
 	while (std::isdigit(source[current])) ++current;
 	return makeToken(token_type::NUMBER);
 }
