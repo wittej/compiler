@@ -29,7 +29,6 @@ Scanner::scan()
 			else return makeToken(token_type::SYMBOL);
 	}
 
-	// TODO: negative numbers
 	if (std::isdigit(c)) return scanNumber();
 	if (std::isalpha(c)) return scanSymbol();
 
@@ -45,19 +44,16 @@ Scanner::scanNumber()
 	return makeToken(token_type::NUMBER);
 }
 
-// TODO: verify this is how this type of identifier is named in Lisp.
 Token
 Scanner::scanSymbol()
 {
 	while (std::isalnum(source[current])) ++current;
-	// substring check against...?
 	return makeToken(symbolType());
 }
 
 token_type
 Scanner::symbolType()
 {
-	// TODO: make these more lisp-y?
 	switch (source[start]) {
 	case 'a':
 		return checkKeyword(1, "nd", token_type::AND);
@@ -100,6 +96,13 @@ Token
 Scanner::makeToken(token_type type)
 {
 	std::string token_string = source.substr(start, current - start);
+
+	// Require whitespace between non-parenthesis tokens.
+	if (current != source.length() && !std::isspace(source[current]) &&
+		source[current] != ')' && token_string != "(") {
+		return makeError("expected end of token " + token_string + ".");
+	}
+
 	return Token{.type = type, .string = token_string, .line = line};
 }
 

@@ -6,9 +6,10 @@
 enum class token_type {
 	BEGIN, END, ERROR,
 	LPAREN, RPAREN,
-	PLUS, NOT, AND, OR, EQUAL, CONS,
+	NOT, AND, OR, TRUE, FALSE,
 	IF, LAMBDA,
-	NUMBER, TRUE, FALSE, NIL, SYMBOL, DEFINE
+	NUMBER, NIL, SYMBOL,
+	DEFINE
 };
 
 struct Token {
