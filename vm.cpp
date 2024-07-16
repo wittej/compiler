@@ -4,6 +4,7 @@
 
 VirtualMachine::VirtualMachine()
 {
+	// TODO: make sure GC handles this
 	globals[global("cons")] = allocate(std::make_shared<BuiltinCons>(*this));
 	globals[global("+")] = allocate(std::make_shared<BuiltinAdd>(*this));
 	globals[global("=")] = allocate(std::make_shared<BuiltinEqual>(*this));
@@ -39,6 +40,8 @@ VirtualMachine::runtime_error(std::string message, size_t line)
 	frames.clear();
 	stack.clear();  // TODO - clear func?
 }
+
+// TODO: consider consolidating these
 
 Value
 VirtualMachine::allocate(std::string string)
@@ -268,6 +271,8 @@ VirtualMachine::run()
 			Value val = frames.back().closure->function_ptr()->bytecode.constants[index];
 			if (!val.match_data_type(data_type::FUNCTION)) return interpret_result::RUNTIME_ERROR;
 			auto closure = std::make_shared<Closure>(val.as.data);
+
+			// TODO: make sure this works with GC
 			stack.push_back(allocate(closure));
 
 			// TODO: consider getting rid of this if redundant

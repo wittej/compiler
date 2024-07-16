@@ -58,7 +58,6 @@ private:
 	void temp_not();
 	void temp_and();
 	void temp_or();
-	void temp_let();
 	void symbol();
 	void call();
 	void write_uint(uint16_t uint);

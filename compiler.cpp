@@ -309,33 +309,6 @@ Compiler::expression()
 	parse_next();
 }
 
-// TODO: implement as special case of lambda?
-void
-Compiler::temp_let()
-{
-	consume(token_type::LPAREN, "Expect '('.");
-	++scope_depth;
-	// TODO: local definitions
-	while (parse.current.type == token_type::LPAREN) {
-		advance();
-		definition();
-		consume(token_type::RPAREN, "Expect ')'.");
-	}
-	
-	consume(token_type::RPAREN, "Expect ')'.");
-	expression();  // NB: should be something like <definition>* <expression>* <expression>
-	write(opcode::POP);  // TEMP - throw away the result of that expression
-	// TODO: do this only for expressions that aren't the final result.
-
-	--scope_depth;
-	while (locals.size() > 0 && locals.back().depth > scope_depth) {
-		write(opcode::POP);
-		locals.pop_back();
-	}
-
-	write(opcode::NIL);  // TODO: replace with a return procedure
-}
-
 void
 Compiler::if_statement()
 {
@@ -413,9 +386,6 @@ Compiler::combination()
 		break;
 	case token_type::OR:
 		temp_or();
-		break;
-	case token_type::LET:
-		temp_let();
 		break;
 	case token_type::DEFINE:
 		definition();
