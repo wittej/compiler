@@ -21,7 +21,11 @@ Scanner::scan()
 			return makeToken(token_type::SYMBOL);
 		case '+':
 		case '-':
-			if (!std::isspace(source[current])) return scanNumber();
+			if (std::isdigit(source[current]) || source[current] == '.')
+				return scanNumber();
+			else return makeToken(token_type::SYMBOL);
+		case '.':
+			if (std::isdigit(source[current])) return scanNumber();
 			else return makeToken(token_type::SYMBOL);
 	}
 
@@ -35,9 +39,8 @@ Scanner::scan()
 Token
 Scanner::scanNumber()
 {
-	// TODO: all kinds of identifiers
-	// TODO: state machine for this
-	// NB: this works with negative numbers
+	while (std::isdigit(source[current])) ++current;
+	if (source[current] == '.') ++current;
 	while (std::isdigit(source[current])) ++current;
 	return makeToken(token_type::NUMBER);
 }
