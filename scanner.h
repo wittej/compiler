@@ -32,12 +32,12 @@ private:
 	size_t start = 0;
 	size_t current = 0;
 	size_t line = 1;
-	Token makeToken(token_type type);
-	Token makeError(std::string error);
+	Token make_token(token_type type);
+	Token make_error(std::string error);
 	Token scan_number();
 	Token scan_alphanumeric();
 	token_type classify_alphanumeric();
-	token_type checkKeyword(size_t index, std::string target, token_type type);
+	token_type check_keyword(size_t index, std::string target, token_type type);
 public:
 	Scanner(std::string& source) :source{ source } {};
 	Token scan();
