@@ -18,6 +18,10 @@ struct Closure;
 struct BuiltinFunction;
 struct RuntimeUpvalue;
 
+/**
+ * Representing value as tagged union (as in Crafting Interpreters) to
+ * minimize memory footprint and gain practice using tagged unions.
+ */
 struct Value {
 	value_type type;
 	union {
@@ -30,6 +34,7 @@ struct Value {
 	Value(double val) : type{ value_type::NUMBER }, as{ .number=val } {}
 	Value(Data* val) : type{ value_type::DATA }, as{ .data=val } {}
 	// TODO: consider error type per type systems and programming languages
+	// TODO: verify constructor can be simplified and do so if possible.
 	Value(value_type singleton_type) {
 		if (singleton_type == value_type::NIL ||
 			singleton_type == value_type::UNINITIALIZED) {
@@ -45,18 +50,24 @@ struct Value {
 	bool match_data_type(data_type match);
 };
 
+/**
+ * Using classic Lisp names here - currently a pretty minimal data structure.
+ * TODO: procedure for printing cyclical structures made of these.
+ */
 struct Pair {
 	Value car;
 	Value cdr;
 	Pair(Value car, Value cdr) : car{ car }, cdr{ cdr } {};
 };
 
+/**
+ * Data stored in memory - can be pointed to by Value and subject to garbage collection as needed.
+ */
 struct Data {
 	data_type type;
 	std::any data;
 	Data(Pair pair) : type{ data_type::PAIR }, data{ pair } {}
 	Data(std::string string) : type{ data_type::STRING }, data{ string } {}
-	// TODO: revisit this
 	Data(std::shared_ptr<Function> function) : type{ data_type::FUNCTION }, data{ function } {}
 	Data(std::shared_ptr<Closure> closure) : type{ data_type::CLOSURE }, data{ closure } {}
 	Data(std::shared_ptr<BuiltinFunction> builtin) : type{ data_type::BUILTIN }, data{ builtin } {}
@@ -64,7 +75,7 @@ struct Data {
 };
 
 // NOTE: pointer at vector doesn't work - just always close off or use an index.
-// Also note - GC will need to care about this - maybe.
+// Also note - GC will need to care about this.
 struct RuntimeUpvalue {
 	size_t index;
 	Value data = Value(value_type::UNINITIALIZED);
