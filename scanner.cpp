@@ -4,7 +4,7 @@
  * Scan source and return the next token, or a token of type token_type::END if
  * the entire source has been scanned.
  * 
- * :return: next token in the source.
+ * @return: next token in the source.
  */
 Token
 Scanner::scan()
@@ -46,7 +46,7 @@ Scanner::scan()
  * decimal numbers are supported, with an optional leading +/-. Increments
  * the current index past the end of the token.
  * 
- * :return: numeric token in decimal or integer format.
+ * @return: numeric token in decimal or integer format.
  */
 Token
 Scanner::scan_number()
@@ -61,7 +61,7 @@ Scanner::scan_number()
  * Used by scan when an alphanumeric token is encountered - will classify and 
  * return the token. Increments the current index past the end of the token.
  * 
- * :return: alphanumeric token.
+ * @return: alphanumeric token.
  */
 Token
 Scanner::scan_alphanumeric()
@@ -74,7 +74,7 @@ Scanner::scan_alphanumeric()
  * Determines and returns the correct type for an alphanumeric token
  * encountered during scan(). 
  * 
- * :return: correct token_type for the current token being scanned.
+ * @return: correct token_type for the current token being scanned.
  */
 token_type
 Scanner::classify_alphanumeric()
@@ -114,10 +114,10 @@ Scanner::classify_alphanumeric()
  * keyword (e.g., a boolean, a lambda, etc.) Return the correct type if it
  * matches or return the type for a generic symbol otherwise.
  * 
- * :param index: offset from start for the remaining characters to match. 
- * :param target: if the remaining characters match this, return 'type'.
- * :param type: the type to return if a match is found.
- * :returns: type if match found, token_type::SYMBOL otherwise.
+ * @param index: offset from start for the remaining characters to match. 
+ * @param target: if the remaining characters match this, return 'type'.
+ * @param type: the type to return if a match is found.
+ * @return: type if match found, token_type::SYMBOL otherwise.
  */
 token_type
 Scanner::check_keyword(const size_t index, const std::string target,
@@ -134,8 +134,8 @@ Scanner::check_keyword(const size_t index, const std::string target,
  * is a left paren or is followed by a right paren, returns token with error 
  * type if whitespace condition is not met.
  * 
- * :param type: type to assign the token if it is valid.
- * :return: Token with specified type if valid, error type otherwise.
+ * @param type: type to assign the token if it is valid.
+ * @return: Token with specified type if valid, error type otherwise.
  */
 Token
 Scanner::make_token(const token_type type)
@@ -154,8 +154,8 @@ Scanner::make_token(const token_type type)
 /**
 * Returns a token with the specified error message.
 * 
-* :param error: error message to include.
-* :return: Token of token_type::ERROR with specified message.
+* @param error: error message to include.
+* @return: Token of token_type::ERROR with specified message.
 */
 Token
 Scanner::make_error(const std::string error)

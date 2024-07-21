@@ -5,9 +5,11 @@
 
 // TODO: consider implementing logical operators as built-ins.
 
-/* Most tokens (including most built-in functions) are symbols and will be
-   resolved to values. Booleans, logical operators, numbers, and special forms
-   like ternary if and lambda declaration are their own type of token. */
+/**
+ * Most tokens (including most built-in functions) are symbols and will be
+ * resolved to values. Booleans, logical operators, numbers, and special forms
+ * like ternary if and lambda declaration are their own type of token.
+ */
 enum class token_type {
 	BEGIN, END, ERROR,
 	LPAREN, RPAREN,
@@ -17,15 +19,19 @@ enum class token_type {
 	DEFINE
 };
 
-/* Representation of a token - contains information needed for compilation and
-   error reporting. */
+/**
+ * Representation of a token - contains information needed for compilation and
+ * error reporting.
+ */
 struct Token {
-	token_type type;
-	std::string string;
-	size_t line;
+	token_type type;	 // Information needed to compile token.
+	std::string string;  // String representation of token.
+	size_t line;		 // Line in source code token appears.
 };
 
-/* Converts source file / input line to tokens. Provides one token at a time. */
+/** 
+ * Converts source file / input line to tokens. Provides one token at a time.
+ */
 class Scanner {
 private:
 	std::string& source;

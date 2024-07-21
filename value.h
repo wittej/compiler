@@ -51,7 +51,7 @@ struct Value {
 };
 
 /**
- * Using classic Lisp names here - currently a pretty minimal data structure.
+ * A classic Lisp car/cdr pair that can be used to construct data structures.
  * TODO: procedure for printing cyclical structures made of these.
  */
 struct Pair {
@@ -61,11 +61,13 @@ struct Pair {
 };
 
 /**
- * Data stored in memory - can be pointed to by Value and subject to garbage collection as needed.
+ * Data stored in memory - can be pointed to by Value and cleaned up by
+ * garbage collection as needed. 
  */
 struct Data {
 	data_type type;
 	std::any data;
+
 	Data(Pair pair) : type{ data_type::PAIR }, data{ pair } {}
 	Data(std::string string) : type{ data_type::STRING }, data{ string } {}
 	Data(std::shared_ptr<Function> function) : type{ data_type::FUNCTION }, data{ function } {}
@@ -74,11 +76,19 @@ struct Data {
 	Data(std::shared_ptr<RuntimeUpvalue> upvalue) : type{ data_type::UPVALUE }, data{ upvalue } {}
 };
 
-// NOTE: pointer at vector doesn't work - just always close off or use an index.
 // Also note - GC will need to care about this.
+
+/**
+ * Contains information needed to track down the Value associated with a local.
+ * Will either have the stack index or a stored copy of the Value.
+ */
 struct RuntimeUpvalue {
 	size_t index;
 	Value data = Value(value_type::UNINITIALIZED);
+
+	/**
+	* @param index: current stack index of local.
+	*/
 	RuntimeUpvalue(size_t index) : index{ index } {}
 };
 
