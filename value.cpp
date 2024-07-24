@@ -2,6 +2,11 @@
 #include "function.h"
 
 
+/**
+ * String representation of Value - used by "print" part of REPL.
+ * 
+ * @return: string representation of Value to print.
+ */
 std::string
 Value::print()
 {
@@ -73,6 +78,12 @@ Value::print()
 	}
 }
 
+/**
+ * Convenience function to check the data type of a value.
+ * 
+ * @param match: data_type to check for.
+ * @return: is the Value of data_type 'match'?
+ */
 bool
 Value::match_data_type(data_type match)
 {

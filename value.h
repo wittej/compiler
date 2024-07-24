@@ -86,6 +86,12 @@ struct Data
 	Data(std::shared_ptr<BuiltinFunction> builtin) : type{ data_type::BUILTIN }, data{ builtin } {}
 	Data(std::shared_ptr<RuntimeUpvalue> upvalue) : type{ data_type::UPVALUE }, data{ upvalue } {}
 
+	/**
+	 * Convenience function for casting 'data'. Intended to be used with a LBYL
+	 * strategy in conjunction with data_type.
+	 * 
+	 * @return: 'data', cast to T
+	 */
 	template <typename T>
 	T cast() { return std::any_cast<T>(data); }
 };
