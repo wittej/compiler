@@ -7,8 +7,11 @@
 class VirtualMachine;
 
 
+// TODO: during GC implementation, consider whether these pointers to memory
+//       objects can be converted to references.
+
 struct Closure {
-	Data* function;  // TODO: reconsider - idea is to make GC easier
+	Data* function;
 	std::shared_ptr<Function> function_ptr();
 	std::vector<std::shared_ptr<RuntimeUpvalue>> upvalues;
 	Closure(Data* function) : function{ function } {};
