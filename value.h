@@ -4,11 +4,20 @@
 #include "common.h"
 #include "bytecode.h"
 
-enum class value_type {
+/**
+ * Types used by Lisp runtime.
+ */
+enum class value_type
+{
 	BOOL, NIL, NUMBER, DATA, UNINITIALIZED, UNDEFINED
 };
 
-enum class data_type {
+/**
+ * value_type::DATA points to a Data object representing these types, which
+ * need to be stored in runtime memory. (Larger than a pointer / double).
+ */
+enum class data_type
+{
 	PAIR, FUNCTION, BUILTIN, CLOSURE, STRING, UPVALUE
 };
 
@@ -22,7 +31,8 @@ struct RuntimeUpvalue;
  * Representing value as tagged union (as in Crafting Interpreters) to
  * minimize memory footprint and gain practice using tagged unions.
  */
-struct Value {
+struct Value
+{
 	value_type type;
 	union {
 		bool boolean;
@@ -50,9 +60,9 @@ struct Value {
 	bool match_data_type(data_type match);
 };
 
+// TODO: procedure for printing cyclical structures made of these.
 /**
  * A classic Lisp car/cdr pair that can be used to construct data structures.
- * TODO: procedure for printing cyclical structures made of these.
  */
 struct Pair {
 	Value car;
@@ -64,7 +74,8 @@ struct Pair {
  * Data stored in memory - can be pointed to by Value and cleaned up by
  * garbage collection as needed. 
  */
-struct Data {
+struct Data
+{
 	data_type type;
 	std::any data;
 
@@ -74,6 +85,9 @@ struct Data {
 	Data(std::shared_ptr<Closure> closure) : type{ data_type::CLOSURE }, data{ closure } {}
 	Data(std::shared_ptr<BuiltinFunction> builtin) : type{ data_type::BUILTIN }, data{ builtin } {}
 	Data(std::shared_ptr<RuntimeUpvalue> upvalue) : type{ data_type::UPVALUE }, data{ upvalue } {}
+
+	template <typename T>
+	T cast() { return std::any_cast<T>(data); }
 };
 
 // Also note - GC will need to care about this.
@@ -82,7 +96,8 @@ struct Data {
  * Contains information needed to track down the Value associated with a local.
  * Will either have the stack index or a stored copy of the Value.
  */
-struct RuntimeUpvalue {
+struct RuntimeUpvalue
+{
 	size_t index;
 	Value data = Value(value_type::UNINITIALIZED);
 

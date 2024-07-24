@@ -7,50 +7,64 @@ Value::print()
 {
 	{
 		switch (type) {
-		case value_type::NUMBER:
-			return std::to_string(as.number);
-		case value_type::BOOL:
-			return std::to_string(as.boolean);
-		case value_type::NIL:
-			return "nil";
-		case value_type::DATA:
-			// Temporary - want to be able to print circular data structures, lists in lisp format, etc.
-			// May also consider data print - this helps handle printing cons structures
-			switch (as.data->type) {
-				case data_type::PAIR: {
-					Pair pair = std::any_cast<Pair>(as.data->data);
-					return "(" + pair.car.print() + " . " + pair.cdr.print() + ")";
-				}
+			case value_type::NUMBER:
+				return std::to_string(as.number);
 
-				case data_type::FUNCTION: {
-					auto function = std::any_cast<std::shared_ptr<Function>>(as.data->data);
-					if (function->anonymous()) {
-						return "Function at " + std::to_string(function->bytecode.base_line);
-					}
-					else {
-						return function->name;
-					}
-				}
+			case value_type::BOOL:
+				return std::to_string(as.boolean);
+
+			case value_type::NIL:
+				return "nil";
+
+			case value_type::DATA:
+				switch (as.data->type) {
+						// TODO: data structures with cycles
+						case data_type::PAIR: {
+							auto pair = std::any_cast<Pair>(as.data->data);
+							auto car = pair.car.print();
+							auto cdr = pair.cdr.print();
+							return "(" + car + " . " + cdr + ")";
+						}
+
+						case data_type::FUNCTION: {
+							using func_t = std::shared_ptr<Function>;
+							auto function = as.data->cast<func_t>();
+
+							if (function->anonymous()) {
+								auto line = function->bytecode.base_line;
+								return "Function at " + std::to_string(line);
+							}
+
+							else {
+								return function->name;
+							}
+						}
 			
-				case data_type::CLOSURE: {
-					auto closure = std::any_cast<std::shared_ptr<Closure>>(as.data->data);
-					auto function = std::any_cast<std::shared_ptr<Function>>(closure->function->data);
-					if (function->anonymous()) {
-						// TODO remove this
-						return "Function (CLOSURE) at " + std::to_string(function->bytecode.base_line);
-					}
-					else {
-						return function->name;
-					}
-				}
+						case data_type::CLOSURE: {
+							using clos_t = std::shared_ptr<Closure>;
+							using func_t = std::shared_ptr<Function>;
+							auto closure = as.data->cast<clos_t>();
+							auto function = closure->function->cast<func_t>();
+
+							if (function->anonymous()) {
+								auto line = function->bytecode.base_line;
+								return "Function at " + std::to_string(line);
+							}
+
+							else {
+								return function->name;
+							}
+						}
 				
-				case data_type::BUILTIN: {
-					auto builtin = std::any_cast<std::shared_ptr<BuiltinFunction>>(as.data->data);
-					return "Built-in function " + builtin->name();
-				}
+						case data_type::BUILTIN: {
+							using bfunc_t = std::shared_ptr<BuiltinFunction>;
+							auto builtin = as.data->cast<bfunc_t>();
+
+							return "Built-in function " + builtin->name();
+						}
 			
-				default:
-					return "unknown data type";
+						default:
+							return "unknown data type";
 			};
 
 			default:

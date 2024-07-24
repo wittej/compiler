@@ -10,7 +10,8 @@
  * resolved to values. Booleans, logical operators, numbers, and special forms
  * like ternary if and lambda declaration are their own type of token.
  */
-enum class token_type {
+enum class token_type
+{
 	BEGIN, END, ERROR,
 	LPAREN, RPAREN,
 	NOT, AND, OR, TRUE, FALSE,
@@ -23,7 +24,8 @@ enum class token_type {
  * Representation of a token - contains information needed for compilation and
  * error reporting.
  */
-struct Token {
+struct Token
+{
 	token_type type;	 // Information needed to compile token.
 	std::string string;  // String representation of token.
 	size_t line;		 // Line in source code token appears.
@@ -32,7 +34,8 @@ struct Token {
 /** 
  * Converts source file / input line to tokens. Provides one token at a time.
  */
-class Scanner {
+class Scanner
+{
 private:
 	std::string& source;
 	size_t start = 0;
