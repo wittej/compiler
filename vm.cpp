@@ -209,9 +209,8 @@ VirtualMachine::run()
 		if (frames.back().closure->function_ptr()->bytecode.newlines[frames.back().ip - frames.back().closure->function_ptr()->bytecode.instructions.data()]) ++line;
 #endif
 		switch (uint8_t instruction = *frames.back().ip++) {
-		case opcode::CONSTANT_LONG:
+		case opcode::CONSTANT:
 			{
-				// TODO test this
 				size_t index = read_uint16_and_update_ip(frames.back().ip);
 				stack.push_back(frames.back().closure->function_ptr()->bytecode.constants[index]);
 			}

@@ -105,7 +105,7 @@ void
 Compiler::constant(Value value)
 {
 	uint16_t index = current_bytecode().add_constant(value);
-	write(opcode::CONSTANT_LONG);
+	write(opcode::CONSTANT);
 	write_uint16(index);
 }
 
