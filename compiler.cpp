@@ -90,8 +90,8 @@ Compiler::patch_jump(size_t jump_index)
 	uint8_t offset = static_cast<uint8_t>(uint16_offset & 255);
 	uint8_t overflow = static_cast<uint8_t>(uint16_offset >> 8);
 
-	current_bytecode().replace(jump_index, offset);
-	current_bytecode().replace(jump_index + 1, overflow);
+	current_bytecode().instructions[jump_index] = offset;
+	current_bytecode().instructions[jump_index + 1] = overflow;
 }
 
 // This will be expanded later for lambdas etc.

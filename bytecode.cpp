@@ -15,7 +15,14 @@ Chunk::add_constant(Value const constant)
 	return static_cast<uint16_t>(constants.size() - 1);
 };
 
-// NOTE: may want to alter newline-based system due to blank lines
+
+// TODO: revise newline handling.
+/**
+ * Write an opcode or other 8-bit integer to this chunk and record its line.
+ * 
+ * @param op: 8-bit integer to write.
+ * @param line: line of code associated with this bytecode.
+ */
 void
 Chunk::write(uint8_t op, size_t line)
 {
@@ -28,9 +35,3 @@ Chunk::write(uint8_t op, size_t line)
 		newlines.push_back(false);
 	}
 };
-
-void
-Chunk::replace(size_t index, uint8_t op)
-{
-	instructions[index] = op;
-}
