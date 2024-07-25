@@ -61,7 +61,7 @@ private:
 	void symbol();
 	void call();
 	void write_uint(uint16_t uint);
-	size_t write_jump(opcode::opcode jump);
+	size_t write_jump(uint8_t jump);
 	void patch_jump(size_t jump_index);
 	int resolve_local(Token token);
 	int resolve_upvalue(Token token);

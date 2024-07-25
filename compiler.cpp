@@ -68,7 +68,7 @@ Compiler::write_uint(uint16_t uint)
 }
 
 size_t
-Compiler::write_jump(opcode::opcode jump)
+Compiler::write_jump(uint8_t jump)
 {
 	write(jump);
 	write(255);  // Will be overwritten by patch_jump

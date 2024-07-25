@@ -5,8 +5,13 @@
 
 struct Value;
 
-namespace opcode {
-	enum opcode : uint8_t {
+/* Using a typed enum in a namespace over an enum class here because the goal
+ * of this enum is to function as a labeling system for 8-bit integer opcodes
+ * which may appear in a vector with other 8-bit integers. */
+namespace opcode
+{
+	enum opcode : uint8_t
+	{
 		CONSTANT, CONSTANT_LONG, TRUE, FALSE, NIL,
 		ADD, NOT, EQUAL, CONS,
 		DEFINE_GLOBAL, GET_GLOBAL, GET_LOCAL, GET_UPVALUE,
@@ -16,12 +21,14 @@ namespace opcode {
 	};
 }
 
-struct ConstantIndex {
+struct ConstantIndex
+{
 	uint8_t index;
 	uint8_t overflow;
 };
 
-struct Chunk {
+struct Chunk
+{
 private:
 	size_t max_line = 0;
 public:
