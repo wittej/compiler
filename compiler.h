@@ -60,7 +60,7 @@ private:
 	void temp_or();
 	void symbol();
 	void call();
-	void write_uint(uint16_t uint);
+	void write_uint16(uint16_t uint);
 	size_t write_jump(uint8_t jump);
 	void patch_jump(size_t jump_index);
 	int resolve_local(Token token);

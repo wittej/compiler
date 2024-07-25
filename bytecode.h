@@ -21,6 +21,7 @@ namespace opcode
 	};
 }
 
+// TODO: remove this.
 struct ConstantIndex
 {
 	uint8_t index;

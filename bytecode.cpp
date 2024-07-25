@@ -13,7 +13,7 @@ Chunk::add_constant(Value const constant)
 {
 	constants.push_back(constant);
 	uint16_t c = static_cast<uint16_t>(constants.size() - 1);
-	// TODO: make this a constructor
+
 	return ConstantIndex{
 		.index = static_cast<uint8_t>(c & 255),
 		.overflow = static_cast<uint8_t>(c >> 8)

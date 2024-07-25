@@ -59,7 +59,7 @@ Compiler::write(uint8_t op)
 }
 
 void
-Compiler::write_uint(uint16_t uint)
+Compiler::write_uint16(uint16_t uint)
 {
 	uint8_t constant = static_cast<uint8_t>(uint & 255);
 	uint8_t overflow = static_cast<uint8_t>(uint >> 8);
@@ -185,7 +185,7 @@ Compiler::definition()
 		size_t index = vm.global(parse.previous.string);
 		expression();
 		write(opcode::DEFINE_GLOBAL);
-		write_uint(index);
+		write_uint16(index);
 	}
 }
 
@@ -226,7 +226,7 @@ Compiler::lambda()
 	compiler.function->upvalues = compiler.upvalues.size();
 	for (size_t i = 0; i < compiler.function->upvalues; i++) {
 		write(compiler.upvalues[i].is_local ? 1 : 0);
-		write_uint(compiler.upvalues[i].index);  // NOTE: uint16
+		write_uint16(compiler.upvalues[i].index);
 	}
 }
 
@@ -285,19 +285,19 @@ Compiler::symbol()
 	if (local >= 0) {
 		size_t index = local;
 		write(opcode::GET_LOCAL);
-		write_uint(index);
+		write_uint16(index);
 	}
 
 	else if ((local = resolve_upvalue(parse.previous)) != -1) {
 		size_t index = local;
 		write(opcode::GET_UPVALUE);
-		write_uint(index);
+		write_uint16(index);
 	}
 	
 	else {
 		size_t index = vm.global(parse.previous.string);
 		write(opcode::GET_GLOBAL);
-		write_uint(index);
+		write_uint16(index);
 	}
 }
 
@@ -340,7 +340,7 @@ Compiler::call()
 		number_arguments++;
 	}
 	write(opcode::CALL);
-	write_uint(number_arguments);
+	write_uint16(number_arguments);
 }
 
 void
