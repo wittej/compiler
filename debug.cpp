@@ -135,8 +135,6 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 	switch (instruction) {
 	case opcode::RETURN:
 		return simpleInstruction("RETURN", offset);
-	case opcode::CONSTANT:
-		return constantInstruction("CONSTANT", bytecode, offset);
 	case opcode::CONSTANT_LONG:
 		return longConstantInstruction("CONSTANT_LONG", bytecode, offset);
 	case opcode::ADD:
