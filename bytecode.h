@@ -5,6 +5,8 @@
 
 struct Value;
 
+// TODO: phase out CONSTANT so I consistently use uint16 for indices.
+
 /* Using a typed enum in a namespace over an enum class here because the goal
  * of this enum is to function as a labeling system for 8-bit integer opcodes
  * which may appear in a vector with other 8-bit integers. */
@@ -21,13 +23,6 @@ namespace opcode
 	};
 }
 
-// TODO: remove this.
-struct ConstantIndex
-{
-	uint8_t index;
-	uint8_t overflow;
-};
-
 struct Chunk
 {
 private:
@@ -38,7 +33,7 @@ public:
 	std::vector<Value> constants;
 	std::vector<bool> newlines;
 	Chunk(size_t line) : base_line{ line } {};
-	ConstantIndex add_constant(Value constant);
+	uint16_t add_constant(Value constant);
 	void write(uint8_t op, size_t line);
 	void replace(size_t index, uint8_t op);
 };

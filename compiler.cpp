@@ -101,15 +101,12 @@ Compiler::current_bytecode()
 	return function->bytecode;
 }
 
-// This needs to get tested for long constants.
 void
 Compiler::constant(Value value)
 {
-	ConstantIndex c = current_bytecode().add_constant(value);
-	write(c.overflow == 0 ? opcode::CONSTANT : opcode::CONSTANT_LONG);
-	// Endianness matters here - this seems right but should double-check.
-	write(c.index);
-	if (c.overflow != 0) write(c.overflow);
+	uint16_t index = current_bytecode().add_constant(value);
+	write(opcode::CONSTANT_LONG);
+	write_uint16(index);
 }
 
 void
@@ -219,9 +216,8 @@ Compiler::lambda()
 	parse = compiler.parse;
 	write(opcode::CLOSURE);
 	
-	ConstantIndex c = current_bytecode().add_constant((vm.allocate(compiler.function)));
-	write(c.index);
-	write(c.overflow);
+	uint16_t index = current_bytecode().add_constant(vm.allocate(compiler.function));
+	write_uint16(index);
 
 	compiler.function->upvalues = compiler.upvalues.size();
 	for (size_t i = 0; i < compiler.function->upvalues; i++) {
