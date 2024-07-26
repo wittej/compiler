@@ -32,14 +32,14 @@ private:
 	Scanner& scanner; // TODO: move to parser?
 	ParseState parse;  // TODO: move features to here?
 	VirtualMachine& vm;
-	// TODO: consider some additional state to say what level we're at?
-	// TODO: Might be covered by scope depth as well.
+	
+	/* TODO: manage these and access with a stack data structure. */
 	std::shared_ptr<Function> function = std::make_shared<Function>();
-	Compiler* enclosing = nullptr;  // This needs to be nullable - how we handle scope depth
-
+	Compiler* enclosing = nullptr;  // This needs to be nullable.
 	size_t scope_depth = 0;
 	std::vector<Local> locals;
 	std::vector<Upvalue> upvalues;
+
 	bool had_error = false;  // TODO: clean this up
 	bool panic_mode = false;
 	void advance();
