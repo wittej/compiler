@@ -117,7 +117,7 @@ Compiler::number()
 
 // TODO: consider making this a built-in function
 void
-Compiler::temp_not()
+Compiler::_not()
 {
 	parse_next();
 	write(opcode::NOT);
@@ -125,7 +125,7 @@ Compiler::temp_not()
 
 // Implements short-circuit logic
 void
-Compiler::temp_and()
+Compiler::_and()
 {
 	parse_next();
 	size_t jump_to_exit = write_jump(opcode::JUMP_IF_FALSE);
@@ -136,7 +136,7 @@ Compiler::temp_and()
 
 // Implements short-circuit logic
 void
-Compiler::temp_or()
+Compiler::_or()
 {
 	parse_next();
 	size_t jump_to_second = write_jump(opcode::JUMP_IF_FALSE);
@@ -306,7 +306,7 @@ Compiler::expression()
 }
 
 void
-Compiler::if_statement()
+Compiler::_if()
 {
 	expression();  // predicate - value will be popped in either branch	
 	size_t jump_to_alternative = write_jump(opcode::JUMP_IF_FALSE);
@@ -375,13 +375,13 @@ Compiler::combination()
 	advance();
 	switch (parse.previous.type) {
 	case token_type::NOT:
-		temp_not();
+		_not();
 		break;
 	case token_type::AND:
-		temp_and();
+		_and();
 		break;
 	case token_type::OR:
-		temp_or();
+		_or();
 		break;
 	case token_type::DEFINE:
 		definition();
@@ -391,7 +391,7 @@ Compiler::combination()
 		lambda();
 		break;
 	case token_type::IF:
-		if_statement();
+		_if();
 		break;
 	case token_type::SYMBOL:
 		symbol();

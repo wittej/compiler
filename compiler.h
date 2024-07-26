@@ -50,14 +50,14 @@ private:
 	void definition();
 	void expression();
 	void lambda();
-	void if_statement();
+	void _if();
 	void error(std::string error_message, Token token);
 	void write(uint8_t op);
 	void parse_next();  // TODO: infix . for cons - excuse to practice parser design
 	void combination();
-	void temp_not();
-	void temp_and();
-	void temp_or();
+	void _not();
+	void _and();
+	void _or();
 	void symbol();
 	void call();
 	void write_uint16(uint16_t uint);
@@ -81,7 +81,6 @@ public:
 	bool error() { return had_error; };
 	// TODO: revisit if this is needed - might just want to make it public?
 	std::shared_ptr<Function> get_function() { return had_error ? nullptr : function; };
-	Chunk get_bytecode() { return current_bytecode(); };
 };
 
 #endif
