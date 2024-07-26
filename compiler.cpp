@@ -4,7 +4,7 @@
 // TODO: put this in compiler header?
 constexpr int UNINITIALIZED_VAR = -1;
 
-
+// TODO: refactor into stack
 std::shared_ptr<Function>
 Compiler::compile()
 {
@@ -99,6 +99,7 @@ Compiler::patch_jump(size_t jump_index)
 }
 
 // This will be expanded later for lambdas etc.
+// TODO: refactor into stack
 Chunk&
 Compiler::current_bytecode()
 {
@@ -161,6 +162,7 @@ Compiler::definition_or_expression()
 
 // TODO: differentiate global / local
 // TODO: consider simplifying scope depth - no block scope
+// TODO: refactor into stack
 void
 Compiler::definition()
 {
@@ -196,6 +198,7 @@ Compiler::definition()
 // Transitional state - secondary compiler.
 // Medium-term - make this a method? Scope struct?
 
+// TODO: refactor into stack
 void
 Compiler::lambda()
 {
@@ -230,6 +233,7 @@ Compiler::lambda()
 	}
 }
 
+// TODO: refactor into stack
 int
 Compiler::resolve_local(Token token)
 {
@@ -241,6 +245,7 @@ Compiler::resolve_local(Token token)
 	return -1;
 }
 
+// TODO: refactor into stack
 int
 Compiler::resolve_upvalue(Token token)
 {
@@ -260,6 +265,7 @@ Compiler::resolve_upvalue(Token token)
 	return -1;
 }
 
+// TODO: refactor into stack
 int
 Compiler::push_upvalue(int index, bool local)
 {
