@@ -5,6 +5,11 @@
 constexpr int UNINITIALIZED_VAR = -1;
 
 // TODO: refactor into stack
+/**
+ * Compile the source and return the top-level function.
+ * 
+ * @return: shared pointer to top-level function.
+ */
 std::shared_ptr<Function>
 Compiler::compile()
 {
@@ -26,17 +31,30 @@ Compiler::compile()
 	return had_error ? nullptr : function;
 }
 
+/**
+ * Move forward one token. Retain previous token in case it is needed to parse
+ * current token. Contains under-construction error strategy - idea is to
+ * support recovery to the next non-error statement if possible.
+ */
 void
 Compiler::advance()
 {
 	parse.previous = parse.current;
-	for (;;) {
+
+	// TODO: reset panic mode at next definition or expression?
+	for (;;) {  // If an error is encountered, go to next non-error token.
 		parse.current = scanner.scan();
 		if (parse.current.type != token_type::ERROR) break;
 		error("Unrecognized token " + parse.current.string, parse.current);
 	}
 }
 
+/**
+ * Advance one token if it is what is expected or indicate an error otherwise.
+ * 
+ * @param expected: next token type required.
+ * @param error_message: error message if token is not expected type.
+ */
 void
 Compiler::consume(token_type expected, std::string error_message)
 {
@@ -44,6 +62,13 @@ Compiler::consume(token_type expected, std::string error_message)
 	else error(error_message, parse.current);
 }
 
+/**
+ * Display error to user and indicate to compiler that program is invalid,
+ * preventing the program from being run by the VM.
+ * 
+ * @param error_message: message to display to user.
+ * @param token: token where error was encountered.
+ */
 void
 Compiler::error(std::string error_message, Token token)
 {
@@ -56,12 +81,22 @@ Compiler::error(std::string error_message, Token token)
 
 // TODO: synchronize
 
+/**
+ * Write bytecode for the specified uint8.
+ * 
+ * @param op: opcode or other uint8 to write.
+ */
 void
 Compiler::write(uint8_t op)
 {
 	current_bytecode().write(op, parse.previous.line);
 }
 
+/**
+ * Write bytecode for the specified uint16 as two uint8 in little-endian order.
+ *
+ * @param uint: uint16 to write in little-endian order.
+ */
 void
 Compiler::write_uint16(uint16_t uint)
 {
@@ -71,29 +106,39 @@ Compiler::write_uint16(uint16_t uint)
 	write(overflow);
 }
 
+/**
+ * Used with patch_jump - this writes the jump instruction, reserves space for
+ * the constant part of the instruction, and returns index of the constant.
+ * 
+ * @param jump: jump instruction to write.
+ * @return: index of the constant part of the jump instruction.
+ */
 size_t
 Compiler::write_jump(uint8_t jump)
 {
-	write(jump);
+	write(jump); // TODO: verify valid jump opcode?
 	write(255);  // Will be overwritten by patch_jump
 	write(255);
 	return current_bytecode().instructions.size() - 2;
 }
 
+// jump index - index of jump constant part.
 void
 Compiler::patch_jump(size_t jump_index)
 {
 	// error if not a valid size_t
 
+	// Number of indices to jump forward (past jump constant at minimum).
 	size_t jump_to = current_bytecode().instructions.size() - jump_index - 2;
 	
 	// error if > uint16t max
 
-	uint16_t uint16_offset = static_cast<uint16_t>(jump_to);
+	auto uint16_offset = static_cast<uint16_t>(jump_to);
 
-	uint8_t offset = static_cast<uint8_t>(uint16_offset & 255);
-	uint8_t overflow = static_cast<uint8_t>(uint16_offset >> 8);
+	auto offset = static_cast<uint8_t>(uint16_offset & 255);
+	auto overflow = static_cast<uint8_t>(uint16_offset >> 8);
 
+	// Update constant part of jump instruction (little-endian format).
 	current_bytecode().instructions[jump_index] = offset;
 	current_bytecode().instructions[jump_index + 1] = overflow;
 }

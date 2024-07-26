@@ -26,7 +26,14 @@ struct ParseState {
 	Token previous;
 };
 
-// Considering splitting this into a parser and compiler
+/**
+ * Handles parsing and compilation - gets tokens from the scanner and writes
+ * them as bytecode, resolving variables and storing constants as needed.
+ * 
+ * NB: subject to change - some features of this class are likely best
+ * encapsulated in other classes.
+ */
+// TODO: consider decoupling parsing and compiling jobs
 class Compiler {
 private:
 	Scanner& scanner; // TODO: move to parser?
