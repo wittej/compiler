@@ -124,12 +124,12 @@ Compiler::write_jump(uint8_t jump)
 
 // jump index - index of jump constant part.
 void
-Compiler::patch_jump(size_t jump_index)
+Compiler::patch_jump(size_t patch_index)
 {
 	// error if not a valid size_t
 
-	// Number of indices to jump forward (past jump constant at minimum).
-	size_t jump_to = current_bytecode().instructions.size() - jump_index - 2;
+	// Number of indices to jump forward (past jump instruction at minimum).
+	size_t jump_to = current_bytecode().instructions.size() - patch_index - 2;
 	
 	// error if > uint16t max
 
@@ -138,9 +138,9 @@ Compiler::patch_jump(size_t jump_index)
 	auto offset = static_cast<uint8_t>(uint16_offset & 255);
 	auto overflow = static_cast<uint8_t>(uint16_offset >> 8);
 
-	// Update constant part of jump instruction (little-endian format).
-	current_bytecode().instructions[jump_index] = offset;
-	current_bytecode().instructions[jump_index + 1] = overflow;
+	// Update integer part of jump instruction (little-endian format).
+	current_bytecode().instructions[patch_index] = offset;
+	current_bytecode().instructions[patch_index + 1] = overflow;
 }
 
 // This will be expanded later for lambdas etc.
