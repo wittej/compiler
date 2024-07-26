@@ -104,14 +104,13 @@ VirtualMachine::read_uint16_and_update_ip(uint8_t*& ip)
 interpret_result
 VirtualMachine::interpret(std::string source)
 {
-	// Probably want the compiler to return the bytecode or some sort of struct
 	Scanner scanner(source);
 	Compiler compiler(scanner, *this);
-	std::shared_ptr<Function> function = compiler.get_function();
+
+	auto function = compiler.compile();
 	if (function == nullptr) return interpret_result::COMPILE_ERROR;
 
-	// TODO: revisit this?
-	Data script = Data(function);
+	auto script = Data(function);
 	// TODO: make sure GC knows these exist
 	auto closure = Data(std::make_shared<Closure>(&script));
 	stack.push_back(Value(&closure));

@@ -5,9 +5,13 @@
 constexpr int UNINITIALIZED_VAR = -1;
 
 
-bool
+std::shared_ptr<Function>
 Compiler::compile()
 {
+	locals.push_back(Local{
+		.token = Token{.type = token_type::BEGIN, .line = 0 },
+		.depth = 0});
+
 	advance();
 	while (parse.current.type != token_type::END) {
 		definition_or_expression();
@@ -19,7 +23,7 @@ Compiler::compile()
 		disassembleBytecode(current_bytecode(), "CODE");
 	}
 #endif
-	return !had_error;
+	return had_error ? nullptr : function;
 }
 
 void

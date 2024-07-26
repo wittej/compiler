@@ -66,21 +66,13 @@ private:
 	int resolve_local(Token token);
 	int resolve_upvalue(Token token);
 	int push_upvalue(int index, bool local);
-	bool compile();
 	Chunk& current_bytecode();
 public:
-	Compiler(Scanner& scanner, VirtualMachine& vm) : scanner{ scanner }, vm{ vm }
-	{
-		// TODO: revisit
-		locals.push_back(Local{ .token = Token{ .type=token_type::BEGIN, .line=0 }, .depth = 0});
-
-		compile();
-	};
+	Compiler(Scanner& scanner, VirtualMachine& vm) : scanner{ scanner }, vm{ vm } {};
 	Compiler(Compiler* enclosing) : enclosing{ enclosing }, scanner{ enclosing->scanner },
 		vm{ enclosing->vm }, scope_depth{enclosing->scope_depth + 1} {};
-	bool error() { return had_error; };
-	// TODO: revisit if this is needed - might just want to make it public?
-	std::shared_ptr<Function> get_function() { return had_error ? nullptr : function; };
+	bool error() { return had_error; };  // TODO: needed?
+	std::shared_ptr<Function> compile();
 };
 
 #endif
