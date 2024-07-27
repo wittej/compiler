@@ -1,6 +1,17 @@
 #include "compiler.h"
 #include "scanner.h"
 
+/* Future design note - will want to rewrite to incorporate thunks. This will
+ * enable tail recursion. Optionally will allow short-circuit evaluation of
+ * function arguments - and, or, and if can potentially be rewritten as 
+ * built-in functions. */
+
+/* Future design note - definition_or_expression is a legacy of when this was
+ * a more Scheme-like Lisp dialect. It's similar to expression() and
+ * parse_next(), and these should be refactored. I'm moving to definitions
+ * being expressions that return NIL. Want to resolve thunks as late as
+ * possible, so may still need a distinction of some sort. */
+
 // TODO: put this in compiler header?
 constexpr int UNINITIALIZED_VAR = -1;
 
@@ -122,7 +133,11 @@ Compiler::write_jump(uint8_t jump)
 	return current_bytecode().instructions.size() - 2;
 }
 
-// jump index - index of jump constant part.
+/**
+ * Update the placeholder bytecode written by write_jump to add jump target.
+ * 
+ * @param patch_index: first index of the index part of the jump instruction.
+ */
 void
 Compiler::patch_jump(size_t patch_index)
 {
@@ -143,7 +158,6 @@ Compiler::patch_jump(size_t patch_index)
 	current_bytecode().instructions[patch_index + 1] = overflow;
 }
 
-// This will be expanded later for lambdas etc.
 // TODO: refactor into stack
 Chunk&
 Compiler::current_bytecode()
@@ -151,6 +165,11 @@ Compiler::current_bytecode()
 	return function->bytecode;
 }
 
+/**
+ * Write a constant Value. Updates bytecode constants vector.
+ * 
+ * @param value: Value of constant.
+ */
 void
 Compiler::constant(Value value)
 {
@@ -159,6 +178,11 @@ Compiler::constant(Value value)
 	write_uint16(index);
 }
 
+// TODO: break out into integer and double versions.
+/**
+ * Interpret the current token as a decimal and add it as a constant. Updates
+ * bytecode constants vector.
+ */
 void
 Compiler::number()
 {
@@ -166,6 +190,9 @@ Compiler::number()
 }
 
 // TODO: consider making this a built-in function
+/**
+ * Implements logical NOT function.
+ */
 void
 Compiler::_not()
 {
@@ -173,7 +200,10 @@ Compiler::_not()
 	write(opcode::NOT);
 }
 
-// Implements short-circuit logic
+/**
+ * Implements logical AND function. This uses short-circuit logic - second
+ * statement will only be evaluated if first does not evaluate to false.
+ */
 void
 Compiler::_and()
 {
@@ -184,7 +214,10 @@ Compiler::_and()
 	patch_jump(jump_to_exit);
 }
 
-// Implements short-circuit logic
+/**
+ * Implements logical OR function. This uses short-circuit logic - second
+ * statement will only be evaluated if first evaluates to false.
+ */
 void
 Compiler::_or()
 {
@@ -197,6 +230,12 @@ Compiler::_or()
 	patch_jump(jump_to_exit);
 }
 
+// TODO: refactor expression, parse_next, and definition_or_expression.
+/**
+ * NB: this function is currently a placeholder, but will have a role in thunk
+ * resolution when I implement tail recursion and synchronization after error
+ * after next compiler output pass.
+ */
 void
 Compiler::definition_or_expression()
 {
@@ -205,23 +244,24 @@ Compiler::definition_or_expression()
 	// TODO: synchronize after error
 }
 
-// TODO: differentiate global / local
-// TODO: consider simplifying scope depth - no block scope
 // TODO: refactor into stack
+// TODO: revise for let as needed (basically as a lambda)
+/**
+ * Compile a global or local definition (depending on scope depth). Does not
+ * allow variable redefinition.
+ */
 void
 Compiler::definition()
 {
-	// TODO: differentiate define / let syntax?
 	consume(token_type::SYMBOL, "Expect symbol.");
 
-	// TODO: need stack frames for let so it can be used in expressions
 	if (scope_depth > 0) {
 		for (int i = locals.size() - 1; i >= 0; i--) {
 			if (locals[i].depth < scope_depth) break;
 			if (parse.previous.string == locals[i].token.string)
 				error("Unexpected variable redefinition", parse.previous);
 		}
-		// Depth -1 indicates variable hasn't been initialized in this scope.
+
 		// Don't do this for lambdas - should be able to be recursive
 		// TODO: Verify lambda initialization special case is documented
 		Local local{ .token = parse.previous, .depth = UNINITIALIZED_VAR };
@@ -229,6 +269,7 @@ Compiler::definition()
 		expression();  // Needs to be tested
 		locals.back().depth = scope_depth;
 	}
+
 	else {
 		size_t index = vm.global(parse.previous.string);
 		expression();
@@ -237,13 +278,13 @@ Compiler::definition()
 	}
 }
 
-// TODO: figure out how to do this
-// Notes: there's a lot of potentially messy shared state here - need to
-// make sure solution is rational and handles various edge cases.
-// Transitional state - secondary compiler.
-// Medium-term - make this a method? Scope struct?
-
 // TODO: refactor into stack
+// TODO: write a "let" based on this.
+// TOOD: non-anonymous functions (similar to this - possible modification).
+/**
+ * Compile an anonymous function - function body is similar to the top-level
+ * script as a whole. Result of final expression is returned.
+ */
 void
 Compiler::lambda()
 {
@@ -282,6 +323,7 @@ Compiler::lambda()
 int
 Compiler::resolve_local(Token token)
 {
+	// TODO: rewrite with hashmap?
 	for (int i = locals.size() - 1; i >= 0; i--) {
 		// Intended behavior: get from closest initialized scope.
 		if (token.string == locals[i].token.string && locals[i].depth >= 0)
@@ -329,6 +371,11 @@ Compiler::push_upvalue(int index, bool local)
 	return static_cast<int>(upvalues.size() - 1);
 }
 
+/**
+ * Compile a reference to a symbol, starting with the current scope and
+ * proceeding to the global scope. Use deepest scope depth if symbol has been
+ * shadowed.
+ */
 void
 Compiler::symbol()
 {
@@ -352,14 +399,17 @@ Compiler::symbol()
 	}
 }
 
-// TODO: is this needed?
+// TODO: refactor expression, parse_next, and definition_or_expression.
 void
 Compiler::expression()
 {
-	// TODO - differentiate self-evaluating and combination?
 	parse_next();
 }
 
+// TODO: consider function
+/**
+ * Implements a Lisp-style ternary if with short-circuit evaluation.
+ */
 void
 Compiler::_if()
 {
@@ -377,13 +427,16 @@ Compiler::_if()
 	patch_jump(jump_to_exit);
 }
 
+/**
+ * Compile a call to a built-in or user-defined function / combination.
+ */
 void
 Compiler::call()
 {
 	uint16_t number_arguments = 0;
 	while (parse.current.type != token_type::RPAREN) {
-		// TODO: want a function body that evaluates thunks
-		if (parse.current.type == token_type::END) {  // TEMP
+		// TODO: consider role of thunk evaluation here.
+		if (parse.current.type == token_type::END) {  // EOF reached early
 			error("Expected closing ')'", parse.current);
 			break;
 		}
@@ -394,65 +447,75 @@ Compiler::call()
 	write_uint16(number_arguments);
 }
 
+// TODO: refactor expression, parse_next, and definition_or_expression.
+/**
+ * Parse and compile the next expression - may be self-evaluating or a
+ * combination.
+ */
 void
 Compiler::parse_next()
 {
 	advance();
 	switch (parse.previous.type) {
-	case token_type::NUMBER:
-		number();
-		break;
-	case token_type::SYMBOL:
-		symbol();
-		break;
-	case token_type::FALSE:
-		write(opcode::FALSE);
-		break;
-	case token_type::TRUE:
-		write(opcode::TRUE);
-		break;
-	case token_type::NIL:
-		write(opcode::NIL);
-		break;
-	case token_type::LPAREN:
-		if (parse.current.type == token_type::RPAREN) write(opcode::NIL);
-		else combination();
-		consume(token_type::RPAREN, "Expect ')'.");
-		break;
-	default:
-		error("unknown self-evaluating token type.", parse.previous);
+		case token_type::NUMBER:
+			number();
+			break;
+		case token_type::SYMBOL:
+			symbol();
+			break;
+		case token_type::FALSE:
+			write(opcode::FALSE);
+			break;
+		case token_type::TRUE:
+			write(opcode::TRUE);
+			break;
+		case token_type::NIL:
+			write(opcode::NIL);
+			break;
+		case token_type::LPAREN:
+			if (parse.current.type == token_type::RPAREN) write(opcode::NIL);
+			else combination();
+			consume(token_type::RPAREN, "Expect ')'.");
+			break;
+		default:
+			error("unknown self-evaluating token type.", parse.previous);
 	}
 }
 
+/**
+ * Parse and compile a combination - special forms are handled using specific
+ * tokens, and other built-ins and user-defined functions are handled
+ * generally. '()' for 'NIL' is supported but is handled elsewhere.
+ */
 void
 Compiler::combination()
 {
 	advance();
 	switch (parse.previous.type) {
-	case token_type::NOT:
-		_not();
-		break;
-	case token_type::AND:
-		_and();
-		break;
-	case token_type::OR:
-		_or();
-		break;
-	case token_type::DEFINE:
-		definition();
-		write(opcode::NIL);  // TODO: consider moving this to definition
-		break;
-	case token_type::LAMBDA:
-		lambda();
-		break;
-	case token_type::IF:
-		_if();
-		break;
-	case token_type::SYMBOL:
-		symbol();
-		call();
-		break;
-	default:
-		error("expected symbol or built-in when reading combination.", parse.previous);
+		case token_type::NOT:
+			_not();
+			break;
+		case token_type::AND:
+			_and();
+			break;
+		case token_type::OR:
+			_or();
+			break;
+		case token_type::DEFINE:
+			definition();
+			write(opcode::NIL);  // TODO: consider moving this to definition
+			break;
+		case token_type::LAMBDA:
+			lambda();
+			break;
+		case token_type::IF:
+			_if();
+			break;
+		case token_type::SYMBOL: // It's a (non special form) function call.
+			symbol();
+			call();
+			break;
+		default:
+			error("expected symbol when reading combination.", parse.previous);
 	}
 }
