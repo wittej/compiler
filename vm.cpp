@@ -270,7 +270,6 @@ VirtualMachine::run()
 			// TODO: make sure this works with GC
 			stack.push_back(allocate(closure));
 
-			// TODO: consider getting rid of this if redundant
 			size_t count = std::any_cast<std::shared_ptr<Function>>(closure->function->data)->upvalues;
 			for (size_t i = 0; i < count; i++) {
 				auto local = *frames.back().ip++;
