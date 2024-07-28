@@ -18,12 +18,20 @@ enum class interpret_result {
 	RUNTIME_ERROR,
 };
 
+// TODO: index instead of pointer
+/**
+ * Call with closure being executed, instruction being executed, and location
+ * on stack frame.
+ */
 struct CallFrame {
 	std::shared_ptr<Closure> closure;  // env?
 	uint8_t* ip;
 	size_t stack_index;
 };
 
+/**
+ * Executes compiled bytecode. Represents state of program execution.
+ */
 class VirtualMachine {
 private:
 	interpret_result run();

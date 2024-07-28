@@ -2,6 +2,10 @@
 #include "vm.h"
 #include "compiler.h"
 
+// TODO: GC
+/**
+ * Construct the VM - requires allocation of built-in functions.
+ */
 VirtualMachine::VirtualMachine()
 {
 	// TODO: make sure GC handles this
@@ -10,6 +14,11 @@ VirtualMachine::VirtualMachine()
 	globals[global("=")] = allocate(std::make_shared<BuiltinEqual>());
 }
 
+/**
+ * Convenience function that pops the top value of the VM stack.
+ * 
+ * @return: Value popped from the stack.
+ */
 Value
 VirtualMachine::stack_pop()
 {
@@ -18,6 +27,12 @@ VirtualMachine::stack_pop()
 	return value;
 }
 
+/**
+ * Convenience function that examines a value offset from the top of the stack.
+ *
+ * @param depth: offset from top of stack to examine. 0 is top of stack.
+ * @return: stack value offset from top by depth.
+ */
 Value
 VirtualMachine::stack_peek(size_t depth)
 {
@@ -25,6 +40,12 @@ VirtualMachine::stack_peek(size_t depth)
 }
 
 // TODO: better line handling
+/**
+ * Print a runtime error with a basic stack trace and reset the stack.
+ * 
+ * @param message: error message to print.
+ * @param line: line where error occurred (currently unused).
+ */
 void
 VirtualMachine::runtime_error(std::string message, size_t line)
 {
@@ -41,8 +62,14 @@ VirtualMachine::runtime_error(std::string message, size_t line)
 	stack.clear();  // TODO - clear func?
 }
 
-// TODO: consider consolidating these
+// TODO: consider consolidating these - single function that takes a Data obj.
 
+/**
+ * Add a string to memory and return a Value pointing to its location.
+ * 
+ * @param string: string to allocate.
+ * @return: Value pointing to Data in memory.
+ */
 Value
 VirtualMachine::allocate(std::string string)
 {
@@ -50,6 +77,12 @@ VirtualMachine::allocate(std::string string)
 	return Value(&memory.front());
 }
 
+/**
+ * Add a Function to memory and return a Value pointing to its location.
+ *
+ * @param function: shared pointer managing Function to allocate.
+ * @return: Value pointing to Data in memory.
+ */
 Value
 VirtualMachine::allocate(std::shared_ptr<Function> function)
 {
@@ -57,6 +90,12 @@ VirtualMachine::allocate(std::shared_ptr<Function> function)
 	return Value(&memory.front());
 }
 
+/**
+ * Add a Closure to memory and return a Value pointing to its location.
+ *
+ * @param closure: shared pointer managing Closure to allocate.
+ * @return: Value pointing to Data in memory.
+ */
 Value
 VirtualMachine::allocate(std::shared_ptr<Closure> closure)
 {
@@ -64,6 +103,12 @@ VirtualMachine::allocate(std::shared_ptr<Closure> closure)
 	return Value(&memory.front());
 }
 
+/**
+ * Add a BuiltinFunction to memory and return a Value pointing to its location.
+ *
+ * @param builtin: shared pointer managing BuiltinFunction to allocate.
+ * @return: Value pointing to Data in memory.
+ */
 Value
 VirtualMachine::allocate(std::shared_ptr<BuiltinFunction> builtin)
 {
@@ -71,7 +116,12 @@ VirtualMachine::allocate(std::shared_ptr<BuiltinFunction> builtin)
 	return Value(&memory.front());
 }
 
-
+/**
+ * Add a Pair to memory and return a Value pointing to its location.
+ *
+ * @param pair: Pair to allocate.
+ * @return: Value pointing to Data in memory.
+ */
 Value
 VirtualMachine::allocate(Pair pair)
 {
@@ -193,6 +243,7 @@ VirtualMachine::capture_upvalue(size_t index)
 }
 
 // TODO: clean up switch block formatting or break into functions
+// TODO: index instead of pointer?
 
 interpret_result
 VirtualMachine::run()
