@@ -140,9 +140,14 @@ VirtualMachine::global(std::string key)
 	return size;
 }
 
-// NB: will mutate ip
-// TODO: think on name - want to be exceptionally clear that ip state changes
-// TODO: consider if this is a good idea in general
+// TODO: might want to just read the uint16 and move the ip in calling code.
+/**
+ * Convenience function that reads a uint16 in little-endian format from the
+ * passed instruction pointer, incrementing it twice. NB: will update ip.
+ * 
+ * @param ip: pointer to first byte storing the uint16, will be updated.
+ * @return: uint16 read from the ip.
+ */
 inline uint16_t
 VirtualMachine::read_uint16_and_update_ip(uint8_t*& ip)
 {
@@ -151,6 +156,9 @@ VirtualMachine::read_uint16_and_update_ip(uint8_t*& ip)
 	return static_cast<uint16_t>(overflow) * 256 + constant;
 }
 
+/**
+ * Scan, compile, and run the source code, printing the result.
+ */
 interpret_result
 VirtualMachine::interpret(std::string source)
 {
@@ -169,46 +177,76 @@ VirtualMachine::interpret(std::string source)
 	return run();
 }
 
-// Scheme rules, everything but "false" is truthy
+/**
+ * Handles true/false status. True/false for this Lisp follows Scheme rules -
+ * everything but false returns true here.
+ * 
+ * @param val: Value to test for truth/falsity.
+ * @return: is Value not 'false'?
+ */
 bool
 VirtualMachine::truth_value(Value val)
 {
 	return (val.type == value_type::BOOL) ? val.as.boolean : true;
 }
 
+// TODO: revisit error handling.
+
+/**
+ * Executes a call to a closure or a built-in function. Dispatches to
+ * appropriate method for the function type.
+ * 
+ * @param number_arguments: number of arguments in the call.
+ * @return: call success status.
+ */
 bool
 VirtualMachine::call(size_t number_arguments)
 {
 	bool result = false;
 
 	Value val = stack_peek(number_arguments);
+
 	if (val.match_data_type(data_type::CLOSURE)) {
-		std::shared_ptr<Closure> closure;
-		// TODO: consider making a shortcut for this stuff
-		closure = std::any_cast<std::shared_ptr<Closure>>(val.as.data->data);
+		using clos_t = std::shared_ptr<Closure>;
+		auto closure = std::any_cast<clos_t>(val.as.data->data);
 		result = call(closure, number_arguments);
 	}
+
 	else if (val.match_data_type(data_type::BUILTIN)) {
-		std::shared_ptr<BuiltinFunction> function;
-		function = std::any_cast<std::shared_ptr<BuiltinFunction>>(val.as.data->data);
+		using func_t = std::shared_ptr<BuiltinFunction>;
+		auto function = std::any_cast<func_t>(val.as.data->data);
 		result = call(function, number_arguments);
 	}
 	
 	return result;
 }
 
+/**
+ * Executes a call to a user-defined closure.
+ *
+ * @param closure: closure being called.
+ * @param number_arguments: number of arguments in the call.
+ * @return: call success status. (under construction)
+ */
 bool
 VirtualMachine::call(std::shared_ptr<Closure> closure, size_t number_arguments)
 {
 	CallFrame frame{
 		.closure = closure,
 		.ip = &closure->function_ptr()->bytecode.instructions[0],
-		.stack_index = stack.size() - number_arguments - 1 };
+		.stack_index = stack.size() - number_arguments - 1};
 
 	frames.push_back(frame);
-	return true;
+	return true;  // TODO: check result?
 }
 
+/**
+ * Executes a call to a built-in function.
+ *
+ * @param function: function being called.
+ * @param number_arguments: number of arguments in the call.
+ * @return: call success status. (under construction)
+ */
 bool
 VirtualMachine::call(std::shared_ptr<BuiltinFunction> function, size_t number_arguments)
 {
@@ -219,7 +257,7 @@ VirtualMachine::call(std::shared_ptr<BuiltinFunction> function, size_t number_ar
 	stack.erase(stack.begin() + stack.size() - number_arguments - 1, stack.end());
 	stack.push_back(result);
 
-	return true;
+	return true;  // TODO: check result?
 }
 
 std::shared_ptr<RuntimeUpvalue>
