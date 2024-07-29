@@ -260,6 +260,14 @@ VirtualMachine::call(std::shared_ptr<BuiltinFunction> function, size_t number_ar
 	return true;  // TODO: check result?
 }
 
+/**
+ * Handle upvalue capture by either creating an upvalue if none exists or
+ * reusing it if it does exist. This ensures that two closures that capture the
+ * same variable reference the same upvalue.
+ * 
+ * @param index: stack index of upvalue to capture.
+ * @return: shared pointer to captured upvalue.
+ */
 std::shared_ptr<RuntimeUpvalue>
 VirtualMachine::capture_upvalue(size_t index)
 {
@@ -283,6 +291,11 @@ VirtualMachine::capture_upvalue(size_t index)
 // TODO: clean up switch block formatting or break into functions
 // TODO: index instead of pointer?
 
+/**
+ * Execute the program. Obtains current instruction and executes it in a loop.
+ * 
+ * @return: result of program execution.
+ */
 interpret_result
 VirtualMachine::run()
 {
@@ -297,129 +310,128 @@ VirtualMachine::run()
 		if (frames.back().closure->function_ptr()->bytecode.newlines[frames.back().ip - frames.back().closure->function_ptr()->bytecode.instructions.data()]) ++line;
 #endif
 		switch (uint8_t instruction = *frames.back().ip++) {
-		case opcode::CONSTANT:
-			{
+			case opcode::CONSTANT: {
+					size_t index = read_uint16_and_update_ip(frames.back().ip);
+					stack.push_back(frames.back().closure->function_ptr()->bytecode.constants[index]);
+				}
+				break;
+			case opcode::DEFINE_GLOBAL: {
 				size_t index = read_uint16_and_update_ip(frames.back().ip);
-				stack.push_back(frames.back().closure->function_ptr()->bytecode.constants[index]);
-			}
-			break;
-		case opcode::DEFINE_GLOBAL: {
-			size_t index = read_uint16_and_update_ip(frames.back().ip);
-			globals[index] = stack_pop();  // TODO: consider unsigned Value
-			}
-			break;
-		case opcode::GET_GLOBAL: {
-			// TODO: instead get the global at this index
-			// Need "undefined" value - similar to how Python does it
-			size_t index = read_uint16_and_update_ip(frames.back().ip);
-			if (globals[index].type == value_type::UNINITIALIZED) {
-				// TODO: this isn't reporting correctly
-				runtime_error("Uninitialized variable", line);
-				return interpret_result::RUNTIME_ERROR;
-			}
-			stack.push_back(globals[index]);
-			}
-			break;
-		case opcode::GET_UPVALUE: {
-			size_t index = read_uint16_and_update_ip(frames.back().ip);
-			auto upvalue = frames.back().closure->upvalues[index];
-			if (upvalue->data.type != value_type::UNINITIALIZED)
-				stack.push_back(upvalue->data);
-			else stack.push_back(stack[upvalue->index]);
-			}
-			break;
-		case opcode::GET_LOCAL: {
-			size_t index = read_uint16_and_update_ip(frames.back().ip);
-			// TODO: make sure this still indexes correctly
-			stack.push_back(stack[frames.back().stack_index + index + 1]);
-			}
-			break;
-		case opcode::JUMP: {
-			frames.back().ip += read_uint16_and_update_ip(frames.back().ip);
-			}
-			break;
-		case opcode::JUMP_IF_FALSE: {
-			size_t jump = read_uint16_and_update_ip(frames.back().ip);
-			if (stack_peek(0).type == value_type::BOOL &&
-				stack_peek(0).as.boolean == false)
-				frames.back().ip += jump;
-			}
-			break;
-		case opcode::CALL: {
-			size_t number_arguments = read_uint16_and_update_ip(frames.back().ip);
-			if (!call(number_arguments)) return interpret_result::RUNTIME_ERROR;
-			}
-			break;
-		case opcode::CLOSURE: {
-			size_t index = read_uint16_and_update_ip(frames.back().ip);
-			Value val = frames.back().closure->function_ptr()->bytecode.constants[index];
-			if (!val.match_data_type(data_type::FUNCTION)) return interpret_result::RUNTIME_ERROR;
-			auto closure = std::make_shared<Closure>(val.as.data);
-
-			// TODO: make sure this works with GC
-			stack.push_back(allocate(closure));
-
-			size_t count = std::any_cast<std::shared_ptr<Function>>(closure->function->data)->upvalues;
-			for (size_t i = 0; i < count; i++) {
-				auto local = *frames.back().ip++;
-				auto up_index = read_uint16_and_update_ip(frames.back().ip);
-
-				if (local) {
-					auto upvalue = capture_upvalue(frames.back().stack_index + up_index + 1);
-					closure->upvalues.push_back(upvalue);
+				globals[index] = stack_pop();  // TODO: consider unsigned Value
 				}
-
-				else {
-					auto upvalue = frames.back().closure->upvalues[up_index];
-					closure->upvalues.push_back(upvalue);
+				break;
+			case opcode::GET_GLOBAL: {
+				// TODO: instead get the global at this index
+				// Need "undefined" value - similar to how Python does it
+				size_t index = read_uint16_and_update_ip(frames.back().ip);
+				if (globals[index].type == value_type::UNINITIALIZED) {
+					// TODO: this isn't reporting correctly
+					runtime_error("Uninitialized variable", line);
+					return interpret_result::RUNTIME_ERROR;
 				}
-			}
-			}
-			break;
-		case opcode::NOT:
-			stack.push_back(Value(!truth_value(stack_pop())));
-			break;
-		case opcode::TRUE:
-			stack.push_back(Value(true));
-			break;
-		case opcode::FALSE:
-			stack.push_back(Value(false));
-			break;
-		case opcode::NIL:
-			stack.push_back(Value(value_type::NIL));
-			break;
-		case opcode::POP:
-			stack_pop();
-			break;
-		case opcode::RETURN: {
-			Value result = stack_pop();
+				stack.push_back(globals[index]);
+				}
+				break;
+			case opcode::GET_UPVALUE: {
+				size_t index = read_uint16_and_update_ip(frames.back().ip);
+				auto upvalue = frames.back().closure->upvalues[index];
+				if (upvalue->data.type != value_type::UNINITIALIZED)
+					stack.push_back(upvalue->data);
+				else stack.push_back(stack[upvalue->index]);
+				}
+				break;
+			case opcode::GET_LOCAL: {
+				size_t index = read_uint16_and_update_ip(frames.back().ip);
+				// TODO: make sure this still indexes correctly
+				stack.push_back(stack[frames.back().stack_index + index + 1]);
+				}
+				break;
+			case opcode::JUMP: {
+				frames.back().ip += read_uint16_and_update_ip(frames.back().ip);
+				}
+				break;
+			case opcode::JUMP_IF_FALSE: {
+				size_t jump = read_uint16_and_update_ip(frames.back().ip);
+				if (stack_peek(0).type == value_type::BOOL &&
+					stack_peek(0).as.boolean == false)
+					frames.back().ip += jump;
+				}
+				break;
+			case opcode::CALL: {
+				size_t number_arguments = read_uint16_and_update_ip(frames.back().ip);
+				if (!call(number_arguments)) return interpret_result::RUNTIME_ERROR;
+				}
+				break;
+			case opcode::CLOSURE: {
+				size_t index = read_uint16_and_update_ip(frames.back().ip);
+				Value val = frames.back().closure->function_ptr()->bytecode.constants[index];
+				if (!val.match_data_type(data_type::FUNCTION)) return interpret_result::RUNTIME_ERROR;
+				auto closure = std::make_shared<Closure>(val.as.data);
 
-			if (frames.size() == 1) {
+				// TODO: make sure this works with GC
+				stack.push_back(allocate(closure));
+
+				size_t count = std::any_cast<std::shared_ptr<Function>>(closure->function->data)->upvalues;
+				for (size_t i = 0; i < count; i++) {
+					auto local = *frames.back().ip++;
+					auto up_index = read_uint16_and_update_ip(frames.back().ip);
+
+					if (local) {
+						auto upvalue = capture_upvalue(frames.back().stack_index + up_index + 1);
+						closure->upvalues.push_back(upvalue);
+					}
+
+					else {
+						auto upvalue = frames.back().closure->upvalues[up_index];
+						closure->upvalues.push_back(upvalue);
+					}
+				}
+				}
+				break;
+			case opcode::NOT:
+				stack.push_back(Value(!truth_value(stack_pop())));
+				break;
+			case opcode::TRUE:
+				stack.push_back(Value(true));
+				break;
+			case opcode::FALSE:
+				stack.push_back(Value(false));
+				break;
+			case opcode::NIL:
+				stack.push_back(Value(value_type::NIL));
+				break;
+			case opcode::POP:
 				stack_pop();
+				break;
+			case opcode::RETURN: {
+				Value result = stack_pop();
+
+				if (frames.size() == 1) {
+					stack_pop();
+					frames.pop_back();
+					std::cout << result.print() << '\n';
+					return interpret_result::OK;
+				}
+
+				// Close upvalues
+				auto start = open_upvalues.rbegin();
+				auto end = open_upvalues.rend();
+				size_t removed = 0;
+				for (auto i = start; i != end; i++) {
+					if ((*i)->index < frames.back().stack_index) break;
+					(*i)->data = stack[(*i)->index];
+					removed++;
+				}
+				open_upvalues.erase(std::prev(open_upvalues.end(), removed), open_upvalues.end());
+
+				// Look for indexing issues here
+				stack.erase(stack.begin() + frames.back().stack_index, stack.end());
+				stack.push_back(result);
 				frames.pop_back();
-				std::cout << result.print() << '\n';
-				return interpret_result::OK;
-			}
-
-			// Close upvalues
-			auto start = open_upvalues.rbegin();
-			auto end = open_upvalues.rend();
-			size_t removed = 0;
-			for (auto i = start; i != end; i++) {
-				if ((*i)->index < frames.back().stack_index) break;
-				(*i)->data = stack[(*i)->index];
-				removed++;
-			}
-			open_upvalues.erase(std::prev(open_upvalues.end(), removed), open_upvalues.end());
-
-			// Look for indexing issues here
-			stack.erase(stack.begin() + frames.back().stack_index, stack.end());
-			stack.push_back(result);
-			frames.pop_back();
-			}
-			break;
-		default:
-			return interpret_result::RUNTIME_ERROR;
+				}
+				break;
+			default:
+				return interpret_result::RUNTIME_ERROR;
 		}
 	}
 }
