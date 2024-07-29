@@ -2,6 +2,12 @@
 #include "value.h"
 #include "function.h"
 
+/**
+ * Print a chunk of bytecode in human-readable format.
+ * 
+ * @param bytecode: bytecode to print.
+ * @param name: name of function (if applicable).
+ */
 void
 disassembleBytecode(Chunk& bytecode, std::string name)
 {
@@ -12,6 +18,13 @@ disassembleBytecode(Chunk& bytecode, std::string name)
 	}
 }
 
+/**
+ * Print a simple (single-line) instruction.
+ * 
+ * @param name: human-readable name of instruction.
+ * @param offset: location of instruction in bytecode.
+ * @return: location of next bytecode instruction.
+ */
 static size_t
 simpleInstruction(std::string name, size_t offset)
 {
@@ -19,32 +32,15 @@ simpleInstruction(std::string name, size_t offset)
 	return offset + 1;
 }
 
-static size_t
-constantInstruction(std::string name, Chunk& bytecode, size_t offset)
-{
-	uint8_t index = bytecode.instructions[offset + 1];
-
-	Value value = bytecode.constants[index];
-	switch (value.type) {
-	case value_type::NUMBER:
-		std::cerr << name << ' ' << value.as.number << '\n';
-		break;
-	case value_type::BOOL:
-		std::cerr << name << ' ' << value.as.boolean << '\n';
-		break;
-	case value_type::NIL:
-		std::cerr << name << ' ' << "nil" << '\n';
-		break;
-	case value_type::DATA:
-		std::cerr << name << ' ' << "data" << '\n';
-		break;
-	default:
-		std::cerr << name << " unknown type" << '\n';
-	}
-
-	return offset + 2;
-}
-
+// DEPRACATED>
+/**
+ * Print a constant (including its value) in human-readable format.
+ *
+ * @param name: human-readable name of instruction.
+ * @param bytecode: bytecode where constant is stored.
+ * @param offset: location of instruction in bytecode.
+ * @return: location of next bytecode instruction.
+ */
 static size_t
 longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 {
@@ -74,6 +70,14 @@ longConstantInstruction(std::string name, Chunk& bytecode, size_t offset)
 	return offset + 3;
 }
 
+/**
+ * Print an instruction with a uint16 component in human-readable format.
+ *
+ * @param name: human-readable name of instruction.
+ * @param bytecode: bytecode where constant is stored.
+ * @param offset: location of instruction in bytecode.
+ * @return: location of next bytecode instruction.
+ */
 static size_t
 uintInstruction(std::string name, Chunk& bytecode, size_t offset)
 {
@@ -117,7 +121,14 @@ closure(std::string name, Chunk& bytecode, size_t offset)
 	return offset;
 }
 
-
+/**
+ * Print an instruction in human-readable format.
+ *
+ * @param name: human-readable name of instruction.
+ * @param bytecode: bytecode where instruction is located.
+ * @param offset: location of instruction in bytecode.
+ * @return: location of next bytecode instruction.
+ */
 size_t
 disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 {
