@@ -288,6 +288,18 @@ VirtualMachine::capture_upvalue(size_t index)
 	return upvalue;
 }
 
+/**
+ * Prints the current bytecode instruction - used for debugging.
+ */
+void
+VirtualMachine::disassemble_current_instruction(size_t line)
+{
+	auto& function = frames.back().closure->function_ptr()->bytecode;
+	auto* start = function.instructions.data();
+	disassembleInstruction(function, frames.back().ip - start, line);
+}
+
+
 // TODO: clean up switch block formatting or break into functions
 // TODO: index instead of pointer?
 
@@ -299,15 +311,24 @@ VirtualMachine::capture_upvalue(size_t index)
 interpret_result
 VirtualMachine::run()
 {
+
+/* TODO: rewrite line calculation. Want to move off of newline system. */
+
 #ifdef DEBUG_TRACE_EXECUTION
 	size_t line = frames.back().closure->function_ptr()->bytecode.base_line;
+#else
+	size_t line = 0;  // TEMP
 #endif
 
 	for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-		// TODO: clean this up
-		disassembleInstruction(frames.back().closure->function_ptr()->bytecode, frames.back().ip - frames.back().closure->function_ptr()->bytecode.instructions.data(), line);
-		if (frames.back().closure->function_ptr()->bytecode.newlines[frames.back().ip - frames.back().closure->function_ptr()->bytecode.instructions.data()]) ++line;
+		{
+			disassemble_current_instruction(line);
+			// TODO: different line determination system
+			auto& function = frames.back().closure->function_ptr()->bytecode;
+			auto offset = frames.back().ip - function.instructions.data();
+			if (function.newlines[offset]) ++line;
+		};
 #endif
 		switch (uint8_t instruction = *frames.back().ip++) {
 			case opcode::CONSTANT: {
