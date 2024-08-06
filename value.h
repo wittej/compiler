@@ -78,6 +78,7 @@ struct Data
 {
 	data_type type;
 	std::any data;
+	bool reachable = false;  // Used by GC.
 
 	Data(Pair pair) : type{ data_type::PAIR }, data{ pair } {}
 	Data(std::string string) : type{ data_type::STRING }, data{ string } {}

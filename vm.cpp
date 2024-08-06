@@ -73,8 +73,7 @@ VirtualMachine::runtime_error(std::string message, size_t line)
 Value
 VirtualMachine::allocate(std::string string)
 {
-	memory.push_front(Data(string));
-	return Value(&memory.front());
+	return memory.allocate(Data(string));
 }
 
 /**
@@ -86,8 +85,7 @@ VirtualMachine::allocate(std::string string)
 Value
 VirtualMachine::allocate(std::shared_ptr<Function> function)
 {
-	memory.push_front(Data(function));
-	return Value(&memory.front());
+	return memory.allocate(Data(function));
 }
 
 /**
@@ -99,8 +97,7 @@ VirtualMachine::allocate(std::shared_ptr<Function> function)
 Value
 VirtualMachine::allocate(std::shared_ptr<Closure> closure)
 {
-	memory.push_front(Data(closure));
-	return Value(&memory.front());
+	return memory.allocate(Data(closure));
 }
 
 /**
@@ -112,8 +109,7 @@ VirtualMachine::allocate(std::shared_ptr<Closure> closure)
 Value
 VirtualMachine::allocate(std::shared_ptr<BuiltinFunction> builtin)
 {
-	memory.push_front(Data(builtin));
-	return Value(&memory.front());
+	return memory.allocate(Data(builtin));
 }
 
 /**
@@ -125,8 +121,7 @@ VirtualMachine::allocate(std::shared_ptr<BuiltinFunction> builtin)
 Value
 VirtualMachine::allocate(Pair pair)
 {
-	memory.push_front(Data(pair));
-	return Value(&memory.front());
+	return memory.allocate(Data(pair));
 }
 
 size_t
@@ -290,6 +285,8 @@ VirtualMachine::capture_upvalue(size_t index)
 
 /**
  * Prints the current bytecode instruction - used for debugging.
+ * 
+ * @param line: line of code corresponding to instruction.
  */
 void
 VirtualMachine::disassemble_current_instruction(size_t line)
@@ -332,8 +329,10 @@ VirtualMachine::run()
 #endif
 		switch (uint8_t instruction = *frames.back().ip++) {
 			case opcode::CONSTANT: {
-					size_t index = read_uint16_and_update_ip(frames.back().ip);
-					stack.push_back(frames.back().closure->function_ptr()->bytecode.constants[index]);
+				size_t index = read_uint16_and_update_ip(frames.back().ip);
+				auto& closure = frames.back().closure;
+				auto& bytecode = closure->function_ptr()->bytecode;
+				stack.push_back(bytecode.constants[index]);
 				}
 				break;
 			case opcode::DEFINE_GLOBAL: {
