@@ -455,3 +455,25 @@ VirtualMachine::run()
 		}
 	}
 }
+
+// TODO: different file?
+
+Value Memory::allocate(Data object) {
+	data.push_front(object);
+
+#ifdef DEBUG_LOG_GC
+	std::cerr << "ALLOCATE\n";  // TODO: printable object type.
+#endif
+
+	return Value(&data.front());
+};
+
+void Memory::collect_garbage() {
+#ifdef DEBUG_LOG_GC
+	std::cerr << "-- GC BEGIN --\n";
+#endif
+
+#ifdef DEBUG_LOG_GC
+	std::cerr << "-- GC END --\n";
+#endif
+};

@@ -30,16 +30,13 @@ struct CallFrame {
 };
 
 /**
- * Handles allocation and garbage colletion.
+ * Handles memory allocation and garbage collection.
  */
 class Memory {
 	std::forward_list<Data> data;
 public:
-	// TODO: move
-	Value allocate(Data object) {
-		data.push_front(object);
-		return Value(&data.front());
-	};
+	Value allocate(Data object);
+	void collect_garbage();
 };
 
 /**

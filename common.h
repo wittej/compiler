@@ -3,6 +3,7 @@
 
 #define DEBUG_BYTECODE_ERRORS
 #define DEBUG_TRACE_EXECUTION
+#define DEBUG_LOG_GC
 
 #include <stdint.h>
 #include <iomanip>
