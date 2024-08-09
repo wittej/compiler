@@ -458,26 +458,34 @@ VirtualMachine::run()
 
 // TODO: different file?
 
-Value Memory::allocate(Data object) {
+Value VirtualMachine::allocate(Data object) {
 #ifdef DEBUG_STRESS_GC
 	collect_garbage();
 #endif
 
-	data.push_front(object);
+	memory.push_front(object);
 
 #ifdef DEBUG_LOG_GC
 	std::cerr << "ALLOCATE\n";  // TODO: printable object type.
 #endif
 
-	return Value(&data.front());
+	return Value(&memory.front());
 };
 
-void Memory::collect_garbage() {
+void VirtualMachine::collect_garbage() {
 #ifdef DEBUG_LOG_GC
 	std::cerr << "-- GC BEGIN --\n";
 #endif
 
+	mark();
+
 #ifdef DEBUG_LOG_GC
 	std::cerr << "-- GC END --\n";
 #endif
+};
+
+void
+VirtualMachine::mark()
+{
+
 };

@@ -30,16 +30,6 @@ struct CallFrame {
 };
 
 /**
- * Handles memory allocation and garbage collection.
- */
-class Memory {
-	std::forward_list<Data> data;
-public:
-	Value allocate(Data object);
-	void collect_garbage();
-};
-
-/**
  * Executes compiled bytecode. Represents state of program execution.
  */
 class VirtualMachine {
@@ -47,7 +37,10 @@ private:
 	interpret_result run();
 	std::vector<Value> stack;
 	std::vector<CallFrame> frames;
-	Memory memory;
+	std::forward_list<Data> memory;
+	void mark();
+	Value allocate(Data object);
+	void collect_garbage();  // TODO: Consider making this private
 	// TODO: benchmark map performance here too
 	std::list<std::shared_ptr<RuntimeUpvalue>> open_upvalues;
 	// TODO: benchmark vector vs. map performance here
