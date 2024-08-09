@@ -39,6 +39,8 @@ private:
 	std::vector<CallFrame> frames;
 	std::forward_list<Data> memory;
 	void mark();
+	void mark(Value val);
+	void mark(Data* data);
 	Value allocate(Data object);
 	void collect_garbage();  // TODO: Consider making this private
 	// TODO: benchmark map performance here too

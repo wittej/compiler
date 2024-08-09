@@ -73,7 +73,7 @@ VirtualMachine::runtime_error(std::string message, size_t line)
 Value
 VirtualMachine::allocate(std::string string)
 {
-	return memory.allocate(Data(string));
+	return allocate(Data(string));
 }
 
 /**
@@ -85,7 +85,7 @@ VirtualMachine::allocate(std::string string)
 Value
 VirtualMachine::allocate(std::shared_ptr<Function> function)
 {
-	return memory.allocate(Data(function));
+	return allocate(Data(function));
 }
 
 /**
@@ -97,7 +97,7 @@ VirtualMachine::allocate(std::shared_ptr<Function> function)
 Value
 VirtualMachine::allocate(std::shared_ptr<Closure> closure)
 {
-	return memory.allocate(Data(closure));
+	return allocate(Data(closure));
 }
 
 /**
@@ -109,7 +109,7 @@ VirtualMachine::allocate(std::shared_ptr<Closure> closure)
 Value
 VirtualMachine::allocate(std::shared_ptr<BuiltinFunction> builtin)
 {
-	return memory.allocate(Data(builtin));
+	return allocate(Data(builtin));
 }
 
 /**
@@ -121,7 +121,7 @@ VirtualMachine::allocate(std::shared_ptr<BuiltinFunction> builtin)
 Value
 VirtualMachine::allocate(Pair pair)
 {
-	return memory.allocate(Data(pair));
+	return allocate(Data(pair));
 }
 
 size_t
@@ -487,5 +487,21 @@ void VirtualMachine::collect_garbage() {
 void
 VirtualMachine::mark()
 {
+	for (auto i = stack.begin(); i != stack.end(); i++) mark(*i);
+};
 
+void
+VirtualMachine::mark(Value val)
+{
+	if (val.type == value_type::DATA) mark(val.as.data);
+};
+
+void
+VirtualMachine::mark(Data* data)
+{
+#ifdef DEBUG_LOG_GC
+	std::cerr << "OBJECT MARKED\n";
+#endif
+
+	data->reachable = true;
 };
