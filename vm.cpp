@@ -8,7 +8,7 @@
  */
 VirtualMachine::VirtualMachine()
 {
-	// TODO: make sure GC handles this
+	// TODO: double-check GC handling of this - appears to be working.
 	globals[global("cons")] = allocate(std::make_shared<BuiltinCons>(*this));
 	globals[global("+")] = allocate(std::make_shared<BuiltinAdd>());
 	globals[global("=")] = allocate(std::make_shared<BuiltinEqual>());
@@ -488,6 +488,7 @@ void
 VirtualMachine::mark()
 {
 	for (auto i = stack.begin(); i != stack.end(); i++) mark(*i);
+	for (auto i = globals.begin(); i != globals.end(); i++) mark(*i);
 };
 
 void
