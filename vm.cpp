@@ -459,6 +459,10 @@ VirtualMachine::run()
 // TODO: different file?
 
 Value Memory::allocate(Data object) {
+#ifdef DEBUG_STRESS_GC
+	collect_garbage();
+#endif
+
 	data.push_front(object);
 
 #ifdef DEBUG_LOG_GC
