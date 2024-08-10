@@ -514,7 +514,9 @@ VirtualMachine::mark(Data* data)
 }
 
 void
-VirtualMachine::mark(std::shared_ptr<Closure> closure)
+VirtualMachine::mark(std::shared_ptr<Closure> clos)
 {
-
+	for (auto i = clos->upvalues.begin(); i != clos->upvalues.end(); i++) {
+		mark((*i)->data);
+	}
 }

@@ -42,7 +42,7 @@ private:
 	void mark();
 	void mark(Value val);
 	void mark(Data* data);
-	void mark(std::shared_ptr<Closure> closure);
+	void mark(std::shared_ptr<Closure> clos);
 	Value allocate(Data object);
 	void collect_garbage();  // TODO: Consider making this private
 	// TODO: benchmark map performance here too
