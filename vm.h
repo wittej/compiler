@@ -38,9 +38,11 @@ private:
 	std::vector<Value> stack;
 	std::vector<CallFrame> frames;
 	std::forward_list<Data> memory;
+	std::queue<Data*> gc_worklist;
 	void mark();
 	void mark(Value val);
 	void mark(Data* data);
+	void mark(std::shared_ptr<Closure> closure);
 	Value allocate(Data object);
 	void collect_garbage();  // TODO: Consider making this private
 	// TODO: benchmark map performance here too

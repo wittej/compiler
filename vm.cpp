@@ -470,7 +470,7 @@ Value VirtualMachine::allocate(Data object) {
 #endif
 
 	return Value(&memory.front());
-};
+}
 
 void VirtualMachine::collect_garbage() {
 #ifdef DEBUG_LOG_GC
@@ -482,27 +482,39 @@ void VirtualMachine::collect_garbage() {
 #ifdef DEBUG_LOG_GC
 	std::cerr << "-- GC END --\n";
 #endif
-};
+}
 
 void
 VirtualMachine::mark()
 {
 	for (auto i = stack.begin(); i != stack.end(); i++) mark(*i);
 	for (auto i = globals.begin(); i != globals.end(); i++) mark(*i);
-};
+	for (auto i = frames.begin(); i != frames.end(); i++) {
+		mark(i->closure);
+	}
+}
 
 void
 VirtualMachine::mark(Value val)
 {
 	if (val.type == value_type::DATA) mark(val.as.data);
-};
+}
 
 void
 VirtualMachine::mark(Data* data)
 {
+	if (data->reachable) return;
+
 #ifdef DEBUG_LOG_GC
-	std::cerr << "OBJECT MARKED\n";
+		std::cerr << "OBJECT MARKED\n";
 #endif
 
+	gc_worklist.push(data);
 	data->reachable = true;
-};
+}
+
+void
+VirtualMachine::mark(std::shared_ptr<Closure> closure)
+{
+
+}
