@@ -39,10 +39,10 @@ private:
 	std::vector<CallFrame> frames;
 	std::forward_list<Data> memory;
 	std::queue<Data*> gc_worklist;
-	void mark();
-	void mark(Value val);
-	void mark(Data* data);
-	void mark(std::shared_ptr<Closure> clos);
+	void gc_mark();
+	void gc_mark(Value val);
+	void gc_mark(Data* data);
+	void gc_mark(std::shared_ptr<Closure> clos);
 	Value allocate(Data object);
 	void collect_garbage();  // TODO: Consider making this private
 	// TODO: benchmark map performance here too

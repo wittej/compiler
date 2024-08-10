@@ -18,7 +18,7 @@ constexpr size_t LINE_SIZE = 1024;
 
 // TODO: method?
 void
-repl(VirtualMachine vm)
+repl(VirtualMachine& vm)
 {
 	std::string line;
 	for (;;) {

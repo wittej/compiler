@@ -477,31 +477,31 @@ void VirtualMachine::collect_garbage() {
 	std::cerr << "-- GC BEGIN --\n";
 #endif
 
-	mark();
+	gc_mark();
 
 #ifdef DEBUG_LOG_GC
 	std::cerr << "-- GC END --\n";
 #endif
 }
-
+ 
 void
-VirtualMachine::mark()
+VirtualMachine::gc_mark()
 {
-	for (auto i = stack.begin(); i != stack.end(); i++) mark(*i);
-	for (auto i = globals.begin(); i != globals.end(); i++) mark(*i);
+	for (auto i = stack.begin(); i != stack.end(); i++) gc_mark(*i);
+	for (auto i = globals.begin(); i != globals.end(); i++) gc_mark(*i);
 	for (auto i = frames.begin(); i != frames.end(); i++) {
-		mark(i->closure);
+		gc_mark(i->closure);
 	}
 }
 
 void
-VirtualMachine::mark(Value val)
+VirtualMachine::gc_mark(Value val)
 {
-	if (val.type == value_type::DATA) mark(val.as.data);
+	if (val.type == value_type::DATA) gc_mark(val.as.data);
 }
 
 void
-VirtualMachine::mark(Data* data)
+VirtualMachine::gc_mark(Data* data)
 {
 	if (data->reachable) return;
 
@@ -514,9 +514,9 @@ VirtualMachine::mark(Data* data)
 }
 
 void
-VirtualMachine::mark(std::shared_ptr<Closure> clos)
+VirtualMachine::gc_mark(std::shared_ptr<Closure> clos)
 {
 	for (auto i = clos->upvalues.begin(); i != clos->upvalues.end(); i++) {
-		mark((*i)->data);
+		gc_mark((*i)->data);
 	}
 }
