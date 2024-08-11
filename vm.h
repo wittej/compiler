@@ -47,6 +47,7 @@ private:
 	void gc_mark(Data* data);
 	void gc_mark(std::shared_ptr<Closure> clos);
 	void gc_advance_worklist();
+	void gc_sweep();
 
 	Value allocate(Data object);
 	void collect_garbage();  // TODO: Consider making this private
