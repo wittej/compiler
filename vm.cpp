@@ -496,8 +496,10 @@ VirtualMachine::gc_mark()
 	for (auto& i : frames) gc_mark(i.closure);
 
 	// Process worklist
-	// while (gc_worklist.size() > 0) gc_advance_worklist();
+	while (gc_worklist.size() > 0) gc_advance_worklist();
 }
+
+// TODO: make sure I'm casting to references where it will improve performance
 
 void
 VirtualMachine::gc_advance_worklist()
@@ -507,10 +509,21 @@ VirtualMachine::gc_advance_worklist()
 
 	switch (next->type) {
 		case data_type::UPVALUE:
+			using upvalue_p = std::shared_ptr<RuntimeUpvalue>;
+			gc_mark(next->cast<upvalue_p>()->data);
 			break;
 		case data_type::FUNCTION:
+			using function_p = std::shared_ptr<Function>;
+			for (auto& i : next->cast<function_p>()->bytecode.constants) {
+				gc_mark(i);
+			}
 			break;
 		case data_type::CLOSURE:
+			using closure_p = std::shared_ptr<Closure>;
+			gc_mark(next->cast<closure_p>()->function);
+			for (auto& i : next->cast<closure_p>()->upvalues) {
+				gc_mark(i->data);
+			}
 			break;
 		default:
 			break;
