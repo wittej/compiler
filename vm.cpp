@@ -498,13 +498,15 @@ VirtualMachine::gc_mark()
 
 	// Process worklist
 	while (gc_worklist.size() > 0) gc_advance_worklist();
+
+	memory.remove_if([](auto& d) { return !d.reachable; });
+	for (auto& d : memory) d.reachable = false;
 }
 
 void
 VirtualMachine::gc_sweep()
 {
-	memory.remove_if([](auto& d) { return !d.reachable; });
-	for (auto& d : memory) d.reachable = false;
+	
 }
 
 // TODO: make sure I'm casting to references where it will improve performance
