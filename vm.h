@@ -42,7 +42,6 @@ private:
 	std::forward_list<Data> memory;
 	std::queue<Data*> gc_worklist;
 	bool gc_active = false;
-	void gc_mark();
 	void gc_mark(Value val);
 	void gc_mark(Data* data);
 	void gc_mark(std::shared_ptr<Closure> clos);

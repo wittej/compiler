@@ -480,27 +480,23 @@ void VirtualMachine::collect_garbage() {
 	std::cerr << "-- GC BEGIN --\n";
 #endif
 
-	gc_mark();
-
-#ifdef DEBUG_LOG_GC
-	std::cerr << "-- GC END --\n";
-#endif
-}
-
-// TODO: test thouroughly!
-void
-VirtualMachine::gc_mark()
-{
 	// Mark roots
 	for (auto& i : stack) gc_mark(i);
 	for (auto& i : globals) gc_mark(i);
 	for (auto& i : frames) gc_mark(i.closure);
 
-	// Process worklist
+	// Mark reachable values
 	while (gc_worklist.size() > 0) gc_advance_worklist();
 
+	// Sweep
 	memory.remove_if([](auto& d) { return !d.reachable; });
+
+	// Reset for next mark operation
 	for (auto& d : memory) d.reachable = false;
+
+#ifdef DEBUG_LOG_GC
+	std::cerr << "-- GC END --\n";
+#endif
 }
 
 void
