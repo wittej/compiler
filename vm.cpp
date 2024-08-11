@@ -169,7 +169,10 @@ VirtualMachine::interpret(std::string source)
 	stack.push_back(Value(&closure));
 	call(0);
 
-	return run();
+	gc_active = true;
+	auto result = run();
+	gc_active = false;
+	return result;
 }
 
 /**
@@ -460,7 +463,7 @@ VirtualMachine::run()
 
 Value VirtualMachine::allocate(Data object) {
 #ifdef DEBUG_STRESS_GC
-	collect_garbage();
+	if (gc_active) collect_garbage();
 #endif
 
 	memory.push_front(object);
