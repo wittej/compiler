@@ -504,14 +504,6 @@ VirtualMachine::gc_mark()
 }
 
 void
-VirtualMachine::gc_sweep()
-{
-	
-}
-
-// TODO: make sure I'm casting to references where it will improve performance
-
-void
 VirtualMachine::gc_advance_worklist()
 {
 	auto next = gc_worklist.front();

@@ -38,7 +38,7 @@ private:
 	std::vector<Value> stack;
 	std::vector<CallFrame> frames;
 
-	// TODO: consider making GC a separate function once determining the data it needs.
+	// TODO: consider making memory/GC a separate class once determining the data it needs.
 	std::forward_list<Data> memory;
 	std::queue<Data*> gc_worklist;
 	bool gc_active = false;
@@ -47,10 +47,9 @@ private:
 	void gc_mark(Data* data);
 	void gc_mark(std::shared_ptr<Closure> clos);
 	void gc_advance_worklist();
-	void gc_sweep();
-
 	Value allocate(Data object);
-	void collect_garbage();  // TODO: Consider making this private
+	void collect_garbage();
+
 	// TODO: benchmark map performance here too
 	std::list<std::shared_ptr<RuntimeUpvalue>> open_upvalues;
 	// TODO: benchmark vector vs. map performance here
