@@ -490,10 +490,30 @@ void VirtualMachine::collect_garbage() {
 void
 VirtualMachine::gc_mark()
 {
-	for (auto i = stack.begin(); i != stack.end(); i++) gc_mark(*i);
-	for (auto i = globals.begin(); i != globals.end(); i++) gc_mark(*i);
-	for (auto i = frames.begin(); i != frames.end(); i++) {
-		gc_mark(i->closure);
+	// Mark roots
+	for (auto& i : stack) gc_mark(i);
+	for (auto& i : globals) gc_mark(i);
+	for (auto& i : frames) gc_mark(i.closure);
+
+	// Process worklist
+	// while (gc_worklist.size() > 0) gc_advance_worklist();
+}
+
+void
+VirtualMachine::gc_advance_worklist()
+{
+	auto next = gc_worklist.front();
+	gc_worklist.pop();
+
+	switch (next->type) {
+		case data_type::UPVALUE:
+			break;
+		case data_type::FUNCTION:
+			break;
+		case data_type::CLOSURE:
+			break;
+		default:
+			break;
 	}
 }
 
@@ -519,7 +539,7 @@ VirtualMachine::gc_mark(Data* data)
 void
 VirtualMachine::gc_mark(std::shared_ptr<Closure> clos)
 {
-	for (auto i = clos->upvalues.begin(); i != clos->upvalues.end(); i++) {
-		gc_mark((*i)->data);
+	for (auto& i : clos->upvalues) {
+		gc_mark(i->data);
 	}
 }
