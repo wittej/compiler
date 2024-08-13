@@ -464,6 +464,12 @@ VirtualMachine::run()
 Value VirtualMachine::allocate(Data object) {
 #ifdef DEBUG_STRESS_GC
 	if (gc_active) collect_garbage();
+#else
+	gc_size += object.size();
+	if (gc_size > gc_threshold) {
+		gc_size = collect_garbage();
+		gc_threshold = gc_size *2;
+	}
 #endif
 
 	memory.push_front(object);
@@ -475,7 +481,7 @@ Value VirtualMachine::allocate(Data object) {
 	return Value(&memory.front());
 }
 
-void VirtualMachine::collect_garbage() {
+size_t VirtualMachine::collect_garbage() {
 #ifdef DEBUG_LOG_GC
 	std::cerr << "-- GC BEGIN --\n";
 #endif
@@ -492,11 +498,17 @@ void VirtualMachine::collect_garbage() {
 	memory.remove_if([](auto& d) { return !d.reachable; });
 
 	// Reset for next mark operation
-	for (auto& d : memory) d.reachable = false;
+	size_t new_size = 0;
+	for (auto& d : memory) {
+		d.reachable = false;
+		new_size += d.size();
+	}
 
 #ifdef DEBUG_LOG_GC
 	std::cerr << "-- GC END --\n";
 #endif
+
+	return new_size;
 }
 
 void

@@ -95,6 +95,7 @@ struct Data
 	 */
 	template <typename T>
 	T cast() { return std::any_cast<T>(data); }
+	size_t size() { return 1; }  // TODO: check size of pointed-to object
 };
 
 // Also note - GC will need to care about this.

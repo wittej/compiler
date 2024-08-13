@@ -47,7 +47,9 @@ private:
 	void gc_mark(std::shared_ptr<Closure> clos);
 	void gc_advance_worklist();
 	Value allocate(Data object);
-	void collect_garbage();
+	size_t collect_garbage();
+	size_t gc_threshold = 4;
+	size_t gc_size = 0;
 
 	// TODO: benchmark map performance here too
 	std::list<std::shared_ptr<RuntimeUpvalue>> open_upvalues;
