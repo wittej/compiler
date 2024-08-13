@@ -106,7 +106,9 @@ Data::size()
 			return cast<std::string&>().size() + sizeof(Data);
 		case data_type::UPVALUE:
 			return sizeof(RuntimeUpvalue) + sizeof(Data);
-		case data_type::BUILTIN:  // TODO: consolidate into one type
+		case data_type::BUILTIN:
+			using bfunc_t = std::shared_ptr<BuiltinFunction>;
+			return cast<bfunc_t>()->size() + sizeof(Data);
 		default:
 			return sizeof(Data);
 	}
