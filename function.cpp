@@ -2,6 +2,19 @@
 #include "vm.h"
 
 
+size_t
+Function::size()
+{
+	return sizeof(*this) + name.size();
+}
+
+
+size_t
+Closure::size()
+{
+	return sizeof(*this);
+}
+
 /**
  * Convenience function for retrieving shared pointer to enclosed function.
  * 

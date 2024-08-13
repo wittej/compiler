@@ -60,6 +60,21 @@ struct Value
 	bool match_data_type(data_type match);
 };
 
+/**
+ * Contains information needed to track down the Value associated with a local.
+ * Will either have the stack index or a stored copy of the Value.
+ */
+struct RuntimeUpvalue
+{
+	size_t index;
+	Value data = Value(value_type::UNINITIALIZED);
+
+	/**
+	* @param index: current stack index of local.
+	*/
+	RuntimeUpvalue(size_t index) : index{ index } {}
+};
+
 // TODO: procedure for printing cyclical structures made of these.
 /**
  * A classic Lisp car/cdr pair that can be used to construct data structures.
@@ -95,24 +110,9 @@ struct Data
 	 */
 	template <typename T>
 	T cast() { return std::any_cast<T>(data); }
-	size_t size() { return 1; }  // TODO: check size of pointed-to object
+	size_t size();
 };
 
 // Also note - GC will need to care about this.
-
-/**
- * Contains information needed to track down the Value associated with a local.
- * Will either have the stack index or a stored copy of the Value.
- */
-struct RuntimeUpvalue
-{
-	size_t index;
-	Value data = Value(value_type::UNINITIALIZED);
-
-	/**
-	* @param index: current stack index of local.
-	*/
-	RuntimeUpvalue(size_t index) : index{ index } {}
-};
 
 #endif

@@ -19,6 +19,7 @@ struct Closure
 	Data* function;
 	std::shared_ptr<Function> function_ptr();
 	std::vector<std::shared_ptr<RuntimeUpvalue>> upvalues;
+	size_t size();
 	Closure(Data* function) : function{ function } {};
 };
 
@@ -33,6 +34,7 @@ struct Function
 	Chunk bytecode;
 	std::string name;
 	bool anonymous() { return name.size() == 0; }
+	size_t size();
 	Function() : bytecode{ Chunk(0) } {}  // TEMP
 };
 
@@ -46,7 +48,7 @@ struct Function
 struct BuiltinFunction
 {
 	virtual Value call(std::vector<Value>::iterator args, size_t count) = 0;
-	virtual std::string name() = 0;
+	virtual const std::string& name() = 0;
 };
 
 /**
@@ -58,7 +60,7 @@ private:
 	VirtualMachine& vm;
 public:
 	Value call(std::vector<Value>::iterator args, size_t count);
-	std::string name() { return "cons"; };
+	const std::string& name() { return "cons"; };
 	BuiltinCons(VirtualMachine& vm) : vm{ vm } {};
 };
 
@@ -67,7 +69,7 @@ public:
  */
 struct BuiltinAdd : BuiltinFunction {
 	Value call(std::vector<Value>::iterator args, size_t count);
-	std::string name() { return "+"; };
+	const std::string& name() { return "+"; };
 };
 
 /**
@@ -75,7 +77,7 @@ struct BuiltinAdd : BuiltinFunction {
  */
 struct BuiltinEqual : BuiltinFunction {
 	Value call(std::vector<Value>::iterator args, size_t count);
-	std::string name() { return "="; };
+	const std::string& name() { return "="; };
 };
 
 #endif

@@ -89,3 +89,25 @@ Value::match_data_type(data_type match)
 {
 	return type == value_type::DATA && as.data->type == match;
 }
+
+size_t
+Data::size()
+{
+	switch (type) {
+	case data_type::PAIR:
+		return sizeof(Pair) + sizeof(Data);
+	case data_type::FUNCTION:
+		using func_pt = std::shared_ptr<Function>;
+		return cast<func_pt>()->size() + sizeof(func_pt) + sizeof(Data);
+	case data_type::CLOSURE:
+		using clos_pt = std::shared_ptr<Closure>;
+		return cast<clos_pt>()->size() + sizeof(clos_pt) + sizeof(Data);
+	case data_type::STRING:
+		return cast<std::string&>().size() + sizeof(Data);
+	case data_type::UPVALUE:
+		return sizeof(RuntimeUpvalue) + sizeof(Data);
+	case data_type::BUILTIN:  // TODO: consolidate into one type
+	default:
+		return sizeof(Data);
+	}
+}
