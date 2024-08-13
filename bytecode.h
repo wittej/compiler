@@ -36,6 +36,7 @@ public:
 	Chunk(size_t line) : base_line{ line } {};
 	uint16_t add_constant(Value constant);
 	void write(uint8_t op, size_t line);
+	size_t vector_size();
 };
 
 #endif

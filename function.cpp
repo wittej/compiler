@@ -5,7 +5,7 @@
 size_t
 Function::size()
 {
-	return sizeof(*this) + name.size();
+	return sizeof(*this) + name.size() + bytecode.vector_size();
 }
 
 

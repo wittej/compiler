@@ -48,7 +48,7 @@ struct Function
 struct BuiltinFunction
 {
 	virtual Value call(std::vector<Value>::iterator args, size_t count) = 0;
-	virtual const std::string& name() = 0;
+	virtual std::string name() = 0;
 };
 
 /**
@@ -60,7 +60,7 @@ private:
 	VirtualMachine& vm;
 public:
 	Value call(std::vector<Value>::iterator args, size_t count);
-	const std::string& name() { return "cons"; };
+	std::string name() { return "cons"; };
 	BuiltinCons(VirtualMachine& vm) : vm{ vm } {};
 };
 
@@ -69,7 +69,7 @@ public:
  */
 struct BuiltinAdd : BuiltinFunction {
 	Value call(std::vector<Value>::iterator args, size_t count);
-	const std::string& name() { return "+"; };
+	std::string name() { return "+"; };
 };
 
 /**
@@ -77,7 +77,7 @@ struct BuiltinAdd : BuiltinFunction {
  */
 struct BuiltinEqual : BuiltinFunction {
 	Value call(std::vector<Value>::iterator args, size_t count);
-	const std::string& name() { return "="; };
+	std::string name() { return "="; };
 };
 
 #endif

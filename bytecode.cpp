@@ -35,3 +35,13 @@ Chunk::write(uint8_t op, size_t line)
 		newlines.push_back(false);
 	}
 };
+
+size_t
+Chunk::vector_size()
+{
+	size_t total = sizeof(*this);
+	total += instructions.capacity() * sizeof(uint8_t);
+	total += constants.capacity() * sizeof(Value);
+	total += newlines.capacity() / 8;
+	return total;
+}
