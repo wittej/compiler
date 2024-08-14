@@ -271,6 +271,9 @@ Compiler::definition()
 	}
 
 	else {
+		if (vm.check_global(parse.previous.string))
+			error("Unexpected variable redefinition", parse.previous);
+
 		size_t index = vm.global(parse.previous.string);
 		expression();
 		write(opcode::DEFINE_GLOBAL);

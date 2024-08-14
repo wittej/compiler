@@ -135,6 +135,12 @@ VirtualMachine::global(std::string key)
 	return size;
 }
 
+bool
+VirtualMachine::check_global(std::string key)
+{
+	return global_indexes.contains(key);
+}
+
 // TODO: might want to just read the uint16 and move the ip in calling code.
 /**
  * Convenience function that reads a uint16 in little-endian format from the

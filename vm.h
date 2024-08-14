@@ -75,6 +75,7 @@ public:
 	Value allocate(std::shared_ptr<BuiltinFunction> builtin);
 	Value allocate(Pair pair);
 	size_t global(std::string key);
+	bool check_global(std::string key);
 	VirtualMachine();
 };
 
