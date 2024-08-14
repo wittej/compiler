@@ -552,7 +552,7 @@ VirtualMachine::gc_mark(Data* data)
 	if (data->reachable) return;
 
 #ifdef DEBUG_LOG_GC
-		std::cerr << "OBJECT MARKED\n";
+		std::cerr << "OBJECT MARKED " << data->print() << "\n";
 #endif
 
 	gc_worklist.push(data);

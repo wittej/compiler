@@ -111,6 +111,7 @@ struct Data
 	template <typename T>
 	T cast() { return std::any_cast<T>(data); }
 	size_t size();
+	std::string print();
 };
 
 // Also note - GC will need to care about this.

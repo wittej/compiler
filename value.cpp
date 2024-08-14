@@ -113,3 +113,24 @@ Data::size()
 			return sizeof(Data);
 	}
 }
+
+std::string
+Data::print()
+{
+	switch (type) {
+	case data_type::PAIR:
+		return "PAIR";
+	case data_type::FUNCTION:
+		return "FUNCTION";
+	case data_type::BUILTIN:
+		return "BUILTIN";
+	case data_type::CLOSURE:
+		return "CLOSURE";
+	case data_type::STRING:
+		return "STRING";
+	case data_type::UPVALUE:
+		return "UPVALUE";
+	default:
+		return "UNKNOWN DATA TYPE";
+	}
+}
