@@ -466,7 +466,7 @@ Value VirtualMachine::allocate(Data object) {
 	if (gc_active) collect_garbage();
 #else
 	gc_size += object.size();
-	if (gc_size > gc_threshold) {
+	if (gc_active && gc_size > gc_threshold) {
 		gc_size = collect_garbage();
 		gc_threshold = gc_size *2;
 	}
@@ -475,7 +475,7 @@ Value VirtualMachine::allocate(Data object) {
 	memory.push_front(object);
 
 #ifdef DEBUG_LOG_GC
-	std::cerr << "ALLOCATE\n";  // TODO: printable object type.
+	std::cerr << "ALLOCATE " << object.print() << "\n";
 #endif
 
 	return Value(&memory.front());
