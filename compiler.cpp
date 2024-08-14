@@ -306,6 +306,7 @@ Compiler::lambda()
 	}
 	compiler.write(opcode::RETURN);
 
+	if (compiler.had_error) error("Error compiling function.", parse.previous);
 	parse = compiler.parse;
 	write(opcode::CLOSURE);
 	
