@@ -525,6 +525,7 @@ Compiler::combination()
 			break;
 		case token_type::SET:
 			set();
+			write(opcode::NIL);
 			break;
 		case token_type::LAMBDA:
 			lambda();

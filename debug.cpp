@@ -166,6 +166,8 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 		return simpleInstruction("POP", offset);
 	case opcode::DEFINE_GLOBAL:
 		return uintInstruction("DEFINE GLOBAL", bytecode, offset);
+	case opcode::SET_GLOBAL:
+		return uintInstruction("SET GLOBAL", bytecode, offset);
 	case opcode::GET_GLOBAL:
 		return uintInstruction("GET GLOBAL", bytecode, offset);
 	case opcode::GET_UPVALUE:

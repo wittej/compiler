@@ -103,7 +103,7 @@ Scanner::classify_alphanumeric()
 		case 'o':
 			return check_keyword(1, "r", token_type::OR);
 		case 's':
-			return check_keyword(1, "et!", token_type::SET);
+			return check_keyword(1, "et", token_type::SET);
 		case 't':
 			return check_keyword(1, "rue", token_type::TRUE);
 	}

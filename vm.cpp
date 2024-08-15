@@ -361,6 +361,12 @@ VirtualMachine::run()
 				stack.push_back(globals[index]);
 				}
 				break;
+			// TODO: consider consolidating into DEFINE_GLOBAL
+			case opcode::SET_GLOBAL: {
+				size_t index = read_uint16_and_update_ip(frames.back().ip);
+				globals[index] = stack_pop();
+				}
+				break;
 			case opcode::GET_UPVALUE: {
 				size_t index = read_uint16_and_update_ip(frames.back().ip);
 				auto& upvalue = frames.back().closure->upvalues[index];
