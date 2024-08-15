@@ -281,6 +281,20 @@ Compiler::definition()
 	}
 }
 
+void
+Compiler::set()
+{
+	consume(token_type::SYMBOL, "Expect symbol.");
+
+	if (!vm.check_global(parse.previous.string))
+		error("Attempt to set undefined variable", parse.previous);
+
+	size_t index = vm.global(parse.previous.string);
+	expression();
+	write(opcode::SET_GLOBAL);
+	write_uint16(index);
+}
+
 // TODO: refactor into stack
 // TODO: write a "let" based on this.
 // TOOD: non-anonymous functions (similar to this - possible modification).
@@ -508,6 +522,9 @@ Compiler::combination()
 		case token_type::DEFINE:
 			definition();
 			write(opcode::NIL);  // TODO: consider moving this to definition
+			break;
+		case token_type::SET:
+			set();
 			break;
 		case token_type::LAMBDA:
 			lambda();

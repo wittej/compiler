@@ -55,6 +55,7 @@ private:
 	void constant(Value value);
 	void definition_or_expression();  // TODO: synchronize here
 	void definition();
+	void set();
 	void expression();
 	void lambda();
 	void _if();

@@ -17,7 +17,7 @@ enum class token_type
 	NOT, AND, OR, TRUE, FALSE,
 	IF, LAMBDA,
 	NUMBER, NIL, SYMBOL,
-	DEFINE
+	DEFINE, SET
 };
 
 /**

@@ -363,7 +363,7 @@ VirtualMachine::run()
 				break;
 			case opcode::GET_UPVALUE: {
 				size_t index = read_uint16_and_update_ip(frames.back().ip);
-				auto upvalue = frames.back().closure->upvalues[index];
+				auto& upvalue = frames.back().closure->upvalues[index];
 				if (upvalue->data.type != value_type::UNINITIALIZED)
 					stack.push_back(upvalue->data);
 				else stack.push_back(stack[upvalue->index]);
