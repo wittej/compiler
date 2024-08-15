@@ -271,8 +271,10 @@ Compiler::definition()
 	}
 
 	else {
-		if (vm.check_global(parse.previous.string))
+		if (vm.check_global(parse.previous.string)) {
 			error("Unexpected variable redefinition", parse.previous);
+			return;
+		}
 
 		size_t index = vm.global(parse.previous.string);
 		expression();
@@ -286,8 +288,10 @@ Compiler::set()
 {
 	consume(token_type::SYMBOL, "Expect symbol.");
 
-	if (!vm.check_global(parse.previous.string))
+	if (!vm.check_global(parse.previous.string)) {
 		error("Attempt to set undefined variable", parse.previous);
+		return;
+	}
 
 	size_t index = vm.global(parse.previous.string);
 	expression();
