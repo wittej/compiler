@@ -375,6 +375,15 @@ VirtualMachine::run()
 				else stack.push_back(stack[upvalue->index]);
 				}
 				break;
+			// TODO: test this - both cases
+			case opcode::SET_UPVALUE: {
+				size_t index = read_uint16_and_update_ip(frames.back().ip);
+				auto& upvalue = frames.back().closure->upvalues[index];
+				if (upvalue->data.type != value_type::UNINITIALIZED)
+					upvalue->data = stack_pop();
+				else stack[upvalue->index] = stack_pop();
+				}
+				break;
 			case opcode::GET_LOCAL: {
 				size_t index = read_uint16_and_update_ip(frames.back().ip);
 				// TODO: make sure this still indexes correctly

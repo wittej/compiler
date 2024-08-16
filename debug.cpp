@@ -172,6 +172,8 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 		return uintInstruction("GET GLOBAL", bytecode, offset);
 	case opcode::GET_UPVALUE:
 		return uintInstruction("GET UPVALUE", bytecode, offset);
+	case opcode::SET_UPVALUE:
+		return uintInstruction("SET UPVALUE", bytecode, offset);
 	case opcode::GET_LOCAL:
 		return uintInstruction("GET LOCAL", bytecode, offset);
 	case opcode::SET_LOCAL:
