@@ -303,16 +303,15 @@ Compiler::set()
 		write_uint16(index);
 	}
 
-	else {
-		if (!vm.check_global(parse.previous.string)) {
-			error("Attempt to set undefined variable", parse.previous);
-			return;
-		}
-
+	else if (vm.check_global(parse.previous.string)) {
 		size_t index = vm.global(parse.previous.string);
 		expression();
 		write(opcode::SET_GLOBAL);
 		write_uint16(index);
+	}
+
+	else {
+		error("Attempt to set undefined variable", parse.previous);
 	}
 }
 
