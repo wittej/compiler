@@ -288,15 +288,32 @@ Compiler::set()
 {
 	consume(token_type::SYMBOL, "Expect symbol.");
 
-	if (!vm.check_global(parse.previous.string)) {
-		error("Attempt to set undefined variable", parse.previous);
-		return;
+	int local = resolve_local(parse.previous);
+	if (local >= 0) {
+		size_t index = local;
+		expression();
+		write(opcode::SET_LOCAL);
+		write_uint16(index);
 	}
 
-	size_t index = vm.global(parse.previous.string);
-	expression();
-	write(opcode::SET_GLOBAL);
-	write_uint16(index);
+	else if ((local = resolve_upvalue(parse.previous)) != -1) {
+		size_t index = local;
+		expression();
+		write(opcode::SET_UPVALUE);
+		write_uint16(index);
+	}
+
+	else {
+		if (!vm.check_global(parse.previous.string)) {
+			error("Attempt to set undefined variable", parse.previous);
+			return;
+		}
+
+		size_t index = vm.global(parse.previous.string);
+		expression();
+		write(opcode::SET_GLOBAL);
+		write_uint16(index);
+	}
 }
 
 // TODO: refactor into stack
