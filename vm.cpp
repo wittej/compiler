@@ -381,6 +381,12 @@ VirtualMachine::run()
 				stack.push_back(stack[frames.back().stack_index + index + 1]);
 				}
 				break;
+			// TODO: write test cases for this.
+			case opcode::SET_LOCAL: {
+				size_t index = read_uint16_and_update_ip(frames.back().ip);
+				stack[frames.back().stack_index + index + 1] = stack_pop();
+				}
+				break;
 			case opcode::JUMP: {
 				frames.back().ip += read_uint16_and_update_ip(frames.back().ip);
 				}
