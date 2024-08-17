@@ -39,16 +39,20 @@ public:
 	uint16_t add_constant(Value constant);
 	void write(uint8_t op, size_t line);
 	size_t vector_size();
-	template <typename iterator>
-	void optimize_if_tail_call(iterator& call) {
-		call = opcode::TAIL_CALL;
+	void optimize_if_tail_call(const size_t call_index) {
+		for (size_t i = call_index + 3; i < instructions.size();) {
+			switch (instructions[i]) {
+			case (opcode::RETURN):
+				instructions[call_index] = opcode::TAIL_CALL;
+				return;
+			default:
+				return;
+			}
+		}
 	}
 	void tail_call_optimize() {
-		for (auto& i : instructions) {
-			if (i == opcode::CALL) {
-				using iterator = decltype(i);
-				optimize_if_tail_call<iterator>(i);
-			}
+		for (size_t i = 0; i < instructions.size(); i++) {
+			if (instructions[i] == opcode::CALL) optimize_if_tail_call(i);
 		}
 	};
 };
