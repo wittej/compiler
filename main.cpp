@@ -7,6 +7,9 @@
 /*
 TODOs:
 
+BUGFIX: compiler error during function definition can lead to uninitialized
+	definition. Referencing a global before assignment = same.
+
 Better reporting for compilation inside function - do during the new static
 	analysis step.
 
@@ -19,6 +22,8 @@ Recursion - tail recursion basic idea: return and evaluate a tail call as
 
 Add new features to test file as they are implemented
 	- set in all contexts.
+
+Consider upvalues in VM - linear search seems bad.
 
 Error type
 

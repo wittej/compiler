@@ -21,7 +21,7 @@ enum class interpret_result {
 // TODO: index instead of pointer
 /**
  * Call with closure being executed, instruction being executed, and location
- * on stack frame.
+ * of frame on stack (starting at index of the closure).
  */
 struct CallFrame {
 	std::shared_ptr<Closure> closure;  // env?

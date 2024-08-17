@@ -254,8 +254,7 @@ VirtualMachine::call(std::shared_ptr<Closure> closure, size_t number_arguments)
 bool
 VirtualMachine::call(std::shared_ptr<BuiltinFunction> function, size_t number_arguments)
 {
-	std::vector<Value>::iterator iterator;
-	iterator = stack.begin() + stack.size() - number_arguments;
+	auto iterator = stack.begin() + stack.size() - number_arguments;
 	Value result = function->call(iterator, number_arguments);
 
 	stack.erase(stack.begin() + stack.size() - number_arguments - 1, stack.end());
@@ -279,7 +278,7 @@ VirtualMachine::capture_upvalue(size_t index)
 
 	auto start = open_upvalues.begin();
 	auto end = open_upvalues.end();
-	for (auto i = start; i != end; i++) {
+	for (auto& i = start; i != end; i++) {
 		if ((*i)->index == upvalue->index) return *i;
 
 		if ((*i)->index > index) {
@@ -407,7 +406,22 @@ VirtualMachine::run()
 					frames.back().ip += jump;
 				}
 				break;
-			case opcode::TAIL_CALL:
+			case opcode::TAIL_CALL: {
+				size_t number_arguments = read_uint16_and_update_ip(frames.back().ip);
+
+				// Overwrite returning call with tail call
+				auto copy_from = std::prev(stack.end(), number_arguments + 1);
+				auto copy_to = std::next(stack.begin(), frames.back().stack_index);
+				for (size_t i = 0; i < number_arguments + 1; i++) {
+					*copy_to++ = *copy_from++;
+				}
+
+				close_last_frame_upvalues();
+				stack.erase(copy_to, stack.end());
+				frames.pop_back();
+				if (!call(number_arguments)) return interpret_result::RUNTIME_ERROR;
+				}
+				break;
 			case opcode::CALL: {
 				size_t number_arguments = read_uint16_and_update_ip(frames.back().ip);
 				if (!call(number_arguments)) return interpret_result::RUNTIME_ERROR;
