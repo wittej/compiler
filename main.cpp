@@ -10,6 +10,8 @@ TODOs:
 BUGFIX: compiler error during function definition can lead to uninitialized
 	definition. Referencing a global before assignment = same.
 
+Design decision: recursive functions defined inside closure. What does Scheme do?
+
 Better reporting for compilation inside function - do during the new static
 	analysis step.
 
