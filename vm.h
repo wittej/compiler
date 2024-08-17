@@ -61,7 +61,7 @@ private:
 	Value stack_peek(size_t depth);
 	void runtime_error(std::string message, size_t line);
 	bool truth_value(Value val);
-	inline uint16_t read_uint16_and_update_ip(uint8_t*& ip);
+	uint16_t read_uint16_and_update_ip(uint8_t*& ip);  // TODO: move this to util?
 	bool call(size_t number_arguments);
 	bool call(std::shared_ptr<Closure> function, size_t number_arguments);
 	bool call(std::shared_ptr<BuiltinFunction> function, size_t number_arguments);

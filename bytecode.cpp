@@ -36,10 +36,15 @@ Chunk::write(uint8_t op, size_t line)
 	}
 };
 
+/**
+ * Used during garbage collection to help determine memory cost of bytecode.
+ * 
+ * @return: bytecode vector size.
+ */
 size_t
 Chunk::vector_size()
 {
-	size_t total = sizeof(*this);
+	size_t total = 0;
 	total += instructions.capacity() * sizeof(uint8_t);
 	total += constants.capacity() * sizeof(Value);
 	total += newlines.capacity() / 8;

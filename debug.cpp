@@ -184,6 +184,8 @@ disassembleInstruction(Chunk& bytecode, size_t offset, size_t& line)
 		return uintInstruction("JUMP IF FALSE", bytecode, offset);
 	case opcode::CALL:
 		return uintInstruction("CALL", bytecode, offset);
+	case opcode::TAIL_CALL:
+		return uintInstruction("TAIL CALL", bytecode, offset);
 	case opcode::CLOSURE:
 		return closure("CLOSURE", bytecode, offset);
 	default:

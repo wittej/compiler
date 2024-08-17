@@ -342,6 +342,7 @@ Compiler::lambda()
 			compiler.write(opcode::POP);
 	}
 	compiler.write(opcode::RETURN);
+	compiler.function->bytecode.tail_call_optimize();
 
 	if (compiler.had_error) error("Error compiling function.", parse.previous);
 	parse = compiler.parse;
