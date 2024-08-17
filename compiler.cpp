@@ -212,6 +212,9 @@ Compiler::_and()
 	write(opcode::POP);
 	parse_next();  // TODO: verify this is boolean?
 	patch_jump(jump_to_exit);
+	// Temp - convert to bool
+	write(opcode::NOT);
+	write(opcode::NOT);
 }
 
 /**
@@ -228,6 +231,9 @@ Compiler::_or()
 	write(opcode::POP);
 	parse_next();  // TODO: verify this is boolean?
 	patch_jump(jump_to_exit);
+	// Temp - convert to bool
+	write(opcode::NOT);
+	write(opcode::NOT);
 }
 
 // TODO: refactor expression, parse_next, and definition_or_expression.

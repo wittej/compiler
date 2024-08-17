@@ -42,9 +42,16 @@ public:
 	void optimize_if_tail_call(const size_t call_index) {
 		for (size_t i = call_index + 3; i < instructions.size();) {
 			switch (instructions[i]) {
-			case (opcode::RETURN):
+			case opcode::RETURN:
 				instructions[call_index] = opcode::TAIL_CALL;
 				return;
+			case opcode::JUMP: {
+					uint8_t constant = instructions[i + 1];
+					uint8_t overflow = instructions[i + 2];
+					constexpr size_t jump = 3;
+					i += static_cast<size_t>(overflow) * 256 + constant + jump;
+				}
+				break;
 			default:
 				return;
 			}
@@ -52,7 +59,10 @@ public:
 	}
 	void tail_call_optimize() {
 		for (size_t i = 0; i < instructions.size(); i++) {
-			if (instructions[i] == opcode::CALL) optimize_if_tail_call(i);
+			if (instructions[i] == opcode::CALL) {
+				// Optimize true/false branches.
+				optimize_if_tail_call(i);
+			}
 		}
 	};
 };
