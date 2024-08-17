@@ -464,18 +464,7 @@ VirtualMachine::run()
 					return interpret_result::OK;
 				}
 
-				// Close upvalues
-				auto start = open_upvalues.rbegin();
-				auto end = open_upvalues.rend();
-				size_t removed = 0;
-				for (auto i = start; i != end; i++) {
-					if ((*i)->index < frames.back().stack_index) break;
-					(*i)->data = stack[(*i)->index];
-					removed++;
-				}
-				open_upvalues.erase(std::prev(open_upvalues.end(), removed), open_upvalues.end());
-
-				// Look for indexing issues here
+				close_last_frame_upvalues();
 				stack.erase(stack.begin() + frames.back().stack_index, stack.end());
 				stack.push_back(result);
 				frames.pop_back();
@@ -593,4 +582,17 @@ VirtualMachine::gc_mark(std::shared_ptr<Closure> clos)
 	for (auto& i : clos->upvalues) {
 		gc_mark(i->data);
 	}
+}
+
+void
+VirtualMachine::close_last_frame_upvalues()
+{
+	auto end = open_upvalues.rend();
+	size_t removed = 0;
+	for (auto i = open_upvalues.rbegin(); i != end; i++) {
+		if ((*i)->index < frames.back().stack_index) break;
+		(*i)->data = stack[(*i)->index];
+		removed++;
+	}
+	open_upvalues.erase(std::prev(open_upvalues.end(), removed), open_upvalues.end());
 }

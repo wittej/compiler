@@ -67,6 +67,7 @@ private:
 	bool call(std::shared_ptr<BuiltinFunction> function, size_t number_arguments);
 	std::shared_ptr<RuntimeUpvalue> capture_upvalue(size_t index);
 	void disassemble_current_instruction(size_t line);
+	void close_last_frame_upvalues();
 public:
 	interpret_result interpret(std::string source);
 	Value allocate(std::string string);
