@@ -407,6 +407,7 @@ VirtualMachine::run()
 					frames.back().ip += jump;
 				}
 				break;
+			case opcode::TAIL_CALL:
 			case opcode::CALL: {
 				size_t number_arguments = read_uint16_and_update_ip(frames.back().ip);
 				if (!call(number_arguments)) return interpret_result::RUNTIME_ERROR;

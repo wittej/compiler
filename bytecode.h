@@ -19,7 +19,7 @@ namespace opcode
 		GET_UPVALUE, SET_UPVALUE,
 		RETURN, POP,
 		JUMP, JUMP_IF_FALSE,
-		CALL, CLOSURE,
+		CALL, TAIL_CALL, CLOSURE,
 	};
 }
 
