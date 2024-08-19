@@ -268,9 +268,8 @@ Compiler::definition()
 				error("Unexpected variable redefinition", parse.previous);
 		}
 
-		// Don't do this for lambdas - should be able to be recursive
-		// TODO: Verify lambda initialization special case is documented
-		Local local{ .token = parse.previous, .depth = UNINITIALIZED_VAR };
+		Local local{ .token = parse.previous,
+					 .depth = static_cast<int>(scope_depth)};
 		locals.push_back(local);
 		expression();  // Needs to be tested
 		locals.back().depth = scope_depth;
