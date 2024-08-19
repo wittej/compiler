@@ -63,7 +63,7 @@ private:
 	bool truth_value(Value val);
 	uint16_t read_uint16_and_update_ip(uint8_t*& ip);  // TODO: move this to util?
 	bool call(size_t number_arguments);
-	bool call(std::shared_ptr<Closure> function, size_t number_arguments);
+	bool call(const std::shared_ptr<Closure> function, size_t number_arguments);
 	bool call(std::shared_ptr<BuiltinFunction> function, size_t number_arguments);
 	std::shared_ptr<RuntimeUpvalue> capture_upvalue(size_t index);
 	void disassemble_current_instruction(size_t line);

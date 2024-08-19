@@ -10,7 +10,10 @@ TODOs:
 BUGFIX: compiler error during function definition can lead to uninitialized
 	definition. Referencing a global before assignment = same.
 
+TODO: prevent duplicate function arguments
+
 Design decision: recursive functions defined inside closure. What does Scheme do?
+	Scheme allows this - so does Python. Appears to handle x=x at runtime.
 
 Better reporting for compilation inside function - do during the new static
 	analysis step.

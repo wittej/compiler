@@ -334,6 +334,8 @@ Compiler::lambda()
 	Compiler compiler(this);
 	compiler.parse = parse;
 
+	// TODO: prevent redundant params
+
 	compiler.consume(token_type::LPAREN, "Expected '(' before function parameters");
 	while (compiler.parse.current.type != token_type::RPAREN) {
 		compiler.consume(token_type::SYMBOL, "Expect symbol parameter");

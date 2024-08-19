@@ -233,7 +233,7 @@ VirtualMachine::call(size_t number_arguments)
  * @return: call success status. (under construction)
  */
 bool
-VirtualMachine::call(std::shared_ptr<Closure> closure, size_t number_arguments)
+VirtualMachine::call(const std::shared_ptr<Closure> closure, size_t number_arguments)
 {
 	CallFrame frame{
 		.closure = closure,
