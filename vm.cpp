@@ -73,7 +73,7 @@ VirtualMachine::runtime_error(std::string message, size_t line)
 Value
 VirtualMachine::allocate(std::string string)
 {
-	return allocate(Data(string));
+	return memory.allocate(Data(string));
 }
 
 /**
@@ -85,7 +85,7 @@ VirtualMachine::allocate(std::string string)
 Value
 VirtualMachine::allocate(std::shared_ptr<Function> function)
 {
-	return allocate(Data(function));
+	return memory.allocate(Data(function));
 }
 
 /**
@@ -97,7 +97,7 @@ VirtualMachine::allocate(std::shared_ptr<Function> function)
 Value
 VirtualMachine::allocate(std::shared_ptr<Closure> closure)
 {
-	return allocate(Data(closure));
+	return memory.allocate(Data(closure));
 }
 
 /**
@@ -109,7 +109,7 @@ VirtualMachine::allocate(std::shared_ptr<Closure> closure)
 Value
 VirtualMachine::allocate(std::shared_ptr<BuiltinFunction> builtin)
 {
-	return allocate(Data(builtin));
+	return memory.allocate(Data(builtin));
 }
 
 /**
@@ -121,7 +121,7 @@ VirtualMachine::allocate(std::shared_ptr<BuiltinFunction> builtin)
 Value
 VirtualMachine::allocate(Pair pair)
 {
-	return allocate(Data(pair));
+	return memory.allocate(Data(pair));
 }
 
 size_t
@@ -175,9 +175,9 @@ VirtualMachine::interpret(std::string source)
 	stack.push_back(Value(&closure));
 	call(0);
 
-	gc_active = true;
+	memory.gc_active = true;
 	auto result = run();
-	gc_active = false;
+	memory.gc_active = false;
 	return result;
 }
 
@@ -492,13 +492,13 @@ VirtualMachine::run()
 
 // TODO: different file?
 
-Value VirtualMachine::allocate(Data object) {
+Value Memory::allocate(Data object) {
 #ifdef DEBUG_STRESS_GC
 	if (gc_active) collect_garbage();
 #else
 	gc_size += object.size();
 	if (gc_active && gc_size > gc_threshold) {
-		gc_size = collect_garbage(stack, globals, frames);
+		gc_size = collect_garbage();
 		gc_threshold = gc_size *2;
 	}
 #endif
@@ -512,18 +512,18 @@ Value VirtualMachine::allocate(Data object) {
 	return Value(&memory.front());
 }
 
-size_t VirtualMachine::collect_garbage(std::vector<Value> stack,
-									   std::vector<Value> globals,
-									   std::vector<CallFrame> frames)
-{
+void VirtualMachine::mark_roots() {
+	for (auto& i : stack) memory.gc_mark(i);
+	for (auto& i : globals) memory.gc_mark(i);
+	for (auto& i : frames) memory.gc_mark(i.closure);
+}
+
+size_t Memory::collect_garbage() {
 #ifdef DEBUG_LOG_GC
 	std::cerr << "-- GC BEGIN --\n";
 #endif
 
-	// Mark roots
-	for (auto& i : stack) gc_mark(i);
-	for (auto& i : globals) gc_mark(i);
-	for (auto& i : frames) gc_mark(i.closure);
+	vm.mark_roots();
 
 	// Mark reachable values
 	while (gc_worklist.size() > 0) gc_advance_worklist();
@@ -546,7 +546,7 @@ size_t VirtualMachine::collect_garbage(std::vector<Value> stack,
 }
 
 void
-VirtualMachine::gc_advance_worklist()
+Memory::gc_advance_worklist()
 {
 	auto next = gc_worklist.front();
 	gc_worklist.pop();
@@ -575,13 +575,13 @@ VirtualMachine::gc_advance_worklist()
 }
 
 void
-VirtualMachine::gc_mark(Value val)
+Memory::gc_mark(Value val)
 {
 	if (val.type == value_type::DATA) gc_mark(val.as.data);
 }
 
 void
-VirtualMachine::gc_mark(Data* data)
+Memory::gc_mark(Data* data)
 {
 	if (data->reachable) return;
 
@@ -594,7 +594,7 @@ VirtualMachine::gc_mark(Data* data)
 }
 
 void
-VirtualMachine::gc_mark(std::shared_ptr<Closure> clos)
+Memory::gc_mark(std::shared_ptr<Closure> clos)
 {
 	for (auto& i : clos->upvalues) {
 		gc_mark(i->data);

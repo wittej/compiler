@@ -29,6 +29,24 @@ struct CallFrame {
 	size_t stack_index;
 };
 
+class Memory {
+	// TODO: consider making memory/GC a separate class once determining the data it needs.
+	VirtualMachine& vm;
+	std::forward_list<Data> memory;
+	std::queue<Data*> gc_worklist;
+	void gc_advance_worklist();
+	size_t collect_garbage();
+	size_t gc_threshold = 4;
+	size_t gc_size = 0;
+public:
+	bool gc_active = false;
+	Value allocate(Data object);
+	void gc_mark(Value val);
+	void gc_mark(Data* data);
+	void gc_mark(std::shared_ptr<Closure> clos);
+	Memory(VirtualMachine& vm) : vm{ vm } {};
+};
+
 /**
  * Executes compiled bytecode. Represents state of program execution.
  */
@@ -37,21 +55,7 @@ private:
 	interpret_result run();
 	std::vector<Value> stack;
 	std::vector<CallFrame> frames;
-
-	// TODO: consider making memory/GC a separate class once determining the data it needs.
-	std::forward_list<Data> memory;
-	std::queue<Data*> gc_worklist;
-	bool gc_active = false;
-	void gc_mark(Value val);
-	void gc_mark(Data* data);
-	void gc_mark(std::shared_ptr<Closure> clos);
-	void gc_advance_worklist();
-	Value allocate(Data object);
-	size_t collect_garbage(std::vector<Value> stack,
-						   std::vector<Value> globals,
-						   std::vector<CallFrame> frames);
-	size_t gc_threshold = 4;
-	size_t gc_size = 0;
+	Memory memory{ *this };
 
 	// TODO: benchmark map performance here too
 	std::list<std::shared_ptr<RuntimeUpvalue>> open_upvalues;
@@ -79,6 +83,7 @@ public:
 	Value allocate(Pair pair);
 	size_t global(std::string key);
 	bool check_global(std::string key);
+	void mark_roots();
 	VirtualMachine();
 };
 
