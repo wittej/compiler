@@ -47,7 +47,9 @@ private:
 	void gc_mark(std::shared_ptr<Closure> clos);
 	void gc_advance_worklist();
 	Value allocate(Data object);
-	size_t collect_garbage();
+	size_t collect_garbage(std::vector<Value> stack,
+						   std::vector<Value> globals,
+						   std::vector<CallFrame> frames);
 	size_t gc_threshold = 4;
 	size_t gc_size = 0;
 

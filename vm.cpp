@@ -498,7 +498,7 @@ Value VirtualMachine::allocate(Data object) {
 #else
 	gc_size += object.size();
 	if (gc_active && gc_size > gc_threshold) {
-		gc_size = collect_garbage();
+		gc_size = collect_garbage(stack, globals, frames);
 		gc_threshold = gc_size *2;
 	}
 #endif
@@ -512,7 +512,10 @@ Value VirtualMachine::allocate(Data object) {
 	return Value(&memory.front());
 }
 
-size_t VirtualMachine::collect_garbage() {
+size_t VirtualMachine::collect_garbage(std::vector<Value> stack,
+									   std::vector<Value> globals,
+									   std::vector<CallFrame> frames)
+{
 #ifdef DEBUG_LOG_GC
 	std::cerr << "-- GC BEGIN --\n";
 #endif
