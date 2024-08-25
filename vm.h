@@ -29,12 +29,14 @@ struct CallFrame {
 	size_t stack_index;
 };
 
+/**
+ * Manages memory for runtime - handles allocation nad garbage collection.
+ */
 class Memory {
-	// TODO: consider making memory/GC a separate class once determining the data it needs.
 	VirtualMachine& vm;
 	std::forward_list<Data> memory;
 	std::queue<Data*> gc_worklist;
-	void gc_advance_worklist();
+	void advance_worklist();
 	size_t collect_garbage();
 	size_t gc_threshold = 4;
 	size_t gc_size = 0;
@@ -83,7 +85,7 @@ public:
 	Value allocate(Pair pair);
 	size_t global(std::string key);
 	bool check_global(std::string key);
-	void mark_roots();
+	void gc_mark_roots();
 	VirtualMachine();
 };
 

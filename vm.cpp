@@ -138,7 +138,8 @@ VirtualMachine::global(std::string key)
 bool
 VirtualMachine::check_global(std::string key)
 {
-	return global_indexes.contains(key);
+	if (!global_indexes.contains(key)) return false;
+	return (globals[global_indexes[key]].type != value_type::UNINITIALIZED);
 }
 
 // TODO: might want to just read the uint16 and move the ip in calling code.
@@ -490,6 +491,12 @@ VirtualMachine::run()
 	}
 }
 
+void VirtualMachine::gc_mark_roots() {
+	for (auto& i : stack) memory.gc_mark(i);
+	for (auto& i : globals) memory.gc_mark(i);
+	for (auto& i : frames) memory.gc_mark(i.closure);
+}
+
 // TODO: different file?
 
 Value Memory::allocate(Data object) {
@@ -512,21 +519,15 @@ Value Memory::allocate(Data object) {
 	return Value(&memory.front());
 }
 
-void VirtualMachine::mark_roots() {
-	for (auto& i : stack) memory.gc_mark(i);
-	for (auto& i : globals) memory.gc_mark(i);
-	for (auto& i : frames) memory.gc_mark(i.closure);
-}
-
 size_t Memory::collect_garbage() {
 #ifdef DEBUG_LOG_GC
 	std::cerr << "-- GC BEGIN --\n";
 #endif
 
-	vm.mark_roots();
+	vm.gc_mark_roots();
 
 	// Mark reachable values
-	while (gc_worklist.size() > 0) gc_advance_worklist();
+	while (gc_worklist.size() > 0) advance_worklist();
 
 	// Sweep
 	memory.remove_if([](auto& d) { return !d.reachable; });
@@ -546,7 +547,7 @@ size_t Memory::collect_garbage() {
 }
 
 void
-Memory::gc_advance_worklist()
+Memory::advance_worklist()
 {
 	auto next = gc_worklist.front();
 	gc_worklist.pop();

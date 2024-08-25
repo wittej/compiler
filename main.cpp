@@ -7,9 +7,6 @@
 /*
 TODOs:
 
-BUGFIX: compiler error during function definition can lead to uninitialized
-	definition. Referencing a global before assignment = same.
-
 TODO: prevent duplicate function arguments
 
 Better reporting for compilation inside function - do during the new static
@@ -21,8 +18,6 @@ Add new features to test file as they are implemented
 Consider upvalues in VM - linear search seems bad.
 
 Error type
-
-Refactor memory out of VM.
 
 Refactor parser / compiler?
 */
