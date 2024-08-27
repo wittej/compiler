@@ -39,7 +39,6 @@ struct Function
 };
 
 // TODO: give this some way of throwing an error
-// TODO: consider removing VM reference for builtins - shouldn't be needed.
 
 /**
  * Interface for built-in functions (e.g., addition). These are implemented in
@@ -47,9 +46,15 @@ struct Function
  */
 struct BuiltinFunction
 {
+protected:
+	VirtualMachine& vm;
+	std::string func_name;
+	BuiltinFunction(VirtualMachine& vm, std::string name)
+		: vm{ vm }, func_name{ func_name } {};
+public:
+	std::string name() { return func_name; };
+	size_t size() { return sizeof(*this); }
 	virtual Value call(std::vector<Value>::iterator args, size_t count) = 0;
-	virtual std::string name() = 0;
-	virtual size_t size() = 0;
 };
 
 /**
@@ -57,13 +62,9 @@ struct BuiltinFunction
  * create a memory object.
  */
 struct BuiltinCons : BuiltinFunction {
-private:
-	VirtualMachine& vm;
-public:
 	Value call(std::vector<Value>::iterator args, size_t count);
-	std::string name() { return "cons"; }
-	size_t size() { return sizeof(*this); }
-	BuiltinCons(VirtualMachine& vm) : vm{ vm } {};
+	BuiltinCons(VirtualMachine& vm, std::string name)
+		: BuiltinFunction(vm, name) {};
 };
 
 /**
@@ -71,8 +72,8 @@ public:
  */
 struct BuiltinAdd : BuiltinFunction {
 	Value call(std::vector<Value>::iterator args, size_t count);
-	std::string name() { return "+"; }
-	size_t size() { return sizeof(*this); }
+	BuiltinAdd(VirtualMachine& vm, std::string name)
+		: BuiltinFunction(vm, name) {};
 };
 
 /**
@@ -80,8 +81,8 @@ struct BuiltinAdd : BuiltinFunction {
  */
 struct BuiltinEqual : BuiltinFunction {
 	Value call(std::vector<Value>::iterator args, size_t count);
-	std::string name() { return "="; }
-	size_t size() { return sizeof(*this); }
+	BuiltinEqual(VirtualMachine& vm, std::string name)
+		: BuiltinFunction(vm, name) {};
 };
 
 #endif
