@@ -1,14 +1,22 @@
 #include "function.h"
 #include "vm.h"
 
-
+/**
+ * Convenience function for garbage collector.
+ *
+ * @return: memory footprint of this Data object.
+ */
 size_t
 Function::size()
 {
 	return sizeof(*this) + name.size() + bytecode.vector_size();
 }
 
-
+/**
+ * Convenience function for garbage collector.
+ *
+ * @return: memory footprint of this Data object.
+ */
 size_t
 Closure::size()
 {

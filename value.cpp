@@ -90,6 +90,11 @@ Value::match_data_type(data_type match)
 	return type == value_type::DATA && as.data->type == match;
 }
 
+/**
+ * Convenience function for garbage collector.
+ * 
+ * @return: memory footprint of this Data object.
+ */
 size_t
 Data::size()
 {
@@ -114,6 +119,11 @@ Data::size()
 	}
 }
 
+/**
+ * Convenience function for printing Data type.
+ * 
+ * @return: string representation of Data type.
+ */
 std::string
 Data::print()
 {
