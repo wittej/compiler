@@ -77,14 +77,14 @@ private:
 	void disassemble_current_instruction(size_t line);
 	void close_last_frame_upvalues();
 public:
-	interpret_result interpret(std::string source);
+	interpret_result interpret(std::string& source);
 	Value allocate(std::string string);
 	Value allocate(std::shared_ptr<Function> function);
 	Value allocate(std::shared_ptr<Closure> closure);
 	Value allocate(std::shared_ptr<BuiltinFunction> builtin);
 	Value allocate(Pair pair);
-	size_t global(std::string key);
-	bool check_global(std::string key);
+	size_t global(const std::string key);
+	bool check_global(const std::string key);
 	void gc_mark_roots();
 	VirtualMachine();
 };

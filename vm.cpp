@@ -124,19 +124,31 @@ VirtualMachine::allocate(Pair pair)
 	return memory.allocate(Data(pair));
 }
 
+/**
+ * Create a global (if it doesn't exist) and return its index.
+ * 
+ * @param key: name of global variable.
+ * @return: index in globals.
+ */
 size_t
-VirtualMachine::global(std::string key)
+VirtualMachine::global(const std::string key)
 {
 	if (global_indexes.contains(key)) return global_indexes[key];
 	
-	size_t size = globals.size();
+	size_t index = globals.size();
 	globals.push_back(Value(value_type::UNINITIALIZED));
-	global_indexes.insert(std::pair<std::string, size_t>(key, size));
-	return size;
+	global_indexes.insert(std::pair<std::string, size_t>(key, index));
+	return index;
 }
 
+/**
+ * Is this variable initialized?
+ * 
+ * @param key: name of global variable.
+ * @return: true if variable initialized, false otherwise.
+ */
 bool
-VirtualMachine::check_global(std::string key)
+VirtualMachine::check_global(const std::string key)
 {
 	if (!global_indexes.contains(key)) return false;
 	return (globals[global_indexes[key]].type != value_type::UNINITIALIZED);
@@ -160,9 +172,12 @@ VirtualMachine::read_uint16_and_update_ip(uint8_t*& ip)
 
 /**
  * Scan, compile, and run the source code, printing the result.
+ * 
+ * @param source: source code.
+ * 
  */
 interpret_result
-VirtualMachine::interpret(std::string source)
+VirtualMachine::interpret(std::string& source)
 {
 	Scanner scanner(source);
 	Compiler compiler(scanner, *this);
@@ -171,7 +186,6 @@ VirtualMachine::interpret(std::string source)
 	if (function == nullptr) return interpret_result::COMPILE_ERROR;
 
 	auto script = Data(function);
-	// TODO: make sure GC knows these exist
 	auto closure = Data(std::make_shared<Closure>(&script));
 	stack.push_back(Value(&closure));
 	call(0);
@@ -491,7 +505,11 @@ VirtualMachine::run()
 	}
 }
 
-void VirtualMachine::gc_mark_roots() {
+/**
+ * Mark the roots of the garbage collector readability graph.
+ */
+void
+VirtualMachine::gc_mark_roots() {
 	for (auto& i : stack) memory.gc_mark(i);
 	for (auto& i : globals) memory.gc_mark(i);
 	for (auto& i : frames) memory.gc_mark(i.closure);
@@ -499,7 +517,15 @@ void VirtualMachine::gc_mark_roots() {
 
 // TODO: different file?
 
-Value Memory::allocate(Data object) {
+/**
+ * Store a heap-allocated object in memory, returning its representation as a
+ * Value. Collect garbage if necessary.
+ * 
+ * @param object: Data to be stored in memory.
+ * @return: Value with pointer to object.
+ */
+Value
+Memory::allocate(Data object) {
 #ifdef DEBUG_STRESS_GC
 	if (gc_active) collect_garbage();
 #else
@@ -519,14 +545,19 @@ Value Memory::allocate(Data object) {
 	return Value(&memory.front());
 }
 
-size_t Memory::collect_garbage() {
+/**
+ * Remove all non-reachable values represented in memory. Includes compiler
+ * directive for benchmarking.
+ * 
+ * @return: total memory footprint after garbage collection.
+ */
+size_t
+Memory::collect_garbage() {
 #ifdef DEBUG_LOG_GC
 	std::cerr << "-- GC BEGIN --\n";
 #endif
-
+	// Mark
 	vm.gc_mark_roots();
-
-	// Mark reachable values
 	while (gc_worklist.size() > 0) advance_worklist();
 
 	// Sweep
@@ -546,6 +577,9 @@ size_t Memory::collect_garbage() {
 	return new_size;
 }
 
+/**
+ * Mark any data that is reachable from the next element of the worklist.
+ */
 void
 Memory::advance_worklist()
 {
@@ -570,17 +604,33 @@ Memory::advance_worklist()
 				gc_mark(i->data);
 			}
 			break;
+		case data_type::PAIR: {
+			auto pair = next->cast<Pair>();
+			gc_mark(pair.car);
+			gc_mark(pair.cdr);
+			}
+			break;
 		default:
 			break;
 	}
 }
 
+/**
+ * Convenience method to aid mark stage of garbage collection.
+ * 
+ * @param val: value to mark if it is a data.
+ */
 void
 Memory::gc_mark(Value val)
 {
 	if (val.type == value_type::DATA) gc_mark(val.as.data);
 }
 
+/**
+ * Mark this data item as reachable.
+ * 
+ * @param data: pointer to data to mark.
+ */
 void
 Memory::gc_mark(Data* data)
 {
@@ -594,6 +644,11 @@ Memory::gc_mark(Data* data)
 	data->reachable = true;
 }
 
+/**
+ * Mark all data directly reachable from this closure.
+ * 
+ * @param clos: reachable closure - mark upvalues.
+ */
 void
 Memory::gc_mark(std::shared_ptr<Closure> clos)
 {
@@ -602,6 +657,9 @@ Memory::gc_mark(std::shared_ptr<Closure> clos)
 	}
 }
 
+/**
+ * Close all upvalues on the frame on the top of the stack.
+ */
 void
 VirtualMachine::close_last_frame_upvalues()
 {
