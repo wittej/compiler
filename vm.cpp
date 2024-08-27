@@ -2,20 +2,25 @@
 #include "vm.h"
 #include "compiler.h"
 
-// TODO: GC
+/**
+ * Convenience function for defining a global builtin.
+ * 
+ * @param builtin: shared pointer to builtin to add.
+ */
+void
+VirtualMachine::global_builtin(std::shared_ptr<BuiltinFunction> builtin)
+{
+	globals[global(builtin->name())] = allocate(builtin);
+}
+
 /**
  * Construct the VM - requires allocation of built-in functions.
  */
 VirtualMachine::VirtualMachine()
 {
-	auto cons = std::make_shared<BuiltinCons>(*this);
-	globals[global(cons->name())] = allocate(cons);
-
-	auto plus = std::make_shared<BuiltinAdd>();
-	globals[global(plus->name())] = allocate(plus);
-
-	auto equals = std::make_shared<BuiltinEqual>();
-	globals[global(equals->name())] = allocate(equals);
+	global_builtin(std::make_shared<BuiltinCons>(this));
+	global_builtin(std::make_shared<BuiltinAdd>());
+	global_builtin(std::make_shared<BuiltinEqual>());
 }
 
 /**

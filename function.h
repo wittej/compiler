@@ -47,9 +47,9 @@ struct Function
 struct BuiltinFunction
 {
 protected:
-	VirtualMachine& vm;
+	VirtualMachine* vm;
 	std::string func_name;
-	BuiltinFunction(VirtualMachine& vm, std::string name)
+	BuiltinFunction(VirtualMachine* vm, std::string func_name)
 		: vm{ vm }, func_name{ func_name } {};
 public:
 	std::string name() { return func_name; };
@@ -63,8 +63,7 @@ public:
  */
 struct BuiltinCons : BuiltinFunction {
 	Value call(std::vector<Value>::iterator args, size_t count);
-	BuiltinCons(VirtualMachine& vm, std::string name)
-		: BuiltinFunction(vm, name) {};
+	BuiltinCons(VirtualMachine* vm) : BuiltinFunction(vm, "cons") {};
 };
 
 /**
@@ -72,8 +71,7 @@ struct BuiltinCons : BuiltinFunction {
  */
 struct BuiltinAdd : BuiltinFunction {
 	Value call(std::vector<Value>::iterator args, size_t count);
-	BuiltinAdd(VirtualMachine& vm, std::string name)
-		: BuiltinFunction(vm, name) {};
+	BuiltinAdd() : BuiltinFunction(nullptr, "+") {};
 };
 
 /**
@@ -81,8 +79,7 @@ struct BuiltinAdd : BuiltinFunction {
  */
 struct BuiltinEqual : BuiltinFunction {
 	Value call(std::vector<Value>::iterator args, size_t count);
-	BuiltinEqual(VirtualMachine& vm, std::string name)
-		: BuiltinFunction(vm, name) {};
+	BuiltinEqual(): BuiltinFunction(nullptr, "=") {};
 };
 
 #endif
