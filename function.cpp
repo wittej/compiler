@@ -51,7 +51,7 @@ BuiltinCons::call(std::vector<Value>::iterator args, size_t count)
 	return vm->allocate(Pair(left, right));
 }
 
-// TODO: support for variable size
+// TODO: support for variable number of arguments
 
 /**
  * Adds numeric Values and returns the sum.
@@ -71,6 +71,26 @@ BuiltinAdd::call(std::vector<Value>::iterator args, size_t count)
 	if (right.type != value_type::NUMBER) return Value(value_type::NIL);  // TEMP
 
 	return Value(left.as.number + right.as.number);
+}
+
+/**
+ * Subtract right-hand value from left-hand value.
+ *
+ * @param args: stack location of first argument.
+ * @param count: number of arguments.
+ * @return: Value - numeric.
+ */
+Value
+BuiltinSubtract::call(std::vector<Value>::iterator args, size_t count)
+{
+	if (count != 2) return Value(value_type::NIL);  // TEMP
+	Value left = *args++;
+	Value right = *args++;
+
+	if (left.type != value_type::NUMBER) return Value(value_type::NIL);  // TEMP
+	if (right.type != value_type::NUMBER) return Value(value_type::NIL);  // TEMP
+
+	return Value(left.as.number - right.as.number);
 }
 
 /**

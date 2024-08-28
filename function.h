@@ -44,7 +44,7 @@ struct Function
  * Interface for built-in functions (e.g., addition). These are implemented in
  * C++ and can be called during runtime.
  */
-struct BuiltinFunction
+struct BuiltinFunction 
 {
 protected:
 	VirtualMachine* vm;
@@ -61,7 +61,8 @@ public:
  * Supports Pair data structure creation. Requires reference to VM in order to
  * create a memory object.
  */
-struct BuiltinCons : BuiltinFunction {
+struct BuiltinCons : BuiltinFunction
+{
 	Value call(std::vector<Value>::iterator args, size_t count);
 	BuiltinCons(VirtualMachine* vm) : BuiltinFunction(vm, "cons") {};
 };
@@ -69,9 +70,19 @@ struct BuiltinCons : BuiltinFunction {
 /**
  * Supports addition.
  */
-struct BuiltinAdd : BuiltinFunction {
+struct BuiltinAdd : BuiltinFunction
+{
 	Value call(std::vector<Value>::iterator args, size_t count);
 	BuiltinAdd() : BuiltinFunction(nullptr, "+") {};
+};
+
+/**
+ * Supports subtraction.
+ */
+struct BuiltinSubtract : BuiltinFunction
+{
+	Value call(std::vector<Value>::iterator args, size_t count);
+	BuiltinSubtract() : BuiltinFunction(nullptr, "-") {};
 };
 
 /**

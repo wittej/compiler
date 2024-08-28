@@ -20,6 +20,7 @@ VirtualMachine::VirtualMachine()
 {
 	global_builtin(std::make_shared<BuiltinCons>(this));
 	global_builtin(std::make_shared<BuiltinAdd>());
+	global_builtin(std::make_shared<BuiltinSubtract>());
 	global_builtin(std::make_shared<BuiltinEqual>());
 }
 
