@@ -1,19 +1,10 @@
 #include "compiler.h"
 #include "scanner.h"
 
-/* Future design note - will want to rewrite to incorporate thunks. This will
- * enable tail recursion. Optionally will allow short-circuit evaluation of
- * function arguments - and, or, and if can potentially be rewritten as 
- * built-in functions. */
-
 /* Future design note - definition_or_expression is a legacy of when this was
  * a more Scheme-like Lisp dialect. It's similar to expression() and
  * parse_next(), and these should be refactored. I'm moving to definitions
- * being expressions that return NIL. Want to resolve thunks as late as
- * possible, so may still need a distinction of some sort. */
-
-// TODO: put this in compiler header?
-constexpr int UNINITIALIZED_VAR = -1;
+ * being expressions that return NIL. */
 
 // TODO: refactor into stack
 /**
