@@ -75,7 +75,7 @@ void
 Compiler::error(std::string error_message, Token token)
 {
 	if (panic_mode) return;
-	std::cerr << "Compiler error [line " << token.line << "] " << error_message << '\n';
+	std::cerr << "Compiler error [line " << token.line << "] " << error_message << " ";
 	std::cerr << token.string << '\n';
 	had_error = true;
 	panic_mode = true;
@@ -328,6 +328,14 @@ Compiler::lambda()
 	compiler.consume(token_type::LPAREN, "Expected '(' before function parameters");
 	while (compiler.parse.current.type != token_type::RPAREN) {
 		compiler.consume(token_type::SYMBOL, "Expect symbol parameter");
+
+		for (auto& local : compiler.locals) {
+			if (local.token.string == compiler.parse.previous.string) {
+				compiler.error("Unexpected duplicate token",
+							   compiler.parse.previous);
+			}
+		}
+
 		compiler.locals.push_back(Local{.token = compiler.parse.previous,
 			.depth=static_cast<int>(compiler.scope_depth)});
 		compiler.function->arity++;
@@ -341,7 +349,7 @@ Compiler::lambda()
 	compiler.write(opcode::RETURN);
 	compiler.function->bytecode.tail_call_optimize();
 
-	if (compiler.had_error) error("Error compiling function.", parse.previous);
+	if (compiler.had_error) error("Error compiling function", parse.previous);
 	parse = compiler.parse;
 	write(opcode::CLOSURE);
 	
@@ -514,7 +522,7 @@ Compiler::parse_next()
 			consume(token_type::RPAREN, "Expect ')'.");
 			break;
 		default:
-			error("unknown self-evaluating token type.", parse.previous);
+			error("unknown self-evaluating token type", parse.previous);
 	}
 }
 
@@ -556,6 +564,6 @@ Compiler::combination()
 			call();
 			break;
 		default:
-			error("expected symbol when reading combination.", parse.previous);
+			error("expected symbol when reading combination", parse.previous);
 	}
 }

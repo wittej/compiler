@@ -7,8 +7,6 @@
 /*
 TODOs:
 
-TODO: prevent duplicate function arguments
-
 Better reporting for compilation inside function - do during the new static
 	analysis step.
 
