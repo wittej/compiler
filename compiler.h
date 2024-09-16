@@ -27,6 +27,18 @@ struct ParseState {
 };
 
 /**
+ * Current scope during compilation.
+ */
+struct Scope {
+	/* Function being compiled. */
+	std::shared_ptr<Function> function = std::make_shared<Function>();
+
+	/* Variables referenced during compilation. */
+	std::vector<Local> locals;
+	std::vector<Upvalue> upvalues;
+};
+
+/**
  * Handles parsing and compilation - gets tokens from the scanner and writes
  * them as bytecode, resolving variables and storing constants as needed.
  * 
@@ -46,6 +58,9 @@ private:
 	size_t scope_depth = 0;
 	std::vector<Local> locals;
 	std::vector<Upvalue> upvalues;
+
+	/* TODO: migrate to this */
+	std::vector<Scope> scopes;
 
 	bool had_error = false;  // TODO: clean this up
 	bool panic_mode = false;
