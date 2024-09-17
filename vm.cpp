@@ -190,7 +190,8 @@ interpret_result
 VirtualMachine::interpret(std::string& source)
 {
 	Scanner scanner(source);
-	Compiler compiler(scanner, *this);
+	ParseState state;
+	Compiler compiler(scanner, *this, state);
 
 	auto function = compiler.compile();
 	if (function == nullptr) return interpret_result::COMPILE_ERROR;

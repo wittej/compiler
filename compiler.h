@@ -21,22 +21,15 @@ struct Upvalue {
 	bool is_local;
 };
 
+// TODO: expand give this its own place to live.
 struct ParseState {
 	Token current;  // Note: this is probably still important because '(' can mean different things.
 	Token previous;
 };
 
-/**
- * Current scope during compilation.
- */
-struct Scope {
-	/* Function being compiled. */
-	std::shared_ptr<Function> function = std::make_shared<Function>();
-
-	/* Variables referenced during compilation. */
-	std::vector<Local> locals;
-	std::vector<Upvalue> upvalues;
-};
+/* REFACTOR NOTES: Makes most sense to move some of these features to a
+ * dedicated parser first. That can mediate relationship between scanner and
+ * compiler. */
 
 /**
  * Handles parsing and compilation - gets tokens from the scanner and writes
@@ -45,11 +38,10 @@ struct Scope {
  * NB: subject to change - some features of this class are likely best
  * encapsulated in other classes.
  */
-// TODO: consider decoupling parsing and compiling jobs
 class Compiler {
 private:
 	Scanner& scanner; // TODO: move to parser?
-	ParseState parse;  // TODO: move features to here?
+	ParseState& parse;  // TODO: move features to here?
 	VirtualMachine& vm;
 	
 	/* TODO: manage these and access with a stack data structure. */
@@ -58,9 +50,6 @@ private:
 	size_t scope_depth = 0;
 	std::vector<Local> locals;
 	std::vector<Upvalue> upvalues;
-
-	/* TODO: migrate to this */
-	std::vector<Scope> scopes;
 
 	bool had_error = false;  // TODO: clean this up
 	bool panic_mode = false;
@@ -91,8 +80,8 @@ private:
 	int push_upvalue(int index, bool local);
 	Chunk& current_bytecode();
 public:
-	Compiler(Scanner& scanner, VirtualMachine& vm) : scanner{ scanner }, vm{ vm } {};
-	Compiler(Compiler* enclosing) : enclosing{ enclosing }, scanner{ enclosing->scanner },
+	Compiler(Scanner& scanner, VirtualMachine& vm, ParseState& parse) : scanner{ scanner }, vm{ vm }, parse{ parse } {};
+	Compiler(Compiler* enclosing) : enclosing{ enclosing }, scanner{ enclosing->scanner }, parse{enclosing->parse},
 		vm{ enclosing->vm }, scope_depth{enclosing->scope_depth + 1} {};
 	bool error() { return had_error; };  // TODO: needed?
 	std::shared_ptr<Function> compile();
