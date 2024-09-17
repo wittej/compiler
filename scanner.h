@@ -39,7 +39,7 @@ class Scanner
 private:
 	std::string& source;
 	size_t start = 0;
-	size_t current = 0;
+	size_t end = 0;
 	size_t line = 1;
 	Token make_token(token_type type);
 	Token make_error(std::string error);

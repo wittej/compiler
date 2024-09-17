@@ -9,14 +9,14 @@
 Token
 Scanner::scan()
 {
-	while (std::isspace(source[current])) {
-		if (source[current++] == '\n') ++line;
+	while (std::isspace(source[end])) {
+		if (source[end++] == '\n') ++line;
 	}
 
-	start = current;
-	if (current == source.length()) return make_token(token_type::END);
+	start = end;
+	if (end == source.length()) return make_token(token_type::END);
 
-	char c = source[current++];
+	char c = source[end++];
 
 	switch (c) {
 		case '(':
@@ -27,11 +27,11 @@ Scanner::scan()
 			return make_token(token_type::SYMBOL);
 		case '+':
 		case '-':
-			if (std::isdigit(source[current]) || source[current] == '.')
+			if (std::isdigit(source[end]) || source[end] == '.')
 				return scan_number();
 			else return make_token(token_type::SYMBOL);
 		case '.':
-			if (std::isdigit(source[current])) return scan_number();
+			if (std::isdigit(source[end])) return scan_number();
 			else return make_token(token_type::SYMBOL);
 	}
 
@@ -51,9 +51,9 @@ Scanner::scan()
 Token
 Scanner::scan_number()
 {
-	while (std::isdigit(source[current])) ++current;
-	if (source[current] == '.') ++current;
-	while (std::isdigit(source[current])) ++current;
+	while (std::isdigit(source[end])) ++end;
+	if (source[end] == '.') ++end;
+	while (std::isdigit(source[end])) ++end;
 	return make_token(token_type::NUMBER);
 }
 
@@ -66,7 +66,7 @@ Scanner::scan_number()
 Token
 Scanner::scan_alphanumeric()
 {
-	while (std::isalnum(source[current])) ++current;
+	while (std::isalnum(source[end])) ++end;
 	return make_token(classify_alphanumeric());
 }
 
@@ -91,7 +91,7 @@ Scanner::classify_alphanumeric()
 		case 'l':
 			return check_keyword(1, "ambda", token_type::LAMBDA);
 		case 'n':
-			if (current > start + 1) {
+			if (end > start + 1) {
 				switch (source[start + 1]) {
 					case 'i':
 						return check_keyword(2, "l", token_type::NIL);
@@ -125,7 +125,7 @@ token_type
 Scanner::check_keyword(const size_t index, const std::string target,
 					   const token_type type)
 {
-	if (current - start != index + target.length()) return token_type::SYMBOL;
+	if (end - start != index + target.length()) return token_type::SYMBOL;
 	if (source.substr(start + index, target.length()) == target) return type;
 	return token_type::SYMBOL;
 }
@@ -142,11 +142,11 @@ Scanner::check_keyword(const size_t index, const std::string target,
 Token
 Scanner::make_token(const token_type type)
 {
-	std::string token_string = source.substr(start, current - start);
+	std::string token_string = source.substr(start, end - start);
 
 	// Require whitespace between non-parenthesis tokens.
-	if (current != source.length() && !std::isspace(source[current]) &&
-		source[current] != ')' && token_string != "(") {
+	if (end != source.length() && !std::isspace(source[end]) &&
+		source[end] != ')' && token_string != "(") {
 		return make_error("unexpected characters after " + token_string + ".");
 	}
 
