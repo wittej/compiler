@@ -15,6 +15,8 @@
 std::shared_ptr<Function>
 Compiler::compile()
 {
+	scopes.emplace_back();
+
 	locals.push_back(Local{
 		.token = Token{.type = token_type::BEGIN, .line = 0 },
 		.depth = 0});
@@ -320,6 +322,7 @@ Compiler::set()
 void
 Compiler::lambda()
 {
+	scopes.emplace_back();
 	Compiler compiler(this);
 	compiler.parse = parse;
 
@@ -351,6 +354,8 @@ Compiler::lambda()
 
 	if (compiler.had_error) error("Error compiling function", parse.previous);
 	parse = compiler.parse;
+
+	scopes.pop_back();
 	write(opcode::CLOSURE);
 	
 	uint16_t index = current_bytecode().add_constant(vm.allocate(compiler.function));
