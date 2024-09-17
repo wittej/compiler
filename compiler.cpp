@@ -28,7 +28,7 @@ Compiler::compile()
 	write(opcode::RETURN);
 #ifdef DEBUG_BYTECODE_ERRORS
 	if (!had_error) {
-		disassembleBytecode(current_bytecode(), "CODE");
+		disassembleBytecode(function->bytecode, "CODE");
 	}
 #endif
 	return had_error ? nullptr : function;
@@ -92,7 +92,7 @@ Compiler::error(std::string error_message, Token token)
 void
 Compiler::write(uint8_t op)
 {
-	current_bytecode().write(op, parse.previous.line);
+	function->bytecode.write(op, parse.previous.line);
 }
 
 /**
@@ -122,7 +122,7 @@ Compiler::write_jump(uint8_t jump)
 	write(jump); // TODO: verify valid jump opcode?
 	write(255);  // Will be overwritten by patch_jump
 	write(255);
-	return current_bytecode().instructions.size() - 2;
+	return function->bytecode.instructions.size() - 2;
 }
 
 /**
@@ -136,7 +136,7 @@ Compiler::patch_jump(size_t patch_index)
 	// error if not a valid size_t
 
 	// Number of indices to jump forward (past jump instruction at minimum).
-	size_t jump_to = current_bytecode().instructions.size() - patch_index - 2;
+	size_t jump_to = function->bytecode.instructions.size() - patch_index - 2;
 	
 	// error if > uint16t max
 
@@ -146,15 +146,8 @@ Compiler::patch_jump(size_t patch_index)
 	auto overflow = static_cast<uint8_t>(uint16_offset >> 8);
 
 	// Update integer part of jump instruction (little-endian format).
-	current_bytecode().instructions[patch_index] = offset;
-	current_bytecode().instructions[patch_index + 1] = overflow;
-}
-
-// TODO: refactor into stack
-Chunk&
-Compiler::current_bytecode()
-{
-	return function->bytecode;
+	function->bytecode.instructions[patch_index] = offset;
+	function->bytecode.instructions[patch_index + 1] = overflow;
 }
 
 /**
@@ -165,7 +158,7 @@ Compiler::current_bytecode()
 void
 Compiler::constant(Value value)
 {
-	uint16_t index = current_bytecode().add_constant(value);
+	uint16_t index = function->bytecode.add_constant(value);
 	write(opcode::CONSTANT);
 	write_uint16(index);
 }
@@ -350,10 +343,15 @@ Compiler::lambda()
 	compiler.function->bytecode.tail_call_optimize();
 
 	if (compiler.had_error) error("Error compiling function", parse.previous);
+#ifdef DEBUG_BYTECODE_ERRORS
+	else {
+		disassembleBytecode(compiler.function->bytecode, "FUNCTION CODE");
+	}
+#endif
 
 	write(opcode::CLOSURE);
 	
-	uint16_t index = current_bytecode().add_constant(vm.allocate(compiler.function));
+	uint16_t index = function->bytecode.add_constant(vm.allocate(compiler.function));
 	write_uint16(index);
 
 	compiler.function->upvalues = compiler.upvalues.size();
