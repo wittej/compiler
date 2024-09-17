@@ -322,7 +322,6 @@ void
 Compiler::lambda()
 {
 	Compiler compiler(this);
-	compiler.parse = parse;
 
 	// TODO: prevent redundant params
 
@@ -351,7 +350,6 @@ Compiler::lambda()
 	compiler.function->bytecode.tail_call_optimize();
 
 	if (compiler.had_error) error("Error compiling function", parse.previous);
-	parse = compiler.parse;
 
 	write(opcode::CLOSURE);
 	
