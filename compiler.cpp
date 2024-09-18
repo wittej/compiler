@@ -21,9 +21,9 @@ Compiler::compile()
 		.depth = 0});
 
 	advance();
-	while (parse.current.type != token_type::END) {
+	while (scanner.current.type != token_type::END) {
 		definition_or_expression();
-		if (parse.current.type != token_type::END) write(opcode::POP);
+		if (scanner.current.type != token_type::END) write(opcode::POP);
 	}
 	write(opcode::RETURN);
 #ifdef DEBUG_BYTECODE_ERRORS
@@ -59,8 +59,8 @@ Compiler::advance()
 void
 Compiler::consume(token_type expected, std::string error_message)
 {
-	if (parse.current.type == expected) advance();
-	else error(error_message, parse.current);
+	if (scanner.current.type == expected) advance();
+	else error(error_message, scanner.current);
 }
 
 /**
@@ -90,7 +90,7 @@ Compiler::error(std::string error_message, Token token)
 void
 Compiler::write(uint8_t op)
 {
-	function->bytecode.write(op, parse.previous.line);
+	function->bytecode.write(op, scanner.previous.line);
 }
 
 /**
@@ -169,7 +169,7 @@ Compiler::constant(Value value)
 void
 Compiler::number()
 {
-	constant(std::stod(parse.previous.string));
+	constant(std::stod(scanner.previous.string));
 }
 
 // TODO: consider making this a built-in function
@@ -247,23 +247,23 @@ Compiler::definition()
 	if (scope_depth > 0) {
 		for (int i = locals.size() - 1; i >= 0; i--) {
 			if (locals[i].depth < scope_depth) break;
-			if (parse.previous.string == locals[i].token.string)
-				error("Unexpected variable redefinition", parse.previous);
+			if (scanner.previous.string == locals[i].token.string)
+				error("Unexpected variable redefinition", scanner.previous);
 		}
 
-		Local local{ .token = parse.previous,
+		Local local{ .token = scanner.previous,
 					 .depth = static_cast<int>(scope_depth)};
 		locals.push_back(local);
 		expression();  // Needs to be tested
 	}
 
 	else {
-		if (vm.check_global(parse.previous.string)) {
-			error("Unexpected variable redefinition", parse.previous);
+		if (vm.check_global(scanner.previous.string)) {
+			error("Unexpected variable redefinition", scanner.previous);
 			return;
 		}
 
-		size_t index = vm.global(parse.previous.string);
+		size_t index = vm.global(scanner.previous.string);
 		expression();
 		write(opcode::DEFINE_GLOBAL);
 		write_uint16(index);
@@ -275,7 +275,7 @@ Compiler::set()
 {
 	consume(token_type::SYMBOL, "Expect symbol.");
 
-	int local = resolve_local(parse.previous);
+	int local = resolve_local(scanner.previous);
 	if (local >= 0) {
 		size_t index = local;
 		expression();
@@ -283,22 +283,22 @@ Compiler::set()
 		write_uint16(index);
 	}
 
-	else if ((local = resolve_upvalue(parse.previous)) != -1) {
+	else if ((local = resolve_upvalue(scanner.previous)) != -1) {
 		size_t index = local;
 		expression();
 		write(opcode::SET_UPVALUE);
 		write_uint16(index);
 	}
 
-	else if (vm.check_global(parse.previous.string)) {
-		size_t index = vm.global(parse.previous.string);
+	else if (vm.check_global(scanner.previous.string)) {
+		size_t index = vm.global(scanner.previous.string);
 		expression();
 		write(opcode::SET_GLOBAL);
 		write_uint16(index);
 	}
 
 	else {
-		error("Attempt to set undefined variable", parse.previous);
+		error("Attempt to set undefined variable", scanner.previous);
 	}
 }
 
@@ -317,30 +317,30 @@ Compiler::lambda()
 	// TODO: prevent redundant params
 
 	compiler.consume(token_type::LPAREN, "Expected '(' before function parameters");
-	while (compiler.parse.current.type != token_type::RPAREN) {
+	while (scanner.current.type != token_type::RPAREN) {
 		compiler.consume(token_type::SYMBOL, "Expect symbol parameter");
 
 		for (auto& local : compiler.locals) {
-			if (local.token.string == compiler.parse.previous.string) {
+			if (local.token.string == scanner.previous.string) {
 				compiler.error("Unexpected duplicate token",
-							   compiler.parse.previous);
+							   scanner.previous);
 			}
 		}
 
-		compiler.locals.push_back(Local{.token = compiler.parse.previous,
+		compiler.locals.push_back(Local{.token = scanner.previous,
 			.depth=static_cast<int>(compiler.scope_depth)});
 		compiler.function->arity++;
 	}
 	compiler.consume(token_type::RPAREN, "Expected ')' after function parameters");
-	while (compiler.parse.current.type != token_type::RPAREN && compiler.parse.current.type != token_type::END) {
+	while (scanner.current.type != token_type::RPAREN && scanner.current.type != token_type::END) {
 		compiler.definition_or_expression();
-		if (compiler.parse.current.type != token_type::RPAREN && compiler.parse.current.type != token_type::END)
+		if (scanner.current.type != token_type::RPAREN && scanner.current.type != token_type::END)
 			compiler.write(opcode::POP);
 	}
 	compiler.write(opcode::RETURN);
 	compiler.function->bytecode.tail_call_optimize();
 
-	if (compiler.had_error) error("Error compiling function", parse.previous);
+	if (compiler.had_error) error("Error compiling function", scanner.previous);
 #ifdef DEBUG_BYTECODE_ERRORS
 	else {
 		disassembleBytecode(compiler.function->bytecode, "FUNCTION CODE");
@@ -419,21 +419,21 @@ Compiler::push_upvalue(int index, bool local)
 void
 Compiler::symbol()
 {
-	int local = resolve_local(parse.previous);
+	int local = resolve_local(scanner.previous);
 	if (local >= 0) {
 		size_t index = local;
 		write(opcode::GET_LOCAL);
 		write_uint16(index);
 	}
 
-	else if ((local = resolve_upvalue(parse.previous)) != -1) {
+	else if ((local = resolve_upvalue(scanner.previous)) != -1) {
 		size_t index = local;
 		write(opcode::GET_UPVALUE);
 		write_uint16(index);
 	}
 	
 	else {
-		size_t index = vm.global(parse.previous.string);
+		size_t index = vm.global(scanner.previous.string);
 		write(opcode::GET_GLOBAL);
 		write_uint16(index);
 	}
@@ -474,10 +474,10 @@ void
 Compiler::call()
 {
 	uint16_t number_arguments = 0;
-	while (parse.current.type != token_type::RPAREN) {
+	while (scanner.current.type != token_type::RPAREN) {
 		// TODO: consider role of thunk evaluation here.
-		if (parse.current.type == token_type::END) {  // EOF reached early
-			error("Expected closing ')'", parse.current);
+		if (scanner.current.type == token_type::END) {  // EOF reached early
+			error("Expected closing ')'", scanner.current);
 			break;
 		}
 		expression();
@@ -496,7 +496,7 @@ void
 Compiler::parse_next()
 {
 	advance();
-	switch (parse.previous.type) {
+	switch (scanner.previous.type) {
 		case token_type::NUMBER:
 			number();
 			break;
@@ -513,12 +513,12 @@ Compiler::parse_next()
 			write(opcode::NIL);
 			break;
 		case token_type::LPAREN:
-			if (parse.current.type == token_type::RPAREN) write(opcode::NIL);
+			if (scanner.current.type == token_type::RPAREN) write(opcode::NIL);
 			else combination();
 			consume(token_type::RPAREN, "Expect ')'.");
 			break;
 		default:
-			error("unknown self-evaluating token type", parse.previous);
+			error("unknown self-evaluating token type", scanner.previous);
 	}
 }
 
@@ -531,7 +531,7 @@ void
 Compiler::combination()
 {
 	advance();
-	switch (parse.previous.type) {
+	switch (scanner.previous.type) {
 		case token_type::NOT:
 			_not();
 			break;
@@ -560,6 +560,6 @@ Compiler::combination()
 			call();
 			break;
 		default:
-			error("expected symbol when reading combination", parse.previous);
+			error("expected symbol when reading combination", scanner.previous);
 	}
 }
