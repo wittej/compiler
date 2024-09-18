@@ -21,12 +21,6 @@ struct Upvalue {
 	bool is_local;
 };
 
-// TODO: expand give this its own place to live.
-struct ParseState {
-	Token current;  // Note: this is probably still important because '(' can mean different things.
-	Token previous;
-};
-
 /* REFACTOR NOTES: Makes most sense to move some of these features to a
  * dedicated parser first. That can mediate relationship between scanner and
  * compiler. */
@@ -85,7 +79,7 @@ private:
 	int resolve_upvalue(Token token);
 	int push_upvalue(int index, bool local);
 public:
-	Compiler(Scanner& scanner, VirtualMachine& vm, ParseState& parse) : scanner{ scanner }, vm{ vm } {};
+	Compiler(Scanner& scanner, VirtualMachine& vm) : scanner{ scanner }, vm{ vm } {};
 	Compiler(Compiler* enclosing) : enclosing{ enclosing }, scanner{ enclosing->scanner },
 		vm{ enclosing->vm }, scope_depth{enclosing->scope_depth + 1} {};
 	bool error() { return had_error; };  // TODO: needed?
