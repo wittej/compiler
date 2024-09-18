@@ -47,9 +47,11 @@ private:
 	Token scan_alphanumeric();
 	token_type classify_alphanumeric();
 	token_type check_keyword(size_t index, std::string target, token_type type);
+	Token scan();
 public:
 	Scanner(std::string& source) :source{ source } {};
-	Token scan();
+	void advance();
+	Token current, previous;
 };
 
 #endif

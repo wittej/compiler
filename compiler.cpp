@@ -42,13 +42,11 @@ Compiler::compile()
 void
 Compiler::advance()
 {
-	parse.previous = parse.current;
-
 	// TODO: reset panic mode at next definition or expression?
 	for (;;) {  // If an error is encountered, go to next non-error token.
-		parse.current = scanner.scan();
-		if (parse.current.type != token_type::ERROR) break;
-		error("Unrecognized token " + parse.current.string, parse.current);
+		scanner.advance();
+		if (scanner.current.type != token_type::ERROR) break;
+		error("Unrecognized token " + scanner.current.string, scanner.current);
 	}
 }
 

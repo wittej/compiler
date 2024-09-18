@@ -42,7 +42,6 @@ struct ParseState {
 class Compiler {
 private:
 	Scanner& scanner; // TODO: move to parser?
-	ParseState& parse;  // TODO: move features to here?
 	VirtualMachine& vm;
 	
 	/* Function we're currently compiling. */
@@ -86,8 +85,8 @@ private:
 	int resolve_upvalue(Token token);
 	int push_upvalue(int index, bool local);
 public:
-	Compiler(Scanner& scanner, VirtualMachine& vm, ParseState& parse) : scanner{ scanner }, vm{ vm }, parse{ parse } {};
-	Compiler(Compiler* enclosing) : enclosing{ enclosing }, scanner{ enclosing->scanner }, parse{enclosing->parse},
+	Compiler(Scanner& scanner, VirtualMachine& vm, ParseState& parse) : scanner{ scanner }, vm{ vm } {};
+	Compiler(Compiler* enclosing) : enclosing{ enclosing }, scanner{ enclosing->scanner },
 		vm{ enclosing->vm }, scope_depth{enclosing->scope_depth + 1} {};
 	bool error() { return had_error; };  // TODO: needed?
 	std::shared_ptr<Function> compile();

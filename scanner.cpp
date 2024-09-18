@@ -41,6 +41,13 @@ Scanner::scan()
 	return make_error("unexpected character '" + std::string(1, c) + "'");
 }
 
+void
+Scanner::advance()
+{
+	previous = current;
+	current = scan();
+}
+
 /**
  * Used by scan() if token form indicates it is a number. Currently only
  * decimal numbers are supported, with an optional leading +/-. Increments
