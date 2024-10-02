@@ -353,11 +353,16 @@ Compiler::lambda()
 	compiler.function->upvalues = compiler.upvalues.size();
 	for (size_t i = 0; i < compiler.function->upvalues; i++) {
 		write(compiler.upvalues[i].is_local ? 1 : 0);
-		write_uint16(compiler.upvalues[i].index);
+		write_uint16(compiler.upvalues[i].stack_index);
 	}
 }
 
-// TODO: refactor into stack
+/**
+ * Return index of a local Value or report if not found.
+ * 
+ * @param token: Token value of local to search for.
+ * @return: index of local (if found) or -1 (otherwise).
+ */
 int
 Compiler::resolve_local(Token token)
 {
@@ -370,7 +375,14 @@ Compiler::resolve_local(Token token)
 	return -1;
 }
 
-// TODO: refactor into stack
+/**
+ * Attempt to locate the stack index associated with this token by walking the
+ * scopes recursively. This is slow during compile time but enables fast value
+ * lookups during runtime.
+ * 
+ * @param token: Token value to search for.
+ * @return: stack index (if found) or -1 (otherwise).
+ */
 int
 Compiler::resolve_upvalue(Token token)
 {
@@ -390,22 +402,31 @@ Compiler::resolve_upvalue(Token token)
 	return -1;
 }
 
-// TODO: refactor into stack
+/**
+ * Add upvalue if needed (with the corresponding stack index) and return its
+ * index in the compiler's vector of upvalues for this scope.
+ * 
+ * @param stack_index: index in runtime stack associated with this upvalue.
+ * @param local: is this value local to this scope?
+ * @return: index (in upvalues vector) of this upvalue.
+ */
 int
-Compiler::push_upvalue(int index, bool local)
+Compiler::push_upvalue(int stack_index, bool local)
 {
-	if (index < 0) return -1;
+	if (stack_index < 0) return -1;
 
 	for (size_t i = 0; i < upvalues.size(); i++) {
-		if (upvalues[i].index == index && upvalues[i].is_local) return i;
+		if (upvalues[i].stack_index == stack_index && upvalues[i].is_local) {
+			return i;
+		}
 	}
 
 	// TODO: function?
 	upvalues.push_back(Upvalue{
-		.index = static_cast<size_t>(index),
+		.stack_index = static_cast<size_t>(stack_index),
 		.is_local = local
 		});
-	// Note: function will need to know how many upvalues it has?
+
 	return static_cast<int>(upvalues.size() - 1);
 }
 

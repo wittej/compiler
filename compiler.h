@@ -17,7 +17,7 @@ struct Local {
 };
 
 struct Upvalue {
-	size_t index;
+	size_t stack_index;  // Index in the runtime stack
 	bool is_local;
 };
 
