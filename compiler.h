@@ -21,9 +21,6 @@ struct Upvalue {
 	bool is_local;
 };
 
-/* REFACTOR NOTES: Makes most sense to move some of these features to a
- * dedicated parser first. That can mediate relationship between scanner and
- * compiler. */
 
 /**
  * Single-pass compiler that handles parsing and compilation - gets tokens

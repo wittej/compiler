@@ -233,7 +233,6 @@ Compiler::definition_or_expression()
 	// TODO: synchronize after error
 }
 
-// TODO: refactor into stack
 // TODO: revise for let as needed (basically as a lambda)
 /**
  * Compile a global or local definition (depending on scope depth). Does not
@@ -302,7 +301,6 @@ Compiler::set()
 	}
 }
 
-// TODO: refactor into stack
 // TODO: write a "let" based on this.
 // TOOD: non-anonymous functions (similar to this - possible modification).
 /**
@@ -446,7 +444,6 @@ Compiler::expression()
 	parse_next();
 }
 
-// TODO: consider function
 /**
  * Implements a Lisp-style ternary if with short-circuit evaluation.
  */
